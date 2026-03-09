@@ -1,0 +1,714 @@
+{
+  "generatedAt": "2026-03-08T01:17:44Z",
+  "cards": [
+    {
+      "code": "major_the_fool",
+      "name": "The Fool",
+      "arcanaType": "major",
+      "description": "The Fool in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Fool.",
+      "interpretationClosed": "Closed state meaning for The Fool."
+    },
+    {
+      "code": "major_the_magician",
+      "name": "The Magician",
+      "arcanaType": "major",
+      "description": "The Magician in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Magician.",
+      "interpretationClosed": "Closed state meaning for The Magician."
+    },
+    {
+      "code": "major_the_high_priestess",
+      "name": "The High Priestess",
+      "arcanaType": "major",
+      "description": "The High Priestess in daily reading context.",
+      "interpretationOpen": "Open state meaning for The High Priestess.",
+      "interpretationClosed": "Closed state meaning for The High Priestess."
+    },
+    {
+      "code": "major_the_empress",
+      "name": "The Empress",
+      "arcanaType": "major",
+      "description": "The Empress in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Empress.",
+      "interpretationClosed": "Closed state meaning for The Empress."
+    },
+    {
+      "code": "major_the_emperor",
+      "name": "The Emperor",
+      "arcanaType": "major",
+      "description": "The Emperor in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Emperor.",
+      "interpretationClosed": "Closed state meaning for The Emperor."
+    },
+    {
+      "code": "major_the_hierophant",
+      "name": "The Hierophant",
+      "arcanaType": "major",
+      "description": "The Hierophant in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Hierophant.",
+      "interpretationClosed": "Closed state meaning for The Hierophant."
+    },
+    {
+      "code": "major_the_lovers",
+      "name": "The Lovers",
+      "arcanaType": "major",
+      "description": "The Lovers in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Lovers.",
+      "interpretationClosed": "Closed state meaning for The Lovers."
+    },
+    {
+      "code": "major_the_chariot",
+      "name": "The Chariot",
+      "arcanaType": "major",
+      "description": "The Chariot in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Chariot.",
+      "interpretationClosed": "Closed state meaning for The Chariot."
+    },
+    {
+      "code": "major_strength",
+      "name": "Strength",
+      "arcanaType": "major",
+      "description": "Strength in daily reading context.",
+      "interpretationOpen": "Open state meaning for Strength.",
+      "interpretationClosed": "Closed state meaning for Strength."
+    },
+    {
+      "code": "major_the_hermit",
+      "name": "The Hermit",
+      "arcanaType": "major",
+      "description": "The Hermit in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Hermit.",
+      "interpretationClosed": "Closed state meaning for The Hermit."
+    },
+    {
+      "code": "major_wheel_of_fortune",
+      "name": "Wheel of Fortune",
+      "arcanaType": "major",
+      "description": "Wheel of Fortune in daily reading context.",
+      "interpretationOpen": "Open state meaning for Wheel of Fortune.",
+      "interpretationClosed": "Closed state meaning for Wheel of Fortune."
+    },
+    {
+      "code": "major_justice",
+      "name": "Justice",
+      "arcanaType": "major",
+      "description": "Justice in daily reading context.",
+      "interpretationOpen": "Open state meaning for Justice.",
+      "interpretationClosed": "Closed state meaning for Justice."
+    },
+    {
+      "code": "major_the_hanged_man",
+      "name": "The Hanged Man",
+      "arcanaType": "major",
+      "description": "The Hanged Man in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Hanged Man.",
+      "interpretationClosed": "Closed state meaning for The Hanged Man."
+    },
+    {
+      "code": "major_death",
+      "name": "Death",
+      "arcanaType": "major",
+      "description": "Death in daily reading context.",
+      "interpretationOpen": "Open state meaning for Death.",
+      "interpretationClosed": "Closed state meaning for Death."
+    },
+    {
+      "code": "major_temperance",
+      "name": "Temperance",
+      "arcanaType": "major",
+      "description": "Temperance in daily reading context.",
+      "interpretationOpen": "Open state meaning for Temperance.",
+      "interpretationClosed": "Closed state meaning for Temperance."
+    },
+    {
+      "code": "major_the_devil",
+      "name": "The Devil",
+      "arcanaType": "major",
+      "description": "The Devil in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Devil.",
+      "interpretationClosed": "Closed state meaning for The Devil."
+    },
+    {
+      "code": "major_the_tower",
+      "name": "The Tower",
+      "arcanaType": "major",
+      "description": "The Tower in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Tower.",
+      "interpretationClosed": "Closed state meaning for The Tower."
+    },
+    {
+      "code": "major_the_star",
+      "name": "The Star",
+      "arcanaType": "major",
+      "description": "The Star in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Star.",
+      "interpretationClosed": "Closed state meaning for The Star."
+    },
+    {
+      "code": "major_the_moon",
+      "name": "The Moon",
+      "arcanaType": "major",
+      "description": "The Moon in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Moon.",
+      "interpretationClosed": "Closed state meaning for The Moon."
+    },
+    {
+      "code": "major_the_sun",
+      "name": "The Sun",
+      "arcanaType": "major",
+      "description": "The Sun in daily reading context.",
+      "interpretationOpen": "Open state meaning for The Sun.",
+      "interpretationClosed": "Closed state meaning for The Sun."
+    },
+    {
+      "code": "major_judgement",
+      "name": "Judgement",
+      "arcanaType": "major",
+      "description": "Judgement in daily reading context.",
+      "interpretationOpen": "Open state meaning for Judgement.",
+      "interpretationClosed": "Closed state meaning for Judgement."
+    },
+    {
+      "code": "major_the_world",
+      "name": "The World",
+      "arcanaType": "major",
+      "description": "The World in daily reading context.",
+      "interpretationOpen": "Open state meaning for The World.",
+      "interpretationClosed": "Closed state meaning for The World."
+    },
+    {
+      "code": "minor_cups_ace",
+      "name": "Ace of Cups",
+      "arcanaType": "minor",
+      "description": "Ace of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ace of Cups.",
+      "interpretationClosed": "Closed state meaning for Ace of Cups."
+    },
+    {
+      "code": "minor_cups_two",
+      "name": "Two of Cups",
+      "arcanaType": "minor",
+      "description": "Two of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Two of Cups.",
+      "interpretationClosed": "Closed state meaning for Two of Cups."
+    },
+    {
+      "code": "minor_cups_three",
+      "name": "Three of Cups",
+      "arcanaType": "minor",
+      "description": "Three of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Three of Cups.",
+      "interpretationClosed": "Closed state meaning for Three of Cups."
+    },
+    {
+      "code": "minor_cups_four",
+      "name": "Four of Cups",
+      "arcanaType": "minor",
+      "description": "Four of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Four of Cups.",
+      "interpretationClosed": "Closed state meaning for Four of Cups."
+    },
+    {
+      "code": "minor_cups_five",
+      "name": "Five of Cups",
+      "arcanaType": "minor",
+      "description": "Five of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Five of Cups.",
+      "interpretationClosed": "Closed state meaning for Five of Cups."
+    },
+    {
+      "code": "minor_cups_six",
+      "name": "Six of Cups",
+      "arcanaType": "minor",
+      "description": "Six of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Six of Cups.",
+      "interpretationClosed": "Closed state meaning for Six of Cups."
+    },
+    {
+      "code": "minor_cups_seven",
+      "name": "Seven of Cups",
+      "arcanaType": "minor",
+      "description": "Seven of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Seven of Cups.",
+      "interpretationClosed": "Closed state meaning for Seven of Cups."
+    },
+    {
+      "code": "minor_cups_eight",
+      "name": "Eight of Cups",
+      "arcanaType": "minor",
+      "description": "Eight of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Eight of Cups.",
+      "interpretationClosed": "Closed state meaning for Eight of Cups."
+    },
+    {
+      "code": "minor_cups_nine",
+      "name": "Nine of Cups",
+      "arcanaType": "minor",
+      "description": "Nine of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Nine of Cups.",
+      "interpretationClosed": "Closed state meaning for Nine of Cups."
+    },
+    {
+      "code": "minor_cups_ten",
+      "name": "Ten of Cups",
+      "arcanaType": "minor",
+      "description": "Ten of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ten of Cups.",
+      "interpretationClosed": "Closed state meaning for Ten of Cups."
+    },
+    {
+      "code": "minor_cups_page",
+      "name": "Page of Cups",
+      "arcanaType": "minor",
+      "description": "Page of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Page of Cups.",
+      "interpretationClosed": "Closed state meaning for Page of Cups."
+    },
+    {
+      "code": "minor_cups_knight",
+      "name": "Knight of Cups",
+      "arcanaType": "minor",
+      "description": "Knight of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Knight of Cups.",
+      "interpretationClosed": "Closed state meaning for Knight of Cups."
+    },
+    {
+      "code": "minor_cups_queen",
+      "name": "Queen of Cups",
+      "arcanaType": "minor",
+      "description": "Queen of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for Queen of Cups.",
+      "interpretationClosed": "Closed state meaning for Queen of Cups."
+    },
+    {
+      "code": "minor_cups_king",
+      "name": "King of Cups",
+      "arcanaType": "minor",
+      "description": "King of Cups in daily reading context.",
+      "interpretationOpen": "Open state meaning for King of Cups.",
+      "interpretationClosed": "Closed state meaning for King of Cups."
+    },
+    {
+      "code": "minor_pentacles_ace",
+      "name": "Ace of Pentacles",
+      "arcanaType": "minor",
+      "description": "Ace of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ace of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Ace of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_two",
+      "name": "Two of Pentacles",
+      "arcanaType": "minor",
+      "description": "Two of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Two of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Two of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_three",
+      "name": "Three of Pentacles",
+      "arcanaType": "minor",
+      "description": "Three of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Three of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Three of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_four",
+      "name": "Four of Pentacles",
+      "arcanaType": "minor",
+      "description": "Four of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Four of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Four of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_five",
+      "name": "Five of Pentacles",
+      "arcanaType": "minor",
+      "description": "Five of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Five of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Five of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_six",
+      "name": "Six of Pentacles",
+      "arcanaType": "minor",
+      "description": "Six of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Six of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Six of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_seven",
+      "name": "Seven of Pentacles",
+      "arcanaType": "minor",
+      "description": "Seven of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Seven of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Seven of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_eight",
+      "name": "Eight of Pentacles",
+      "arcanaType": "minor",
+      "description": "Eight of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Eight of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Eight of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_nine",
+      "name": "Nine of Pentacles",
+      "arcanaType": "minor",
+      "description": "Nine of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Nine of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Nine of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_ten",
+      "name": "Ten of Pentacles",
+      "arcanaType": "minor",
+      "description": "Ten of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ten of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Ten of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_page",
+      "name": "Page of Pentacles",
+      "arcanaType": "minor",
+      "description": "Page of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Page of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Page of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_knight",
+      "name": "Knight of Pentacles",
+      "arcanaType": "minor",
+      "description": "Knight of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Knight of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Knight of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_queen",
+      "name": "Queen of Pentacles",
+      "arcanaType": "minor",
+      "description": "Queen of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for Queen of Pentacles.",
+      "interpretationClosed": "Closed state meaning for Queen of Pentacles."
+    },
+    {
+      "code": "minor_pentacles_king",
+      "name": "King of Pentacles",
+      "arcanaType": "minor",
+      "description": "King of Pentacles in daily reading context.",
+      "interpretationOpen": "Open state meaning for King of Pentacles.",
+      "interpretationClosed": "Closed state meaning for King of Pentacles."
+    },
+    {
+      "code": "minor_swords_ace",
+      "name": "Ace of Swords",
+      "arcanaType": "minor",
+      "description": "Ace of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ace of Swords.",
+      "interpretationClosed": "Closed state meaning for Ace of Swords."
+    },
+    {
+      "code": "minor_swords_two",
+      "name": "Two of Swords",
+      "arcanaType": "minor",
+      "description": "Two of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Two of Swords.",
+      "interpretationClosed": "Closed state meaning for Two of Swords."
+    },
+    {
+      "code": "minor_swords_three",
+      "name": "Three of Swords",
+      "arcanaType": "minor",
+      "description": "Three of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Three of Swords.",
+      "interpretationClosed": "Closed state meaning for Three of Swords."
+    },
+    {
+      "code": "minor_swords_four",
+      "name": "Four of Swords",
+      "arcanaType": "minor",
+      "description": "Four of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Four of Swords.",
+      "interpretationClosed": "Closed state meaning for Four of Swords."
+    },
+    {
+      "code": "minor_swords_five",
+      "name": "Five of Swords",
+      "arcanaType": "minor",
+      "description": "Five of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Five of Swords.",
+      "interpretationClosed": "Closed state meaning for Five of Swords."
+    },
+    {
+      "code": "minor_swords_six",
+      "name": "Six of Swords",
+      "arcanaType": "minor",
+      "description": "Six of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Six of Swords.",
+      "interpretationClosed": "Closed state meaning for Six of Swords."
+    },
+    {
+      "code": "minor_swords_seven",
+      "name": "Seven of Swords",
+      "arcanaType": "minor",
+      "description": "Seven of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Seven of Swords.",
+      "interpretationClosed": "Closed state meaning for Seven of Swords."
+    },
+    {
+      "code": "minor_swords_eight",
+      "name": "Eight of Swords",
+      "arcanaType": "minor",
+      "description": "Eight of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Eight of Swords.",
+      "interpretationClosed": "Closed state meaning for Eight of Swords."
+    },
+    {
+      "code": "minor_swords_nine",
+      "name": "Nine of Swords",
+      "arcanaType": "minor",
+      "description": "Nine of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Nine of Swords.",
+      "interpretationClosed": "Closed state meaning for Nine of Swords."
+    },
+    {
+      "code": "minor_swords_ten",
+      "name": "Ten of Swords",
+      "arcanaType": "minor",
+      "description": "Ten of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ten of Swords.",
+      "interpretationClosed": "Closed state meaning for Ten of Swords."
+    },
+    {
+      "code": "minor_swords_page",
+      "name": "Page of Swords",
+      "arcanaType": "minor",
+      "description": "Page of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Page of Swords.",
+      "interpretationClosed": "Closed state meaning for Page of Swords."
+    },
+    {
+      "code": "minor_swords_knight",
+      "name": "Knight of Swords",
+      "arcanaType": "minor",
+      "description": "Knight of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Knight of Swords.",
+      "interpretationClosed": "Closed state meaning for Knight of Swords."
+    },
+    {
+      "code": "minor_swords_queen",
+      "name": "Queen of Swords",
+      "arcanaType": "minor",
+      "description": "Queen of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for Queen of Swords.",
+      "interpretationClosed": "Closed state meaning for Queen of Swords."
+    },
+    {
+      "code": "minor_swords_king",
+      "name": "King of Swords",
+      "arcanaType": "minor",
+      "description": "King of Swords in daily reading context.",
+      "interpretationOpen": "Open state meaning for King of Swords.",
+      "interpretationClosed": "Closed state meaning for King of Swords."
+    },
+    {
+      "code": "minor_wands_ace",
+      "name": "Ace of Wands",
+      "arcanaType": "minor",
+      "description": "Ace of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ace of Wands.",
+      "interpretationClosed": "Closed state meaning for Ace of Wands."
+    },
+    {
+      "code": "minor_wands_two",
+      "name": "Two of Wands",
+      "arcanaType": "minor",
+      "description": "Two of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Two of Wands.",
+      "interpretationClosed": "Closed state meaning for Two of Wands."
+    },
+    {
+      "code": "minor_wands_three",
+      "name": "Three of Wands",
+      "arcanaType": "minor",
+      "description": "Three of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Three of Wands.",
+      "interpretationClosed": "Closed state meaning for Three of Wands."
+    },
+    {
+      "code": "minor_wands_four",
+      "name": "Four of Wands",
+      "arcanaType": "minor",
+      "description": "Four of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Four of Wands.",
+      "interpretationClosed": "Closed state meaning for Four of Wands."
+    },
+    {
+      "code": "minor_wands_five",
+      "name": "Five of Wands",
+      "arcanaType": "minor",
+      "description": "Five of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Five of Wands.",
+      "interpretationClosed": "Closed state meaning for Five of Wands."
+    },
+    {
+      "code": "minor_wands_six",
+      "name": "Six of Wands",
+      "arcanaType": "minor",
+      "description": "Six of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Six of Wands.",
+      "interpretationClosed": "Closed state meaning for Six of Wands."
+    },
+    {
+      "code": "minor_wands_seven",
+      "name": "Seven of Wands",
+      "arcanaType": "minor",
+      "description": "Seven of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Seven of Wands.",
+      "interpretationClosed": "Closed state meaning for Seven of Wands."
+    },
+    {
+      "code": "minor_wands_eight",
+      "name": "Eight of Wands",
+      "arcanaType": "minor",
+      "description": "Eight of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Eight of Wands.",
+      "interpretationClosed": "Closed state meaning for Eight of Wands."
+    },
+    {
+      "code": "minor_wands_nine",
+      "name": "Nine of Wands",
+      "arcanaType": "minor",
+      "description": "Nine of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Nine of Wands.",
+      "interpretationClosed": "Closed state meaning for Nine of Wands."
+    },
+    {
+      "code": "minor_wands_ten",
+      "name": "Ten of Wands",
+      "arcanaType": "minor",
+      "description": "Ten of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Ten of Wands.",
+      "interpretationClosed": "Closed state meaning for Ten of Wands."
+    },
+    {
+      "code": "minor_wands_page",
+      "name": "Page of Wands",
+      "arcanaType": "minor",
+      "description": "Page of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Page of Wands.",
+      "interpretationClosed": "Closed state meaning for Page of Wands."
+    },
+    {
+      "code": "minor_wands_knight",
+      "name": "Knight of Wands",
+      "arcanaType": "minor",
+      "description": "Knight of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Knight of Wands.",
+      "interpretationClosed": "Closed state meaning for Knight of Wands."
+    },
+    {
+      "code": "minor_wands_queen",
+      "name": "Queen of Wands",
+      "arcanaType": "minor",
+      "description": "Queen of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for Queen of Wands.",
+      "interpretationClosed": "Closed state meaning for Queen of Wands."
+    },
+    {
+      "code": "minor_wands_king",
+      "name": "King of Wands",
+      "arcanaType": "minor",
+      "description": "King of Wands in daily reading context.",
+      "interpretationOpen": "Open state meaning for King of Wands.",
+      "interpretationClosed": "Closed state meaning for King of Wands."
+    }
+  ],
+  "deckTheme": {
+    "name": "Default Classic",
+    "isPlaceholder": true,
+    "assets": {
+      "major_death": "/themes/default/major_death.jpg",
+      "major_judgement": "/themes/default/major_judgement.jpg",
+      "major_justice": "/themes/default/major_justice.jpg",
+      "major_strength": "/themes/default/major_strength.jpg",
+      "major_temperance": "/themes/default/major_temperance.jpg",
+      "major_the_chariot": "/themes/default/major_the_chariot.jpg",
+      "major_the_devil": "/themes/default/major_the_devil.jpg",
+      "major_the_emperor": "/themes/default/major_the_emperor.jpg",
+      "major_the_empress": "/themes/default/major_the_empress.jpg",
+      "major_the_fool": "/themes/default/major_the_fool.jpg",
+      "major_the_hanged_man": "/themes/default/major_the_hanged_man.jpg",
+      "major_the_hermit": "/themes/default/major_the_hermit.jpg",
+      "major_the_hierophant": "/themes/default/major_the_hierophant.jpg",
+      "major_the_high_priestess": "/themes/default/major_the_high_priestess.jpg",
+      "major_the_lovers": "/themes/default/major_the_lovers.jpg",
+      "major_the_magician": "/themes/default/major_the_magician.jpg",
+      "major_the_moon": "/themes/default/major_the_moon.jpg",
+      "major_the_star": "/themes/default/major_the_star.jpg",
+      "major_the_sun": "/themes/default/major_the_sun.jpg",
+      "major_the_tower": "/themes/default/major_the_tower.jpg",
+      "major_the_world": "/themes/default/major_the_world.jpg",
+      "major_wheel_of_fortune": "/themes/default/major_wheel_of_fortune.jpg",
+      "minor_cups_ace": "/themes/default/minor_cups_ace.jpg",
+      "minor_cups_eight": "/themes/default/minor_cups_eight.jpg",
+      "minor_cups_five": "/themes/default/minor_cups_five.jpg",
+      "minor_cups_four": "/themes/default/minor_cups_four.jpg",
+      "minor_cups_king": "/themes/default/minor_cups_king.jpg",
+      "minor_cups_knight": "/themes/default/minor_cups_knight.jpg",
+      "minor_cups_nine": "/themes/default/minor_cups_nine.jpg",
+      "minor_cups_page": "/themes/default/minor_cups_page.jpg",
+      "minor_cups_queen": "/themes/default/minor_cups_queen.jpg",
+      "minor_cups_seven": "/themes/default/minor_cups_seven.jpg",
+      "minor_cups_six": "/themes/default/minor_cups_six.jpg",
+      "minor_cups_ten": "/themes/default/minor_cups_ten.jpg",
+      "minor_cups_three": "/themes/default/minor_cups_three.jpg",
+      "minor_cups_two": "/themes/default/minor_cups_two.jpg",
+      "minor_pentacles_ace": "/themes/default/minor_pentacles_ace.jpg",
+      "minor_pentacles_eight": "/themes/default/minor_pentacles_eight.jpg",
+      "minor_pentacles_five": "/themes/default/minor_pentacles_five.jpg",
+      "minor_pentacles_four": "/themes/default/minor_pentacles_four.jpg",
+      "minor_pentacles_king": "/themes/default/minor_pentacles_king.jpg",
+      "minor_pentacles_knight": "/themes/default/minor_pentacles_knight.jpg",
+      "minor_pentacles_nine": "/themes/default/minor_pentacles_nine.jpg",
+      "minor_pentacles_page": "/themes/default/minor_pentacles_page.jpg",
+      "minor_pentacles_queen": "/themes/default/minor_pentacles_queen.jpg",
+      "minor_pentacles_seven": "/themes/default/minor_pentacles_seven.jpg",
+      "minor_pentacles_six": "/themes/default/minor_pentacles_six.jpg",
+      "minor_pentacles_ten": "/themes/default/minor_pentacles_ten.jpg",
+      "minor_pentacles_three": "/themes/default/minor_pentacles_three.jpg",
+      "minor_pentacles_two": "/themes/default/minor_pentacles_two.jpg",
+      "minor_swords_ace": "/themes/default/minor_swords_ace.jpg",
+      "minor_swords_eight": "/themes/default/minor_swords_eight.jpg",
+      "minor_swords_five": "/themes/default/minor_swords_five.jpg",
+      "minor_swords_four": "/themes/default/minor_swords_four.jpg",
+      "minor_swords_king": "/themes/default/minor_swords_king.jpg",
+      "minor_swords_knight": "/themes/default/minor_swords_knight.jpg",
+      "minor_swords_nine": "/themes/default/minor_swords_nine.jpg",
+      "minor_swords_page": "/themes/default/minor_swords_page.jpg",
+      "minor_swords_queen": "/themes/default/minor_swords_queen.jpg",
+      "minor_swords_seven": "/themes/default/minor_swords_seven.jpg",
+      "minor_swords_six": "/themes/default/minor_swords_six.jpg",
+      "minor_swords_ten": "/themes/default/minor_swords_ten.jpg",
+      "minor_swords_three": "/themes/default/minor_swords_three.jpg",
+      "minor_swords_two": "/themes/default/minor_swords_two.jpg",
+      "minor_wands_ace": "/themes/default/minor_wands_ace.jpg",
+      "minor_wands_eight": "/themes/default/minor_wands_eight.jpg",
+      "minor_wands_five": "/themes/default/minor_wands_five.jpg",
+      "minor_wands_four": "/themes/default/minor_wands_four.jpg",
+      "minor_wands_king": "/themes/default/minor_wands_king.jpg",
+      "minor_wands_knight": "/themes/default/minor_wands_knight.jpg",
+      "minor_wands_nine": "/themes/default/minor_wands_nine.jpg",
+      "minor_wands_page": "/themes/default/minor_wands_page.jpg",
+      "minor_wands_queen": "/themes/default/minor_wands_queen.jpg",
+      "minor_wands_seven": "/themes/default/minor_wands_seven.jpg",
+      "minor_wands_six": "/themes/default/minor_wands_six.jpg",
+      "minor_wands_ten": "/themes/default/minor_wands_ten.jpg",
+      "minor_wands_three": "/themes/default/minor_wands_three.jpg",
+      "minor_wands_two": "/themes/default/minor_wands_two.jpg"
+    }
+  },
+  "adminLogin": "admin"
+}

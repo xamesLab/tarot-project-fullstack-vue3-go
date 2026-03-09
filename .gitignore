@@ -1,0 +1,20 @@
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Frontend
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Backend
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Common
+node_modules/
+dist/
+coverage/
+*.log
