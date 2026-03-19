@@ -53,3 +53,20 @@
   - проверка card flip mechanics по коду фронтенда.
 - Запуск:
   - `powershell -ExecutionPolicy Bypass -File deploy/scripts/check-frontend-v0.1.1.ps1`
+
+## Smoke API (v0.1.2 ask-flow)
+- Скрипт smoke: `deploy/scripts/smoke-v0.1.2-ask.ps1`
+- Назначение:
+  - проверка async flow `POST /api/ask -> POST /api/gateway/callback -> GET /api/ask/{request_id}`;
+  - проверка success callback и error callback сценариев.
+- Перед запуском:
+  - backend API запущен;
+  - backend настроен на доступный Gateway (`GATEWAY_BASE_URL`, `GATEWAY_REQUEST_PATH`);
+  - callback verification настроен:
+    - либо `GATEWAY_CALLBACK_ALLOWLIST`,
+    - либо `GATEWAY_CALLBACK_HMAC_SECRET` (в этом случае передать тот же secret в скрипт через `-CallbackHmacSecret`).
+- Запуск:
+  - `powershell -ExecutionPolicy Bypass -File deploy/scripts/smoke-v0.1.2-ask.ps1`
+  - с параметрами:
+    - `-ApiBaseUrl http://127.0.0.1:8080`
+    - `-CallbackHmacSecret <secret>`

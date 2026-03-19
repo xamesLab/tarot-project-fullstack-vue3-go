@@ -29,6 +29,7 @@ func registerAPIRoutes(engine *gin.Engine, deps routeDependencies) {
 
 	registerHealthRoutes(api, deps)
 	registerAuthRoutes(api, deps)
+	registerGatewayRoutes(api, deps)
 	registerProtectedRoutes(api, deps)
 }
 
@@ -43,6 +44,12 @@ func registerAuthRoutes(api *gin.RouterGroup, deps routeDependencies) {
 	authGroup.POST("/login", deps.authHandler.Login)
 }
 
+func registerGatewayRoutes(api *gin.RouterGroup, deps routeDependencies) {
+	gatewayGroup := api.Group("/gateway")
+	gatewayGroup.Use(deps.gatewayCallbackAuth)
+	gatewayGroup.POST("/callback", deps.askHandler.GatewayCallback)
+}
+
 func registerProtectedRoutes(api *gin.RouterGroup, deps routeDependencies) {
 	authProtected := api.Group("")
 	authProtected.Use(middleware.AuthRequired(deps.jwtManager))
@@ -53,6 +60,9 @@ func registerProtectedRoutes(api *gin.RouterGroup, deps routeDependencies) {
 	authProtected.PATCH("/me/profile", deps.settingsHandler.PatchMeSettings)
 	authProtected.GET("/decks/available", deps.decksHandler.ListAvailable)
 	authProtected.GET("/deck-themes", deps.deckThemesHandler.List)
+	authProtected.GET("/gateway/health", deps.gatewayHealthHandler.Get)
+	authProtected.POST("/ask", deps.askHandler.Create)
+	authProtected.GET("/ask/:request_id", deps.askHandler.Get)
 	authProtected.GET("/reading/today", deps.readingHandler.GetToday)
 	authProtected.POST("/reading/generate", deps.readingHandler.GenerateSpreads)
 

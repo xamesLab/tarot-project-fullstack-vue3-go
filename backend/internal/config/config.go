@@ -18,6 +18,13 @@ type Config struct {
 	MongoURI    string
 	MongoDBName string
 
+	GatewayBaseURL            string
+	GatewayRequestPath        string
+	GatewayTimeout            time.Duration
+	BackendPublicBaseURL      string
+	GatewayCallbackHMACSecret string
+	GatewayCallbackAllowlist  []string
+
 	HTTPReadHeaderTimeout time.Duration
 	HTTPReadTimeout       time.Duration
 	HTTPWriteTimeout      time.Duration
@@ -33,19 +40,28 @@ func Load(envFile string) (Config, error) {
 	}
 
 	cfg := Config{
-		AppPort:               getEnv("APP_PORT", "8080"),
-		AppEnv:                getEnv("APP_ENV", "dev"),
-		JWTSecret:             getEnv("JWT_SECRET", ""),
-		JWTTTL:                getEnvDuration("JWT_TTL", 24*time.Hour),
-		MongoURI:              getEnv("MONGO_URI", ""),
-		MongoDBName:           getEnv("MONGO_DB_NAME", ""),
-		HTTPReadHeaderTimeout: getEnvDuration("HTTP_READ_HEADER_TIMEOUT", 5*time.Second),
-		HTTPReadTimeout:       getEnvDuration("HTTP_READ_TIMEOUT", 15*time.Second),
-		HTTPWriteTimeout:      getEnvDuration("HTTP_WRITE_TIMEOUT", 15*time.Second),
-		HTTPIdleTimeout:       getEnvDuration("HTTP_IDLE_TIMEOUT", 60*time.Second),
-		ShutdownTimeout:       getEnvDuration("SHUTDOWN_TIMEOUT", 10*time.Second),
-		MongoConnectTimeout:   getEnvDuration("MONGO_CONNECT_TIMEOUT", 10*time.Second),
-		MongoPingTimeout:      getEnvDuration("MONGO_PING_TIMEOUT", 3*time.Second),
+		AppPort:              getEnv("APP_PORT", "8080"),
+		AppEnv:               getEnv("APP_ENV", "dev"),
+		JWTSecret:            getEnv("JWT_SECRET", ""),
+		JWTTTL:               getEnvDuration("JWT_TTL", 24*time.Hour),
+		MongoURI:             getEnv("MONGO_URI", ""),
+		MongoDBName:          getEnv("MONGO_DB_NAME", ""),
+		GatewayBaseURL:       getEnv("GATEWAY_BASE_URL", "https://api.xmlab.ru"),
+		GatewayRequestPath:   normalizeURLPath(getEnv("GATEWAY_REQUEST_PATH", "/request")),
+		GatewayTimeout:       getEnvDuration("GATEWAY_TIMEOUT", 10*time.Second),
+		BackendPublicBaseURL: getEnv("BACKEND_PUBLIC_BASE_URL", ""),
+		GatewayCallbackHMACSecret: getEnv(
+			"GATEWAY_CALLBACK_HMAC_SECRET",
+			"",
+		),
+		GatewayCallbackAllowlist: getEnvCSV("GATEWAY_CALLBACK_ALLOWLIST"),
+		HTTPReadHeaderTimeout:    getEnvDuration("HTTP_READ_HEADER_TIMEOUT", 5*time.Second),
+		HTTPReadTimeout:          getEnvDuration("HTTP_READ_TIMEOUT", 15*time.Second),
+		HTTPWriteTimeout:         getEnvDuration("HTTP_WRITE_TIMEOUT", 15*time.Second),
+		HTTPIdleTimeout:          getEnvDuration("HTTP_IDLE_TIMEOUT", 60*time.Second),
+		ShutdownTimeout:          getEnvDuration("SHUTDOWN_TIMEOUT", 10*time.Second),
+		MongoConnectTimeout:      getEnvDuration("MONGO_CONNECT_TIMEOUT", 10*time.Second),
+		MongoPingTimeout:         getEnvDuration("MONGO_PING_TIMEOUT", 3*time.Second),
 	}
 
 	if err := validate(cfg); err != nil {
@@ -100,6 +116,34 @@ func getEnvDuration(key string, fallback time.Duration) time.Duration {
 	return d
 }
 
+func getEnvCSV(key string) []string {
+	v := strings.TrimSpace(os.Getenv(key))
+	if v == "" {
+		return nil
+	}
+
+	parts := strings.Split(v, ",")
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		item := strings.TrimSpace(part)
+		if item != "" {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func normalizeURLPath(path string) string {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return "/request"
+	}
+	if !strings.HasPrefix(path, "/") {
+		return "/" + path
+	}
+	return path
+}
+
 func digitsOnly(s string) bool {
 	for _, ch := range s {
 		if ch < '0' || ch > '9' {
@@ -118,6 +162,15 @@ func validate(cfg Config) error {
 	}
 	if strings.TrimSpace(cfg.MongoDBName) == "" {
 		return errors.New("MONGO_DB_NAME is required")
+	}
+	if strings.TrimSpace(cfg.GatewayBaseURL) == "" {
+		return errors.New("GATEWAY_BASE_URL is required")
+	}
+	if strings.TrimSpace(cfg.GatewayRequestPath) == "" {
+		return errors.New("GATEWAY_REQUEST_PATH is required")
+	}
+	if cfg.GatewayTimeout <= 0 {
+		return errors.New("GATEWAY_TIMEOUT must be > 0")
 	}
 	if strings.TrimSpace(cfg.JWTSecret) == "" {
 		return errors.New("JWT_SECRET is required")

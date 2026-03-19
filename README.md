@@ -44,6 +44,14 @@
   - `specs/version-0.1.1/final-status-v0.1.1.md`
   - `specs/version-0.1.1/testing-report-v0.1.1.md`
   - `specs/version-0.1.1/acceptance-criteria-check-v0.1.1.md`
+- Этап `v0.1.2`: запущен (`in progress`).
+- Документы этапа:
+  - `specs/version-0.1.2/requirements-v0.1.2.md`
+  - `specs/version-0.1.2/architecture-v0.1.2.md`
+  - `specs/version-0.1.2/steps.md`
+  - `specs/version-0.1.2/testing-report-v0.1.2.md`
+  - `specs/version-0.1.2/acceptance-criteria-check-v0.1.2.md`
+  - `specs/version-0.1.2/final-status-v0.1.2.md`
 
 ## Текущее ограничение MVP
 Границы MVP и критерии приемки зафиксированы в:
@@ -73,5 +81,5 @@
 - `specs/main/mvp-final-status.md`
 
 ## Ближайшие шаги
-1. MVP и `v0.1.1` закрыты. Далее возможны только задачи следующего post-MVP этапа.
+1. Выполнять чек-лист `specs/version-0.1.2/steps.md`.
 

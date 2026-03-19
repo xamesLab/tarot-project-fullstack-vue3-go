@@ -92,6 +92,7 @@ func ensureIndexes(ctx context.Context, db *mongo.Database) error {
 	deckThemes := db.Collection("deck_themes")
 	decks := db.Collection("decks")
 	rolePolicies := db.Collection("role_policies")
+	askRequests := db.Collection("ask_requests")
 
 	_, err := users.Indexes().CreateOne(ctx, mongo.IndexModel{
 		Keys:    bson.D{{Key: "login", Value: 1}},
@@ -165,11 +166,27 @@ func ensureIndexes(ctx context.Context, db *mongo.Database) error {
 		return fmt.Errorf("create index role_policies.role: %w", err)
 	}
 
+	_, err = askRequests.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "requestId", Value: 1}},
+		Options: options.Index().SetName("uniq_ask_requests_request_id").SetUnique(true),
+	})
+	if err != nil {
+		return fmt.Errorf("create index ask_requests.requestId: %w", err)
+	}
+
+	_, err = askRequests.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "userId", Value: 1}, {Key: "createdAt", Value: -1}},
+		Options: options.Index().SetName("idx_ask_requests_user_created_at"),
+	})
+	if err != nil {
+		return fmt.Errorf("create index ask_requests(userId,createdAt): %w", err)
+	}
+
 	return nil
 }
 
 func printStats(ctx context.Context, db *mongo.Database) error {
-	collections := []string{"users", "cards", "deck_themes", "decks", "daily_readings", "role_policies"}
+	collections := []string{"users", "cards", "deck_themes", "decks", "daily_readings", "role_policies", "ask_requests"}
 	for _, name := range collections {
 		coll := db.Collection(name)
 

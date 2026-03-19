@@ -28,6 +28,12 @@
 - `HTTP_READ_HEADER_TIMEOUT`, `HTTP_READ_TIMEOUT`, `HTTP_WRITE_TIMEOUT`, `HTTP_IDLE_TIMEOUT` - HTTP таймауты.
 - `SHUTDOWN_TIMEOUT` - таймаут graceful shutdown.
 - `MONGO_CONNECT_TIMEOUT`, `MONGO_PING_TIMEOUT` - таймауты подключения и ping MongoDB.
+- `GATEWAY_BASE_URL` - базовый URL Gateway (`v0.1.2`: `https://api.xmlab.ru`).
+- `GATEWAY_REQUEST_PATH` - path Gateway request endpoint (по умолчанию `/request`).
+- `GATEWAY_TIMEOUT` - таймаут HTTP вызова Gateway.
+- `BACKEND_PUBLIC_BASE_URL` - публичный base URL backend для формирования `callback_url`.
+- `GATEWAY_CALLBACK_HMAC_SECRET` - HMAC secret для проверки callback подписи (`X-Signature`).
+- `GATEWAY_CALLBACK_ALLOWLIST` - allowlist IP для callback (CSV, например `127.0.0.1,::1`).
 
 ## Run API (Backend Skeleton)
 Запуск:
@@ -73,6 +79,29 @@ Auth endpoints:
   - генерирует новый комплект `spreadA` + `spreadB` в рамках дневного лимита роли.
   - `user` по умолчанию: `10` генераций/сутки.
   - `admin`: без лимита.
+- `POST /api/ask` (Bearer token required, `v0.1.2`)
+  - создает async-задачу на Gateway и возвращает `request_id`.
+  - payload: `{ "text": "..." }`
+  - response: `{ "request_id": "...", "status": "accepted|queued|processing|success|error" }`
+- `GET /api/ask/{request_id}` (Bearer token required, `v0.1.2`)
+  - возвращает текущий статус async-задачи пользователя.
+  - response: `{ "request_id": "...", "status": "...", "result_text": "...", "error_code": "...", "error_message": "..." }`
+- `GET /api/gateway/health` (Bearer token required, `v0.1.2`)
+  - диагностический endpoint для frontend: проверка доступности Gateway через backend.
+  - backend выполняет `GET <GATEWAY_BASE_URL>/health`.
+  - пример response: `{ "status": "ok", "uptime": 81720.198966473 }`
+  - при недоступности Gateway возвращает `gateway_timeout|gateway_bad_response|gateway_unavailable`.
+
+Gateway callback endpoint (`v0.1.2`):
+- `POST /api/gateway/callback` (без Bearer token)
+  - принимает callback от Gateway.
+  - поддерживает `status: success|error`.
+  - для `success` ожидается поле `text`.
+  - для `error` ожидаются поля `error` и `message`.
+  - endpoint защищен middleware:
+    - allowlist по IP (`GATEWAY_CALLBACK_ALLOWLIST`) и/или
+    - HMAC подпись (`X-Signature`, sha256) через `GATEWAY_CALLBACK_HMAC_SECRET`.
+  - если и allowlist, и hmac secret не заданы, callback endpoint вернет `invalid_config`.
 
 Role-based check:
 - `GET /api/admin/access-check` (Bearer + role `admin`)
@@ -168,5 +197,7 @@ Dry-run + экспорт payload:
   - `daily_readings(userId,date)` unique,
   - `cards.code` unique,
   - `deck_themes.name` unique,
-  - `role_policies.role` unique;
+  - `role_policies.role` unique,
+  - `ask_requests.requestId` unique,
+  - `ask_requests(userId,createdAt)` index;
 - выводит статистику документов по ключевым коллекциям.
