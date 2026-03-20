@@ -122,6 +122,45 @@ func (s *Service) generateAndStoreSpreads(
 	return s.readings.UpdateSpreads(ctx, daily.ID, spreadA, spreadB, currentDeckThemeID)
 }
 
+func (s *Service) generateCardOfDayOnly(
+	ctx context.Context,
+	daily *models.DailyReading,
+	currentDeckThemeID *primitive.ObjectID,
+) (*models.DailyReading, error) {
+	cardOfDay, err := s.drawCard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.readings.UpdateCardOfDay(ctx, daily.ID, cardOfDay, currentDeckThemeID)
+}
+
+func (s *Service) generateSpreadAOnly(
+	ctx context.Context,
+	daily *models.DailyReading,
+	currentDeckThemeID *primitive.ObjectID,
+) (*models.DailyReading, error) {
+	spreadA, err := s.drawSpread(ctx, 3)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.readings.UpdateSpreadA(ctx, daily.ID, spreadA, currentDeckThemeID)
+}
+
+func (s *Service) generateSpreadBOnly(
+	ctx context.Context,
+	daily *models.DailyReading,
+	currentDeckThemeID *primitive.ObjectID,
+) (*models.DailyReading, error) {
+	spreadB, err := s.drawSpread(ctx, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.readings.UpdateSpreadB(ctx, daily.ID, spreadB, currentDeckThemeID)
+}
+
 func resolveReadingDeckID(user *models.User) *primitive.ObjectID {
 	if user == nil {
 		return nil

@@ -36,6 +36,36 @@ func (h *ReadingHandler) GenerateSpreads(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+func (h *ReadingHandler) GenerateCardOfDay(c *gin.Context) {
+	result, err := h.service.GenerateCardOfDay(c.Request.Context(), currentUserID(c))
+	if err != nil {
+		h.mapError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (h *ReadingHandler) GenerateSpreadA(c *gin.Context) {
+	result, err := h.service.GenerateSpreadA(c.Request.Context(), currentUserID(c))
+	if err != nil {
+		h.mapError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (h *ReadingHandler) GenerateSpreadB(c *gin.Context) {
+	result, err := h.service.GenerateSpreadB(c.Request.Context(), currentUserID(c))
+	if err != nil {
+		h.mapError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 func (h *ReadingHandler) mapError(c *gin.Context, err error) {
 	respondByError(
 		c,

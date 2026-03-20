@@ -79,6 +79,12 @@ Auth endpoints:
   - генерирует новый комплект `spreadA` + `spreadB` в рамках дневного лимита роли.
   - `user` по умолчанию: `10` генераций/сутки.
   - `admin`: без лимита.
+- `POST /api/reading/generate/card-of-day` (Bearer token required, `v0.1.2`)
+  - генерирует новую карту дня в рамках дневного лимита роли.
+- `POST /api/reading/generate/spread-a` (Bearer token required, `v0.1.2`)
+  - генерирует новый расклад A (3 карты) в рамках дневного лимита роли.
+- `POST /api/reading/generate/spread-b` (Bearer token required, `v0.1.2`)
+  - генерирует новый расклад B (5 карт) в рамках дневного лимита роли.
 - `POST /api/ask` (Bearer token required, `v0.1.2`)
   - создает async-задачу на Gateway и возвращает `request_id`.
   - payload: `{ "text": "..." }`

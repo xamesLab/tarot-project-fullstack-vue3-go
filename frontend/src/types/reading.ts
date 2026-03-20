@@ -21,3 +21,15 @@ export interface TodayReading {
   spreadGenerationsRemaining?: number;
   canGenerateMore: boolean;
 }
+
+export interface GatewayHealthResponse {
+  status: "ok";
+  uptime: number;
+}
+
+export interface GatewayHealthStatus {
+  status: "success" | "error";
+  title: string;
+  message: string;
+  uptime?: number;
+}

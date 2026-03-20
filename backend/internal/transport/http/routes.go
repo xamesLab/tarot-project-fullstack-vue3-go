@@ -65,6 +65,9 @@ func registerProtectedRoutes(api *gin.RouterGroup, deps routeDependencies) {
 	authProtected.GET("/ask/:request_id", deps.askHandler.Get)
 	authProtected.GET("/reading/today", deps.readingHandler.GetToday)
 	authProtected.POST("/reading/generate", deps.readingHandler.GenerateSpreads)
+	authProtected.POST("/reading/generate/card-of-day", deps.readingHandler.GenerateCardOfDay)
+	authProtected.POST("/reading/generate/spread-a", deps.readingHandler.GenerateSpreadA)
+	authProtected.POST("/reading/generate/spread-b", deps.readingHandler.GenerateSpreadB)
 
 	registerAdminRoutes(authProtected, deps)
 }

@@ -94,3 +94,129 @@ func (r *DailyReadingRepository) UpdateSpreads(
 
 	return &out, nil
 }
+
+func (r *DailyReadingRepository) UpdateCardOfDay(
+	ctx context.Context,
+	id primitive.ObjectID,
+	cardOfDay models.CardDraw,
+	deckThemeID *primitive.ObjectID,
+) (*models.DailyReading, error) {
+	now := time.Now().UTC()
+	setFields := bson.M{
+		"cardOfDay":             cardOfDay,
+		"lastSpreadGeneratedAt": now,
+		"updatedAt":             now,
+	}
+
+	if deckThemeID != nil {
+		setFields["deckThemeId"] = *deckThemeID
+	}
+
+	update := bson.M{
+		"$set": setFields,
+		"$inc": bson.M{"spreadGenerationsCount": 1},
+	}
+	if deckThemeID == nil {
+		update["$unset"] = bson.M{"deckThemeId": ""}
+	}
+
+	var out models.DailyReading
+	err := r.coll.FindOneAndUpdate(
+		ctx,
+		bson.M{"_id": id},
+		update,
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	).Decode(&out)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("update daily reading card of day: %w", err)
+	}
+
+	return &out, nil
+}
+
+func (r *DailyReadingRepository) UpdateSpreadA(
+	ctx context.Context,
+	id primitive.ObjectID,
+	spreadA []models.CardDraw,
+	deckThemeID *primitive.ObjectID,
+) (*models.DailyReading, error) {
+	now := time.Now().UTC()
+	setFields := bson.M{
+		"spreadA":               spreadA,
+		"lastSpreadGeneratedAt": now,
+		"updatedAt":             now,
+	}
+
+	if deckThemeID != nil {
+		setFields["deckThemeId"] = *deckThemeID
+	}
+
+	update := bson.M{
+		"$set": setFields,
+		"$inc": bson.M{"spreadGenerationsCount": 1},
+	}
+	if deckThemeID == nil {
+		update["$unset"] = bson.M{"deckThemeId": ""}
+	}
+
+	var out models.DailyReading
+	err := r.coll.FindOneAndUpdate(
+		ctx,
+		bson.M{"_id": id},
+		update,
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	).Decode(&out)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("update daily reading spread A: %w", err)
+	}
+
+	return &out, nil
+}
+
+func (r *DailyReadingRepository) UpdateSpreadB(
+	ctx context.Context,
+	id primitive.ObjectID,
+	spreadB []models.CardDraw,
+	deckThemeID *primitive.ObjectID,
+) (*models.DailyReading, error) {
+	now := time.Now().UTC()
+	setFields := bson.M{
+		"spreadB":               spreadB,
+		"lastSpreadGeneratedAt": now,
+		"updatedAt":             now,
+	}
+
+	if deckThemeID != nil {
+		setFields["deckThemeId"] = *deckThemeID
+	}
+
+	update := bson.M{
+		"$set": setFields,
+		"$inc": bson.M{"spreadGenerationsCount": 1},
+	}
+	if deckThemeID == nil {
+		update["$unset"] = bson.M{"deckThemeId": ""}
+	}
+
+	var out models.DailyReading
+	err := r.coll.FindOneAndUpdate(
+		ctx,
+		bson.M{"_id": id},
+		update,
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	).Decode(&out)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("update daily reading spread B: %w", err)
+	}
+
+	return &out, nil
+}

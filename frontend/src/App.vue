@@ -50,6 +50,5 @@ import ModeSwitcher from "./components/ModeSwitcher.vue";
   top: 14px;
   right: 14px;
   z-index: 20;
-  width: min(340px, calc(100vw - 24px));
 }
 </style>

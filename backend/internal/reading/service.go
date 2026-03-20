@@ -106,3 +106,57 @@ func (s *Service) GenerateSpreads(ctx context.Context, userID string) (*TodayVie
 
 	return s.toTodayView(ctx, updated, limit, resolveReadingDeckID(user))
 }
+
+func (s *Service) GenerateCardOfDay(ctx context.Context, userID string) (*TodayView, error) {
+	user, _, _, daily, limit, err := s.ensureDaily(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if limit != models.UnlimitedDailySpreadLimit && daily.SpreadGenerationsCount >= limit {
+		return nil, ErrDailySpreadLimitReached
+	}
+
+	updated, err := s.generateCardOfDayOnly(ctx, daily, resolveReadingDeckID(user))
+	if err != nil {
+		return nil, err
+	}
+
+	return s.toTodayView(ctx, updated, limit, resolveReadingDeckID(user))
+}
+
+func (s *Service) GenerateSpreadA(ctx context.Context, userID string) (*TodayView, error) {
+	user, _, _, daily, limit, err := s.ensureDaily(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if limit != models.UnlimitedDailySpreadLimit && daily.SpreadGenerationsCount >= limit {
+		return nil, ErrDailySpreadLimitReached
+	}
+
+	updated, err := s.generateSpreadAOnly(ctx, daily, resolveReadingDeckID(user))
+	if err != nil {
+		return nil, err
+	}
+
+	return s.toTodayView(ctx, updated, limit, resolveReadingDeckID(user))
+}
+
+func (s *Service) GenerateSpreadB(ctx context.Context, userID string) (*TodayView, error) {
+	user, _, _, daily, limit, err := s.ensureDaily(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if limit != models.UnlimitedDailySpreadLimit && daily.SpreadGenerationsCount >= limit {
+		return nil, ErrDailySpreadLimitReached
+	}
+
+	updated, err := s.generateSpreadBOnly(ctx, daily, resolveReadingDeckID(user))
+	if err != nil {
+		return nil, err
+	}
+
+	return s.toTodayView(ctx, updated, limit, resolveReadingDeckID(user))
+}
