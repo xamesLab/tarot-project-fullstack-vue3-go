@@ -1,29 +1,50 @@
 <template>
-  <div class="mode-toggle" :class="modeToggleClass">
+  <div
+    v-if="props.type === 'locale'"
+    class="mode-toggle locale-toggle"
+    role="tablist"
+    aria-label="Language switcher"
+  >
     <button
-      v-for="option in options"
+      v-for="option in localeOptions"
       :key="option.value"
-      class="toggle-btn"
-      :class="{ 'is-active': modelValue === option.value }"
+      class="lang-segment"
+      :class="{ active: props.modelValue === option.value }"
       type="button"
+      role="tab"
+      :aria-selected="props.modelValue === option.value"
       :aria-label="option.label"
-      :aria-pressed="modelValue === option.value"
       @click="select(option.value)"
     >
-      <Icon :name="option.icon" :size="20" />
+      <span class="segment-text">{{ option.text }}</span>
+      <Icon :name="option.icon" :size="14" class-name="toggle-icon-fallback" />
     </button>
   </div>
+
+  <button
+    v-else
+    class="mode-toggle theme-toggle-btn"
+    type="button"
+    :aria-label="themeButtonLabel"
+    @click="toggleTheme"
+  >
+    <span class="theme-symbol">{{ themeSymbol }}</span>
+    <Icon :name="themeIconName" :size="15" class-name="toggle-icon-fallback" />
+  </button>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+
 import Icon from "./Icon.vue";
 
 export type ModeToggleType = "locale" | "theme";
 
-interface ModeToggleOption {
-  value: string;
+interface LocaleOption {
+  value: "en" | "ru";
   label: string;
-  icon: "language" | "language_ru" | "sun" | "moon";
+  text: string;
+  icon: "language" | "language_ru";
 }
 
 const props = defineProps<{
@@ -35,89 +56,89 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
-const localeOptions: ModeToggleOption[] = [
-  { value: "ru", label: "Русский", icon: "language_ru" },
-  { value: "en", label: "English", icon: "language" }
+const localeOptions: LocaleOption[] = [
+  { value: "ru", label: "Russian", text: "RU", icon: "language_ru" },
+  { value: "en", label: "English", text: "EN", icon: "language" }
 ];
 
-const themeOptions: ModeToggleOption[] = [
-  { value: "light", label: "Light", icon: "sun" },
-  { value: "dark", label: "Dark", icon: "moon" }
-];
-
-const options = props.type === "locale" ? localeOptions : themeOptions;
-
-const modeToggleClass = props.type === "locale" ? "locale-toggle" : "theme-toggle";
+const isDarkTheme = computed(() => props.modelValue === "dark");
+const themeSymbol = computed(() => (isDarkTheme.value ? "\u2600" : "\u263D"));
+const themeIconName = computed(() => (isDarkTheme.value ? "sun" : "moon"));
+const themeButtonLabel = computed(() =>
+  isDarkTheme.value ? "Switch to light theme" : "Switch to dark theme"
+);
 
 function select(value: string) {
   emit("update:modelValue", value);
+}
+
+function toggleTheme() {
+  const nextTheme = props.modelValue === "dark" ? "light" : "dark";
+  emit("update:modelValue", nextTheme);
 }
 </script>
 
 <style scoped>
 .mode-toggle {
-  display: flex;
-  background: transparent;
-  border-radius: 6px;
-  overflow: hidden;
+  transition: background 0.4s, color 0.4s, border-color 0.3s;
 }
 
-.toggle-btn {
-  display: flex;
+.locale-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.lang-segment {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  background: transparent;
+  gap: 6px;
+  min-width: 48px;
+  padding: 6px 14px;
   border: none;
+  background: transparent;
+  color: var(--text-muted);
   cursor: pointer;
-  color: var(--text-muted, #666);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  transition: background 0.2s, color 0.2s, border-color 0.3s;
 }
 
-.toggle-btn:hover {
-  color: var(--text, #333);
-  background: rgba(128, 128, 128, 0.1);
+.lang-segment.active {
+  background: var(--surface-elevated);
+  color: var(--accent);
 }
 
-.toggle-btn.is-active {
-  color: var(--primary, #8b5cf6);
+.theme-toggle-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.4s, color 0.4s, border-color 0.3s;
 }
 
-.toggle-btn.is-active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 2px;
-  background: var(--primary, #8b5cf6);
-  border-radius: 2px 2px 0 0;
-  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.theme-toggle-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
-@keyframes slideIn {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-  to {
-    width: 20px;
-    opacity: 1;
-  }
+.theme-symbol {
+  font-family: var(--font-display);
 }
 
-/* Dark mode adjustments */
-.dark .toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.dark .toggle-btn.is-active {
-  color: var(--primary-light, #a78bfa);
-}
-
-.dark .toggle-btn.is-active::after {
-  background: var(--primary-light, #a78bfa);
+:deep(.toggle-icon-fallback) {
+  display: none;
 }
 </style>

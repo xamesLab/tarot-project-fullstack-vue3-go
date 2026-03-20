@@ -5,6 +5,10 @@ import { useAuthStore } from "../stores/auth.store";
 
 export function installRouterGuards(router: Router, pinia: Pinia) {
   router.beforeEach(async (to) => {
+    if (to.meta.devOnly && !import.meta.env.DEV) {
+      return { name: "not-found" };
+    }
+
     const authStore = useAuthStore(pinia);
 
     if (authStore.isAuthenticated && !authStore.user) {

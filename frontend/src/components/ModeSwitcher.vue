@@ -1,18 +1,24 @@
 <template>
   <section class="mode-switcher panel">
-    <ModeToggle type="locale" :model-value="uiPreferencesStore.locale" @update:model-value="onLocaleChange" />
-    <ModeToggle type="theme" :model-value="uiPreferencesStore.theme" @update:model-value="onThemeChange" />
+    <ModeToggle
+      type="locale"
+      :model-value="uiPreferencesStore.locale"
+      @update:model-value="onLocaleChange"
+    />
+    <ModeToggle
+      type="theme"
+      :model-value="uiPreferencesStore.theme"
+      @update:model-value="onThemeChange"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
 import type { Locale, ThemeMode } from "../i18n/messages";
-import { useI18n } from "../composables/useI18n";
 import { useUiPreferencesStore } from "../stores/ui-preferences.store";
 import ModeToggle from "./ModeToggle.vue";
 
 const uiPreferencesStore = useUiPreferencesStore();
-const { t } = useI18n();
 
 function onLocaleChange(locale: string) {
   uiPreferencesStore.setLocale(locale as Locale);
@@ -24,23 +30,23 @@ function onThemeChange(theme: string) {
 </script>
 
 <style scoped>
-.mode-switcher {
+.mode-switcher.panel {
   display: flex;
-  gap: 8px;
-  padding: 12px;
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(210, 168, 74, 0.14) 0%, transparent 60%),
-    linear-gradient(145deg, var(--surface) 0%, var(--surface-strong) 100%);
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
   box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
   width: fit-content;
 }
 
 @media (max-width: 640px) {
-  .mode-switcher {
-    flex-direction: column;
-    width: 100%;
+  .mode-switcher.panel {
+    padding: 8px;
+    gap: 8px;
   }
 }
 </style>

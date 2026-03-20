@@ -22,46 +22,8 @@ body {
   line-height: 1.5;
   letter-spacing: 0.01em;
   color: var(--text-main);
-  background:
-    radial-gradient(circle at top center, var(--bg-glow-1), transparent 30%),
-    radial-gradient(circle at 18% 22%, var(--bg-glow-2), transparent 24%),
-    linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+  background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
   transition: background-color 0.25s ease, color 0.25s ease, background 0.35s ease;
-}
-
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-}
-
-body::before {
-  opacity: 0.38;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(255, 248, 230, 0.8) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 82% 12%, rgba(255, 248, 230, 0.72) 0 1.3px, transparent 2px),
-    radial-gradient(circle at 72% 36%, rgba(255, 248, 230, 0.6) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 22% 72%, rgba(255, 248, 230, 0.55) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 88% 74%, rgba(255, 248, 230, 0.52) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 50% 24%, rgba(255, 248, 230, 0.48) 0 1px, transparent 1.6px);
-  animation: starDrift 20s ease-in-out infinite alternate;
-}
-
-body::after {
-  inset: auto;
-  top: -16vh;
-  right: -12vw;
-  width: 48vw;
-  height: 48vw;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 248, 230, 0.12);
-  box-shadow:
-    0 0 0 24px rgba(210, 168, 74, 0.06),
-    0 0 0 76px rgba(49, 95, 115, 0.05);
-  filter: blur(0.4px);
-  animation: orbitShift 24s ease-in-out infinite alternate;
 }
 
 #app {
@@ -260,26 +222,6 @@ td {
   border-color: var(--border);
 }
 
-@keyframes starDrift {
-  from {
-    transform: translateY(0);
-  }
-
-  to {
-    transform: translateY(12px);
-  }
-}
-
-@keyframes orbitShift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-
-  to {
-    transform: translate3d(-3vw, 2vh, 0);
-  }
-}
-
 @media (max-width: 768px) {
   .page {
     padding-top: 138px;
@@ -291,12 +233,5 @@ td {
     padding-left: 14px;
     padding-right: 14px;
     padding-bottom: 32px;
-  }
-
-  body::after {
-    width: 78vw;
-    height: 78vw;
-    top: -10vh;
-    right: -28vw;
   }
 }
