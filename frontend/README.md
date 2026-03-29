@@ -66,6 +66,7 @@ They are connected conditionally in:
 - `src/router/index.ts` using `import.meta.env.DEV`
 
 Current dev-only route:
+- `/dev` (`src/pages/dev/DevIndexPage.vue`)
 - `/ui-kit` (`src/pages/dev/UIKit.vue`)
 
 Additional runtime protection:
@@ -92,6 +93,22 @@ Notes:
 - active section highlight via `IntersectionObserver`
 - 11 sections: brand, palette, typography, iconography, buttons, forms, cards, navigation, dividers, motion, do/don't
 - improved mobile harmony (`<=760px` and `<=480px`)
+
+## Dev Index
+
+`/dev` is the dev-only entry point for internal tools:
+- current catalog entry: `/ui-kit`
+- future dev-only pages can be linked from here
+- protected by the same `meta.devOnly` routing rules as `/ui-kit`
+
+## Autotests Status
+
+Все задачи, связанные с автотестами и visual/e2e checks, отложены до отдельного явного запроса пользователя.
+
+Это означает:
+- не считать Playwright и любые e2e/visual regression задачи текущим активным этапом;
+- не расширять и не чинить автотестовый контур без отдельной команды;
+- приоритет остается за ручной валидацией и функциональными изменениями.
 
 ## Mode Switcher
 

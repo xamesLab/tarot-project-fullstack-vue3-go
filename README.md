@@ -44,7 +44,7 @@
   - `specs/version-0.1.1/final-status-v0.1.1.md`
   - `specs/version-0.1.1/testing-report-v0.1.1.md`
   - `specs/version-0.1.1/acceptance-criteria-check-v0.1.1.md`
-- Этап `v0.1.2`: запущен (`in progress`).
+- Этап `v0.1.2` (backend Gateway integration): реализация завершена, валидация зафиксирована как `validation in progress`.
 - Документы этапа:
   - `specs/version-0.1.2/requirements-v0.1.2.md`
   - `specs/version-0.1.2/architecture-v0.1.2.md`
@@ -52,6 +52,25 @@
   - `specs/version-0.1.2/testing-report-v0.1.2.md`
   - `specs/version-0.1.2/acceptance-criteria-check-v0.1.2.md`
   - `specs/version-0.1.2/final-status-v0.1.2.md`
+- Этап `v0.1.3` (frontend UI Kit + Arcana background): выполнен.
+- Документы этапа:
+  - `specs/version-0.1.3/front/requirements.md`
+  - `specs/version-0.1.3/front/step-by-step.md`
+  - `specs/version-0.1.3/front/arcana-uikit-prompt.md`
+  - `specs/version-0.1.3/front/arcana-background-prompt.md`
+- Этап `v0.1.4`: запланирован как ближайший этап разработки.
+- Документы этапа:
+  - `specs/version-0.1.4/requirements-v0.1.4.md`
+  - `specs/version-0.1.4/steps.md`
+
+## Актуальный статус
+- Базовый MVP: завершен и документально зафиксирован.
+- `v0.1.2`: backend-реализация завершена; остается фактический интеграционный smoke ask-flow в окружении с доступным Gateway и callback security конфигурацией.
+- `v0.1.3`: frontend-доработки по UI Kit, Arcana background и UX consistency завершены.
+- `v0.1.4`: следующий рабочий этап, в который входят закрытие валидации `v0.1.2`, dev-tools `/dev` и cleanup smoke-данных.
+- Все задачи, связанные с автотестами, отложены до отдельного явного запроса пользователя.
+- Все задачи, связанные с файловым хранилищем / внешним storage для assets, отложены до отдельного явного запроса пользователя.
+- Для UI-изменений действует правило `UI Kit First`, для фоновой системы действует `Background Freeze Rule`.
 
 ## Текущее ограничение MVP
 Границы MVP и критерии приемки зафиксированы в:
@@ -81,7 +100,10 @@
 - `specs/main/mvp-final-status.md`
 
 ## Ближайшие шаги
-1. Выполнять чек-лист `specs/version-0.1.2/steps.md`.
+1. Выполнять чек-лист `specs/version-0.1.4/steps.md`.
+2. Использовать `specs/version-0.1.4/requirements-v0.1.4.md` как актуальный scope ближайшего этапа.
+3. Использовать `specs/main/next-development-stages.md` как верхнеуровневую сводку roadmap.
+4. Не возвращаться к автотестам и файловому storage без отдельного явного запроса пользователя.
 
 ## Frontend UI правило
 - Для компонентов, верстки и стилей действует правило `UI Kit First`: ориентироваться на `/ui-kit`.
