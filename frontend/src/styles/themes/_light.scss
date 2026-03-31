@@ -1,0 +1,13 @@
+:root,
+[data-theme="light"] {
+  --color-bg: #f3efe6;
+  --color-bg-accent: radial-gradient(circle at top, rgba(167, 107, 75, 0.18), transparent 45%), linear-gradient(180deg, #fbf8f1 0%, #efe6d9 100%);
+  --color-surface: rgba(255, 251, 245, 0.86);
+  --color-surface-strong: #fffaf2;
+  --color-border: rgba(106, 74, 55, 0.16);
+  --color-text: #2f241d;
+  --color-text-muted: #6e5a4e;
+  --color-accent: #9f5c36;
+  --color-accent-strong: #7d4423;
+  --color-accent-contrast: #fff8f1;
+}

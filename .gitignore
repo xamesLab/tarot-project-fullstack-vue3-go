@@ -12,9 +12,12 @@ frontend/.env.*
 backend/.env
 backend/.env.*
 !backend/.env.example
+backend/uploads/
+backend/tmp/
 
 # Common
 node_modules/
 dist/
 coverage/
 *.log
+.DS_Store

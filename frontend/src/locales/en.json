@@ -1,0 +1,29 @@
+{
+  "app": {
+    "title": "Tarot Daily",
+    "badge": "Phase 0 foundation",
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode",
+    "footer": "Project scaffold for the Tarot Daily MVP."
+  },
+  "nav": {
+    "home": "Home",
+    "uiKit": "UI Kit"
+  },
+  "home": {
+    "title": "Project Setup",
+    "eyebrow": "Bootstrap status",
+    "heading": "Phase 0 environment is ready to grow.",
+    "copy": "This shell validates local startup, theme switching, language switching, and the first project-wide UI direction.",
+    "points": {
+      "backend": "Backend scaffold with Gin and MongoDB configuration",
+      "frontend": "Vue 3 + Vite shell with routing",
+      "themes": "Light and dark theme tokens",
+      "i18n": "English and Russian localization bootstrap",
+      "seed": "MongoDB seed path for cards, policies, settings, and default deck"
+    }
+  },
+  "uiKit": {
+    "title": "UI Kit"
+  }
+}

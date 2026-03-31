@@ -1,0 +1,17 @@
+Project agent note:
+
+- Node binary: `/home/dev22/.nvm/versions/node/v23.10.0/bin/node`
+- npm binary: `/home/dev22/.nvm/versions/node/v23.10.0/bin/npm`
+- `npm` requires Node to be present in `PATH`, so agent commands should use:
+  `PATH=/home/dev22/.nvm/versions/node/v23.10.0/bin:$PATH npm <command>`
+- Verified working commands:
+  - `PATH=/home/dev22/.nvm/versions/node/v23.10.0/bin:$PATH npm install`
+  - `PATH=/home/dev22/.nvm/versions/node/v23.10.0/bin:$PATH npm run build`
+  - `PATH=/home/dev22/.nvm/versions/node/v23.10.0/bin:$PATH npm run dev -- --host 127.0.0.1 --port 5173`
+
+Frontend agent rule:
+
+- For frontend work, the agent must use the project UI Kit as the default source of truth unless the user explicitly requests another direction.
+- Primary UI Kit design source: `specs/UI/UIKit.vue`
+- Working app implementation must keep the UI Kit page dev-only, public without authorization, and fully autonomous from backend/auth flows.
+- New frontend components and pages should follow UI Kit tokens, structure, and interaction patterns by default.
