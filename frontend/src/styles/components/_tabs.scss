@@ -1,0 +1,60 @@
+.base-tabs {
+  display: grid;
+  gap: var(--ds-space-6);
+}
+
+.base-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-bottom: var(--ds-border-width) solid var(--ds-color-border-subtle);
+}
+
+.base-tabs__trigger {
+  position: relative;
+  padding: 14px 22px;
+  font-family: var(--ds-font-ui);
+  font-size: var(--ds-text-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-color-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--ds-motion-base),
+    background var(--ds-motion-base),
+    border-color var(--ds-motion-base);
+}
+
+.base-tabs__trigger.is-active {
+  color: var(--ds-color-accent-primary);
+}
+
+.base-tabs--underline .base-tabs__trigger.is-active {
+  border-bottom: var(--ds-border-width-strong) solid var(--ds-color-accent-primary);
+}
+
+.base-tabs--pills .base-tabs__list,
+.base-tabs--boxed .base-tabs__list {
+  border-bottom: 0;
+  gap: var(--ds-space-2);
+}
+
+.base-tabs--pills .base-tabs__trigger,
+.base-tabs--boxed .base-tabs__trigger {
+  border: var(--ds-border-width) solid var(--ds-color-border-subtle);
+}
+
+.base-tabs--pills .base-tabs__trigger.is-active {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: var(--ds-color-accent-primary);
+}
+
+.base-tabs--boxed .base-tabs__trigger.is-active {
+  background: var(--ds-color-bg-elevated);
+  border-color: var(--ds-color-accent-primary);
+}
+
+.base-tabs__panel {
+  animation: ds-fade-in-up var(--ds-motion-base);
+}

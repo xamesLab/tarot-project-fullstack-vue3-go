@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tarot Daily — UI Kit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Colors */
+      --gold-primary: #D4AF37;
+      --gold-light: #F4E5B0;
+      --gold-dark: #9B7E1F;
+      
+      --bg-void: #000000;
+      --bg-dark: #0D0D0D;
+      --bg-surface: #1A1A1A;
+      --bg-elevated: #242424;
+      
+      --text-primary: #FFFFFF;
+      --text-secondary: #C4C4C4;
+      --text-muted: #6B6B6B;
+      
+      --border-gold: rgba(212, 175, 55, 0.3);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      
+      /* Typography */
+      --font-display: 'Cinzel', serif;
+      --font-body: 'Cormorant Garamond', serif;
+      --font-sans: 'Inter', sans-serif;
+      
+      /* Spacing */
+      --container-max: 1400px;
+    }
+
+    body {
+      background: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Starfield Background */
+    .starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    .starfield::before,
+    .starfield::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      box-shadow: 
+        100px 200px white,
+        300px 400px white,
+        500px 100px white,
+        700px 300px white,
+        900px 500px white,
+        200px 600px white,
+        400px 150px white,
+        600px 450px white,
+        800px 250px white,
+        1000px 350px white,
+        150px 450px white,
+        350px 250px white,
+        550px 550px white,
+        750px 150px white,
+        950px 450px white,
+        1100px 200px white,
+        1300px 400px white,
+        250px 100px white,
+        450px 500px white,
+        650px 300px white;
+    }
+
+    .starfield::after {
+      width: 1px;
+      height: 1px;
+      box-shadow: 
+        120px 180px white,
+        320px 420px white,
+        520px 120px white,
+        720px 320px white,
+        920px 520px white,
+        220px 620px white,
+        420px 170px white,
+        620px 470px white,
+        820px 270px white,
+        1020px 370px white;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 80px 60px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 120px;
+      position: relative;
+    }
+
+    .header-ornament {
+      margin-bottom: 40px;
+    }
+
+    .header-ornament svg {
+      width: 200px;
+      height: auto;
+      opacity: 0.9;
+    }
+
+    .title {
+      font-family: var(--font-display);
+      font-size: 72px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold-primary), var(--gold-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 140px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 60px;
+      position: relative;
+    }
+
+    .section-header::before,
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        var(--border-gold),
+        transparent
+      );
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .section-title::before,
+    .section-title::after {
+      content: '✦';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--gold-primary);
+    }
+
+    .section-title::before {
+      left: -25px;
+    }
+
+    .section-title::after {
+      right: -25px;
+    }
+
+    /* Typography Grid */
+    .type-grid {
+      display: grid;
+      gap: 40px;
+    }
+
+    .type-item {
+      padding: 40px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .h1-example {
+      font-family: var(--font-display);
+      font-size: 56px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .h2-example {
+      font-family: var(--font-display);
+      font-size: 42px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .h3-example {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+
+    .body-example {
+      font-family: var(--font-body);
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .type-meta {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Color Palette */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .color-category {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 30px;
+      position: relative;
+    }
+
+    .color-category-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+      margin-bottom: 20px;
+    }
+
+    .color-swatch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .color-swatch {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .swatch-box {
+      width: 60px;
+      height: 60px;
+      border: 1px solid var(--border-gold);
+      flex-shrink: 0;
+    }
+
+    .swatch-info {
+      flex: 1;
+    }
+
+    .swatch-name {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .swatch-value {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Buttons */
+    .button-showcase {
+      display: grid;
+      gap: 50px;
+    }
+
+    .button-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 40px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      clip-path: polygon(
+        12px 0, 
+        100% 0, 
+        100% calc(100% - 12px), 
+        calc(100% - 12px) 100%, 
+        0 100%, 
+        0 12px
+      );
+    }
+
+    .button-label {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      min-width: 100px;
+    }
+
+    .btn {
+      padding: 16px 40px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      background: transparent;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      clip-path: polygon(
+        8px 0, 
+        100% 0, 
+        100% calc(100% - 8px), 
+        calc(100% - 8px) 100%, 
+        0 100%, 
+        0 8px
+      );
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+      border: 1px solid var(--gold-primary);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--border-gold);
+      background: var(--bg-elevated);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-gold);
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Cards */
+    .cards-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 40px;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-gold);
+      position: relative;
+      transition: all 0.4s ease;
+      clip-path: polygon(
+        16px 0, 
+        100% 0, 
+        100% calc(100% - 16px), 
+        calc(100% - 16px) 100%, 
+        0 100%, 
+        0 16px
+      );
+    }
+
+    .card::before,
+    .card::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--gold-primary);
+    }
+
+    .card::before {
+      top: -1px;
+      left: -1px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .card::after {
+      bottom: -1px;
+      right: -1px;
+      border-left: none;
+      border-top: none;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      border-color: var(--gold-light);
+    }
+
+    .card-header {
+      padding: 30px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .card-badge {
+      padding: 6px 16px;
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-primary);
+      clip-path: polygon(
+        4px 0, 
+        100% 0, 
+        100% calc(100% - 4px), 
+        calc(100% - 4px) 100%, 
+        0 100%, 
+        0 4px
+      );
+    }
+
+    .card-body {
+      padding: 30px;
+    }
+
+    .tarot-card-back {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: var(--bg-dark);
+      border: 2px solid var(--gold-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      clip-path: polygon(
+        12px 0, 
+        100% 0, 
+        100% calc(100% - 12px), 
+        calc(100% - 12px) 100%, 
+        0 100%, 
+        0 12px
+      );
+    }
+
+    .card-back-ornament {
+      width: 80%;
+      height: 80%;
+      border: 1px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .card-back-ornament::before,
+    .card-back-ornament::after {
+      content: '';
+      position: absolute;
+      background: var(--gold-primary);
+    }
+
+    .card-back-ornament::before {
+      width: 60%;
+      height: 1px;
+      top: 50%;
+      left: 20%;
+    }
+
+    .card-back-ornament::after {
+      width: 1px;
+      height: 60%;
+      left: 50%;
+      top: 20%;
+    }
+
+    .card-symbol {
+      font-size: 48px;
+      color: var(--gold-primary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-name {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .card-interpretation {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      padding: 6px 14px;
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid var(--border-gold);
+      color: var(--text-secondary);
+      clip-path: polygon(
+        4px 0, 
+        100% 0, 
+        100% calc(100% - 4px), 
+        calc(100% - 4px) 100%, 
+        0 100%, 
+        0 4px
+      );
+    }
+
+    /* Ornamental Dividers */
+    .divider-showcase {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+
+    .ornamental-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      color: var(--gold-primary);
+    }
+
+    .ornamental-divider::before,
+    .ornamental-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        var(--border-gold),
+        transparent
+      );
+    }
+
+    .divider-content {
+      font-size: 24px;
+      letter-spacing: 0.5em;
+    }
+
+    .divider-complex {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .divider-diamond {
+      width: 8px;
+      height: 8px;
+      background: var(--gold-primary);
+      transform: rotate(45deg);
+    }
+
+    /* Form Elements */
+    .form-grid {
+      display: grid;
+      gap: 30px;
+      max-width: 600px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-label {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .form-input,
+    .form-select {
+      padding: 16px 20px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      clip-path: polygon(
+        8px 0, 
+        100% 0, 
+        100% calc(100% - 8px), 
+        calc(100% - 8px) 100%, 
+        0 100%, 
+        0 8px
+      );
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-error {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: #FF4444;
+    }
+
+    .input-error {
+      border-color: #FF4444;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding-top: 80px;
+      margin-top: 120px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .footer-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+      color: var(--gold-primary);
+    }
+
+    .footer-divider::before,
+    .footer-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      max-width: 200px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        var(--border-gold),
+        transparent
+      );
+    }
+
+    .footer-text {
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .footer-meta {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Main Header Navigation */
+    .main-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    .header-container {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 20px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+    }
+
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold-primary);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--gold-primary);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-link.active {
+      color: var(--gold-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .icon-button {
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      clip-path: polygon(
+        6px 0, 
+        100% 0, 
+        100% calc(100% - 6px), 
+        calc(100% - 6px) 100%, 
+        0 100%, 
+        0 6px
+      );
+    }
+
+    .icon-button:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .icon-button.active {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .language-switcher {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border-subtle);
+      clip-path: polygon(
+        6px 0, 
+        100% 0, 
+        100% calc(100% - 6px), 
+        calc(100% - 6px) 100%, 
+        0 100%, 
+        0 6px
+      );
+      overflow: hidden;
+    }
+
+    .lang-option {
+      padding: 10px 16px;
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-right: 1px solid var(--border-subtle);
+    }
+
+    .lang-option:last-child {
+      border-right: none;
+    }
+
+    .lang-option:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .lang-option.active {
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--gold-primary);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-gold);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      clip-path: polygon(
+        8px 0, 
+        100% 0, 
+        100% calc(100% - 8px), 
+        calc(100% - 8px) 100%, 
+        0 100%, 
+        0 8px
+      );
+    }
+
+    .user-profile:hover {
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+      border-color: var(--gold-light);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+      border: 1px solid var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      clip-path: polygon(
+        4px 0, 
+        100% 0, 
+        100% calc(100% - 4px), 
+        calc(100% - 4px) 100%, 
+        0 100%, 
+        0 4px
+      );
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .user-name {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .user-role {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--gold-primary);
+    }
+
+    /* Button Sizes & Variants */
+    .btn-small {
+      padding: 10px 24px;
+      font-size: 10px;
+    }
+
+    .btn-large {
+      padding: 20px 50px;
+      font-size: 14px;
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-outlined {
+      background: transparent;
+      border: 2px solid var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .btn-outlined:hover {
+      background: var(--gold-primary);
+      color: var(--bg-void);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-text {
+      background: transparent;
+      border: none;
+      color: var(--gold-primary);
+      padding: 12px 24px;
+      clip-path: none;
+    }
+
+    .btn-text:hover {
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .btn-star-sides {
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+      padding: 16px 30px;
+    }
+
+    .btn-star-sides::before,
+    .btn-star-sides::after {
+      content: '✦';
+      font-size: 16px;
+      color: var(--gold-primary);
+    }
+
+    /* Tabs */
+    .tabs-container {
+      padding: 40px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tabs-header {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 30px;
+    }
+
+    .tab-button {
+      padding: 16px 32px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-button:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-button.active {
+      color: var(--gold-primary);
+      border-bottom-color: var(--gold-primary);
+    }
+
+    .tab-button.active::before {
+      content: '✦';
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      font-size: 10px;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-panel {
+      padding: 20px 0;
+    }
+
+    .tab-panel h4 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--gold-primary);
+      margin-bottom: 12px;
+    }
+
+    .tab-panel p {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* Tab Variants */
+    .tabs-pills .tab-button {
+      border: 1px solid var(--border-subtle);
+      border-radius: 0;
+      margin-right: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .tabs-pills .tab-button.active {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: var(--gold-primary);
+      border-bottom-color: var(--gold-primary);
+    }
+
+    .tabs-pills .tabs-header {
+      border-bottom: none;
+      margin-bottom: 20px;
+    }
+
+    /* Boxed Tabs */
+    .tabs-boxed .tab-button {
+      border: 1px solid var(--border-subtle);
+      margin-right: -1px;
+    }
+
+    .tabs-boxed .tab-button.active {
+      background: var(--bg-elevated);
+      border-color: var(--gold-primary);
+      z-index: 1;
+    }
+
+    .tabs-boxed .tabs-header {
+      border-bottom: none;
+    }
+
+    /* Controls Section */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 40px;
+    }
+
+    .control-group {
+      padding: 40px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      clip-path: polygon(
+        12px 0, 
+        100% 0, 
+        100% calc(100% - 12px), 
+        calc(100% - 12px) 100%, 
+        0 100%, 
+        0 12px
+      );
+    }
+
+    .control-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--gold-primary);
+      margin-bottom: 24px;
+    }
+
+    .control-items {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Checkbox */
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-input {
+      display: none;
+    }
+
+    .checkbox-custom {
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--border-gold);
+      background: transparent;
+      position: relative;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      clip-path: polygon(
+        4px 0, 
+        100% 0, 
+        100% calc(100% - 4px), 
+        calc(100% - 4px) 100%, 
+        0 100%, 
+        0 4px
+      );
+    }
+
+    .checkbox-input:checked + .checkbox-custom {
+      background: var(--gold-primary);
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .checkbox-input:checked + .checkbox-custom::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--bg-void);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .checkbox-label {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .checkbox-wrapper:hover .checkbox-custom {
+      border-color: var(--gold-primary);
+    }
+
+    /* Radio */
+    .radio-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .radio-input {
+      display: none;
+    }
+
+    .radio-custom {
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--border-gold);
+      border-radius: 50%;
+      background: transparent;
+      position: relative;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .radio-input:checked + .radio-custom {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .radio-input:checked + .radio-custom::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background: var(--gold-primary);
+      border-radius: 50%;
+    }
+
+    .radio-label {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .radio-wrapper:hover .radio-custom {
+      border-color: var(--gold-primary);
+    }
+
+    /* Toggle Switch */
+    .toggle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .toggle-label {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .toggle-input {
+      display: none;
+    }
+
+    .toggle-switch {
+      width: 50px;
+      height: 26px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      clip-path: polygon(
+        4px 0, 
+        100% 0, 
+        100% calc(100% - 4px), 
+        calc(100% - 4px) 100%, 
+        0 100%, 
+        0 4px
+      );
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: var(--text-muted);
+      transition: all 0.3s ease;
+      clip-path: polygon(
+        3px 0, 
+        100% 0, 
+        100% calc(100% - 3px), 
+        calc(100% - 3px) 100%, 
+        0 100%, 
+        0 3px
+      );
+    }
+
+    .toggle-input:checked + .toggle-switch {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--gold-primary);
+    }
+
+    .toggle-input:checked + .toggle-switch::after {
+      left: calc(100% - 21px);
+      background: var(--gold-primary);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    /* Range Slider */
+    .range-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .range-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .range-label {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .range-value {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold-primary);
+    }
+
+    .range-input {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--bg-elevated);
+      outline: none;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--gold-primary);
+      cursor: pointer;
+      border: 2px solid var(--gold-primary);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      clip-path: polygon(
+        3px 0, 
+        100% 0, 
+        100% calc(100% - 3px), 
+        calc(100% - 3px) 100%, 
+        0 100%, 
+        0 3px
+      );
+    }
+
+    .range-input::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: var(--gold-primary);
+      cursor: pointer;
+      border: 2px solid var(--gold-primary);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    /* Select Dropdown Custom */
+    .select-wrapper {
+      position: relative;
+    }
+
+    .select-custom {
+      appearance: none;
+      width: 100%;
+      padding: 14px 40px 14px 16px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      clip-path: polygon(
+        6px 0, 
+        100% 0, 
+        100% calc(100% - 6px), 
+        calc(100% - 6px) 100%, 
+        0 100%, 
+        0 6px
+      );
+    }
+
+    .select-custom:focus {
+      outline: none;
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--gold-primary);
+      font-size: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+        padding: 15px 20px;
+        gap: 20px;
+      }
+
+      .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .header-actions {
+        flex-wrap: wrap;
+      }
+
+      .user-profile {
+        width: 100%;
+        justify-content: center;
+      }
+      .container {
+        padding: 40px 20px;
+      }
+
+      .title {
+        font-size: 42px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .h1-example {
+        font-size: 36px;
+      }
+
+      .h2-example {
+        font-size: 28px;
+      }
+
+      .cards-showcase {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .button-label {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="starfield"></div>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo-section">
+        <div class="logo">
+          <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M25 5 L30 15 L25 25 L20 15 Z" stroke="#D4AF37" stroke-width="1.5" fill="none"/>
+            <circle cx="25" cy="15" r="2" fill="#D4AF37"/>
+            <line x1="15" y1="15" x2="10" y2="15" stroke="#D4AF37" stroke-width="1"/>
+            <line x1="35" y1="15" x2="40" y2="15" stroke="#D4AF37" stroke-width="1"/>
+            <path d="M10 15 Q10 25 15 30" stroke="#D4AF37" stroke-width="1" fill="none"/>
+            <path d="M40 15 Q40 25 35 30" stroke="#D4AF37" stroke-width="1" fill="none"/>
+            <line x1="15" y1="30" x2="35" y2="30" stroke="#D4AF37" stroke-width="1"/>
+            <circle cx="25" cy="40" r="3" fill="none" stroke="#D4AF37" stroke-width="1"/>
+            <text x="25" y="42" font-size="4" fill="#D4AF37" text-anchor="middle">✦</text>
+          </svg>
+        </div>
+        <span class="brand-name">Tarot Daily</span>
+      </div>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="#typography" class="nav-link">Typography</a></li>
+          <li><a href="#colors" class="nav-link">Colors</a></li>
+          <li><a href="#buttons" class="nav-link active">Buttons</a></li>
+          <li><a href="#components" class="nav-link">Components</a></li>
+          <li><a href="#controls" class="nav-link">Controls</a></li>
+          <li><a href="#tabs" class="nav-link">Tabs</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="language-switcher">
+          <button class="lang-option active">EN</button>
+          <button class="lang-option">RU</button>
+        </div>
+
+        <button class="icon-button" id="themeToggle" title="Toggle Theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+
+        <div class="user-profile">
+          <div class="user-avatar">AM</div>
+          <div class="user-info">
+            <span class="user-name">Alice Moon</span>
+            <span class="user-role">Адепт</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-ornament">
+        <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Central Diamond -->
+          <path d="M100 10 L110 30 L100 50 L90 30 Z" stroke="#D4AF37" stroke-width="1" fill="none"/>
+          
+          <!-- Top Ornaments -->
+          <line x1="85" y1="30" x2="75" y2="30" stroke="#D4AF37" stroke-width="1"/>
+          <line x1="115" y1="30" x2="125" y2="30" stroke="#D4AF37" stroke-width="1"/>
+          
+          <!-- Side Curves -->
+          <path d="M70 30 Q60 35 60 45 Q60 55 70 60" stroke="#D4AF37" stroke-width="1" fill="none"/>
+          <path d="M130 30 Q140 35 140 45 Q140 55 130 60" stroke="#D4AF37" stroke-width="1" fill="none"/>
+          
+          <!-- Bottom Line -->
+          <line x1="70" y1="60" x2="130" y2="60" stroke="#D4AF37" stroke-width="1"/>
+          
+          <!-- Corner Accents -->
+          <circle cx="75" cy="30" r="2" fill="#D4AF37"/>
+          <circle cx="125" cy="30" r="2" fill="#D4AF37"/>
+          <circle cx="70" cy="60" r="2" fill="#D4AF37"/>
+          <circle cx="130" cy="60" r="2" fill="#D4AF37"/>
+          
+          <!-- Stars -->
+          <text x="50" y="50" font-size="8" fill="#D4AF37">✦</text>
+          <text x="145" y="50" font-size="8" fill="#D4AF37">✦</text>
+        </svg>
+      </div>
+      
+      <h1 class="title">Tarot Daily</h1>
+      <p class="subtitle">Mystical Design System • Dark Theme</p>
+    </header>
+
+    <!-- Typography Section -->
+    <section class="section" id="typography">
+      <div class="section-header">
+        <h2 class="section-title">Typography</h2>
+      </div>
+      
+      <div class="type-grid">
+        <div class="type-item">
+          <h1 class="h1-example">The Mystic Path Awaits</h1>
+          <p class="type-meta">Heading 1 • Cinzel 56px / 600</p>
+        </div>
+        
+        <div class="type-item">
+          <h2 class="h2-example">Card of the Day</h2>
+          <p class="type-meta">Heading 2 • Cinzel 42px / 500</p>
+        </div>
+        
+        <div class="type-item">
+          <h3 class="h3-example">Three Card Spread</h3>
+          <p class="type-meta">Heading 3 • Cinzel 32px / 400</p>
+        </div>
+        
+        <div class="type-item">
+          <p class="body-example">
+            New beginnings, innocence, spontaneity, and a free spirit. 
+            The Fool represents the start of a journey with an open heart and mind, 
+            stepping forward without fear into the unknown mysteries of life.
+          </p>
+          <p class="type-meta">Body Text • Cormorant Garamond 18px / 400</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Color Palette Section -->
+    <section class="section" id="colors">
+      <div class="section-header">
+        <h2 class="section-title">Color Palette</h2>
+      </div>
+      
+      <div class="color-grid">
+        <div class="color-category">
+          <h3 class="color-category-title">Primary</h3>
+          <div class="color-swatch-list">
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #D4AF37;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gold Primary</div>
+                <div class="swatch-value">#D4AF37</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #F4E5B0;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gold Light</div>
+                <div class="swatch-value">#F4E5B0</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #9B7E1F;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Gold Dark</div>
+                <div class="swatch-value">#9B7E1F</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="color-category">
+          <h3 class="color-category-title">Background</h3>
+          <div class="color-swatch-list">
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #000000;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Void</div>
+                <div class="swatch-value">#000000</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #0D0D0D;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Dark</div>
+                <div class="swatch-value">#0D0D0D</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #1A1A1A;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Surface</div>
+                <div class="swatch-value">#1A1A1A</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="color-category">
+          <h3 class="color-category-title">Text</h3>
+          <div class="color-swatch-list">
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #FFFFFF;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Primary</div>
+                <div class="swatch-value">#FFFFFF</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #C4C4C4;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Secondary</div>
+                <div class="swatch-value">#C4C4C4</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #6B6B6B;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Muted</div>
+                <div class="swatch-value">#6B6B6B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons Section -->
+    <section class="section" id="buttons">
+      <div class="section-header">
+        <h2 class="section-title">Buttons</h2>
+      </div>
+      
+      <div class="button-showcase">
+        <div class="button-group">
+          <span class="button-label">Primary</span>
+          <button class="btn btn-primary">Generate Reading</button>
+          <button class="btn btn-primary" disabled>Generate Reading</button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">Secondary</span>
+          <button class="btn btn-secondary">View History</button>
+          <button class="btn btn-secondary" disabled>View History</button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">Ghost</span>
+          <button class="btn btn-ghost">Learn More</button>
+          <button class="btn btn-ghost" disabled>Learn More</button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">Outlined</span>
+          <button class="btn btn-outlined">Get Started</button>
+          <button class="btn btn-outlined" disabled>Get Started</button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">Text Only</span>
+          <button class="btn btn-text">Skip for now</button>
+          <button class="btn btn-text" disabled>Skip for now</button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">Sizes</span>
+          <button class="btn btn-primary btn-small">Small</button>
+          <button class="btn btn-primary">Medium</button>
+          <button class="btn btn-primary btn-large">Large</button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">Icon Only</span>
+          <button class="btn btn-primary btn-icon">✦</button>
+          <button class="btn btn-secondary btn-icon">☽</button>
+          <button class="btn btn-ghost btn-icon">⋆</button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">With Icons</span>
+          <button class="btn btn-primary btn-icon-text">
+            <span>✦</span>
+            <span>Card of the Day</span>
+          </button>
+          <button class="btn btn-secondary btn-icon-text">
+            <span>☽</span>
+            <span>Three Cards</span>
+          </button>
+        </div>
+
+        <div class="button-group">
+          <span class="button-label">Star Sides</span>
+          <button class="btn btn-primary btn-star-sides">Generate Reading</button>
+          <button class="btn btn-outlined btn-star-sides">Get Started</button>
+        </div>
+
+        <div class="button-group" style="display: block;">
+          <span class="button-label" style="display: block; margin-bottom: 20px;">Full Width</span>
+          <button class="btn btn-primary btn-full">Continue to Dashboard</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cards Section -->
+    <section class="section" id="components">
+      <div class="section-header">
+        <h2 class="section-title">Cards</h2>
+      </div>
+      
+      <div class="cards-showcase">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Card of the Day</h3>
+            <span class="card-badge">Today</span>
+          </div>
+          <div class="card-body">
+            <div class="tarot-card-back">
+              <div class="card-back-ornament">
+                <span class="card-symbol">✦</span>
+              </div>
+            </div>
+            <h4 class="card-name">The Fool</h4>
+            <p class="card-interpretation">
+              New beginnings, innocence, spontaneity. The Fool represents 
+              the start of a journey with an open heart.
+            </p>
+            <div class="card-tags">
+              <span class="tag">Freedom</span>
+              <span class="tag">Adventure</span>
+              <span class="tag">New Start</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Three Card Spread</h3>
+            <span class="card-badge">3 of 5</span>
+          </div>
+          <div class="card-body">
+            <div class="tarot-card-back">
+              <div class="card-back-ornament">
+                <span class="card-symbol">☽</span>
+              </div>
+            </div>
+            <h4 class="card-name">The Moon</h4>
+            <p class="card-interpretation">
+              Uncertainty, fears, and deep feelings call for caution 
+              and trust in intuition.
+            </p>
+            <div class="card-tags">
+              <span class="tag">Illusion</span>
+              <span class="tag">Intuition</span>
+              <span class="tag">Mystery</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">The Star</h3>
+            <span class="card-badge">Major</span>
+          </div>
+          <div class="card-body">
+            <div class="tarot-card-back">
+              <div class="card-back-ornament">
+                <span class="card-symbol">⋆</span>
+              </div>
+            </div>
+            <h4 class="card-name">The Star</h4>
+            <p class="card-interpretation">
+              After hardship, hope, faith, and quiet healing 
+              begin to return.
+            </p>
+            <div class="card-tags">
+              <span class="tag">Hope</span>
+              <span class="tag">Inspiration</span>
+              <span class="tag">Healing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ornamental Dividers Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Ornamental Dividers</h2>
+      </div>
+      
+      <div class="divider-showcase">
+        <div class="ornamental-divider">
+          <span class="divider-content">✦</span>
+        </div>
+
+        <div class="ornamental-divider">
+          <div class="divider-complex">
+            <span>◯</span>
+            <div class="divider-diamond"></div>
+            <span>☽</span>
+            <div class="divider-diamond"></div>
+            <span>◯</span>
+            <div class="divider-diamond"></div>
+            <span>☾</span>
+            <div class="divider-diamond"></div>
+            <span>◯</span>
+          </div>
+        </div>
+
+        <div class="ornamental-divider">
+          <span class="divider-content">⋆ · ✦ · ⋆</span>
+        </div>
+
+        <div class="ornamental-divider">
+          <div class="divider-complex">
+            <span>✦</span>
+            <span>✧</span>
+            <span>⋆</span>
+            <span>✧</span>
+            <span>✦</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form Elements Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Form Elements</h2>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" placeholder="your@email.com" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="Enter password" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Select Deck</label>
+          <div class="select-wrapper">
+            <select class="form-select select-custom">
+              <option>Tarot Classic</option>
+              <option>Rider-Waite Modern</option>
+              <option>Ethereal Dreams</option>
+            </select>
+            <span class="select-arrow">▼</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email (with error)</label>
+          <input type="email" class="form-input input-error" value="invalid-email" />
+          <span class="form-error">Please enter a valid email address</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls Section -->
+    <section class="section" id="controls">
+      <div class="section-header">
+        <h2 class="section-title">Controls & Inputs</h2>
+      </div>
+      
+      <div class="controls-grid">
+        <!-- Checkboxes -->
+        <div class="control-group">
+          <h3 class="control-title">Checkboxes</h3>
+          <div class="control-items">
+            <label class="checkbox-wrapper">
+              <input type="checkbox" class="checkbox-input" checked>
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-label">Enable daily notifications</span>
+            </label>
+
+            <label class="checkbox-wrapper">
+              <input type="checkbox" class="checkbox-input">
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-label">Show reversed cards</span>
+            </label>
+
+            <label class="checkbox-wrapper">
+              <input type="checkbox" class="checkbox-input">
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-label">Save reading history</span>
+            </label>
+
+            <label class="checkbox-wrapper">
+              <input type="checkbox" class="checkbox-input" checked>
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-label">Remember my preferences</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Radio Buttons -->
+        <div class="control-group">
+          <h3 class="control-title">Radio Buttons</h3>
+          <div class="control-items">
+            <label class="radio-wrapper">
+              <input type="radio" name="spread-type" class="radio-input" checked>
+              <span class="radio-custom"></span>
+              <span class="radio-label">Card of the Day</span>
+            </label>
+
+            <label class="radio-wrapper">
+              <input type="radio" name="spread-type" class="radio-input">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Three Card Spread</span>
+            </label>
+
+            <label class="radio-wrapper">
+              <input type="radio" name="spread-type" class="radio-input">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Celtic Cross</span>
+            </label>
+
+            <label class="radio-wrapper">
+              <input type="radio" name="spread-type" class="radio-input">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Custom Spread</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Toggle Switches -->
+        <div class="control-group">
+          <h3 class="control-title">Toggle Switches</h3>
+          <div class="control-items">
+            <div class="toggle-wrapper">
+              <span class="toggle-label">Dark Mode</span>
+              <label>
+                <input type="checkbox" class="toggle-input" checked>
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
+
+            <div class="toggle-wrapper">
+              <span class="toggle-label">Sound Effects</span>
+              <label>
+                <input type="checkbox" class="toggle-input">
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
+
+            <div class="toggle-wrapper">
+              <span class="toggle-label">Auto-shuffle</span>
+              <label>
+                <input type="checkbox" class="toggle-input" checked>
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
+
+            <div class="toggle-wrapper">
+              <span class="toggle-label">Show hints</span>
+              <label>
+                <input type="checkbox" class="toggle-input">
+                <span class="toggle-switch"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Range Sliders -->
+        <div class="control-group">
+          <h3 class="control-title">Range Sliders</h3>
+          <div class="control-items">
+            <div class="range-wrapper">
+              <div class="range-label-row">
+                <span class="range-label">Animation Speed</span>
+                <span class="range-value">75%</span>
+              </div>
+              <input type="range" class="range-input" min="0" max="100" value="75">
+            </div>
+
+            <div class="range-wrapper">
+              <div class="range-label-row">
+                <span class="range-label">Card Size</span>
+                <span class="range-value">50%</span>
+              </div>
+              <input type="range" class="range-input" min="0" max="100" value="50">
+            </div>
+
+            <div class="range-wrapper">
+              <div class="range-label-row">
+                <span class="range-label">Background Opacity</span>
+                <span class="range-value">30%</span>
+              </div>
+              <input type="range" class="range-input" min="0" max="100" value="30">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabs Section -->
+    <section class="section" id="tabs">
+      <div class="section-header">
+        <h2 class="section-title">Tabs & Navigation</h2>
+      </div>
+      
+      <div style="display: grid; gap: 60px;">
+        <!-- Default Tabs -->
+        <div class="tabs-container">
+          <h3 class="control-title" style="margin-bottom: 24px;">Default Tabs</h3>
+          <div class="tabs-header">
+            <button class="tab-button active" data-tab="overview">Overview</button>
+            <button class="tab-button" data-tab="interpretation">Interpretation</button>
+            <button class="tab-button" data-tab="reversed">Reversed</button>
+            <button class="tab-button" data-tab="symbolism">Symbolism</button>
+          </div>
+          <div class="tabs-content">
+            <div class="tab-content active" data-content="overview">
+              <div class="tab-panel">
+                <h4>Overview</h4>
+                <p>The Fool represents new beginnings, innocence, and spontaneity. This card signifies the start of a journey with an open heart and mind, stepping forward without fear into the unknown mysteries of life. It encourages taking risks and embracing new adventures.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content="interpretation">
+              <div class="tab-panel">
+                <h4>Interpretation</h4>
+                <p>When The Fool appears in a reading, it suggests that now is the time to take a leap of faith. Trust your instincts and don't let fear hold you back. This card reminds you that every expert was once a beginner, and every journey starts with a single step.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content="reversed">
+              <div class="tab-panel">
+                <h4>Reversed Meaning</h4>
+                <p>In the reversed position, The Fool can indicate recklessness, poor judgment, or naivety. It may suggest that you're taking unnecessary risks without proper consideration. This is a warning to think before you act and consider the consequences of your decisions.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content="symbolism">
+              <div class="tab-panel">
+                <h4>Symbolism</h4>
+                <p>The Fool carries a white rose symbolizing purity and innocence. The small dog at his feet represents loyalty and protection. The mountain in the background signifies the challenges ahead, while his colorful clothing reflects his optimistic and carefree nature.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pill Tabs -->
+        <div class="tabs-container tabs-pills">
+          <h3 class="control-title" style="margin-bottom: 24px;">Pill Tabs</h3>
+          <div class="tabs-header">
+            <button class="tab-button active" data-tab-pills="daily">Card of Day</button>
+            <button class="tab-button" data-tab-pills="spread3">3-Card Spread</button>
+            <button class="tab-button" data-tab-pills="spread5">5-Card Spread</button>
+          </div>
+          <div class="tabs-content">
+            <div class="tab-content active" data-content-pills="daily">
+              <div class="tab-panel">
+                <h4>Card of the Day</h4>
+                <p>Receive one card each day at 3:00 AM based on your timezone. This deterministic reading provides daily guidance and insight into the energies surrounding you for the next 24 hours.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content-pills="spread3">
+              <div class="tab-panel">
+                <h4>Three Card Spread</h4>
+                <p>A classic spread representing Past, Present, and Future. This reading helps you understand how past events influence your current situation and what potential outcomes lie ahead based on your current path.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content-pills="spread5">
+              <div class="tab-panel">
+                <h4>Five Card Spread</h4>
+                <p>A more comprehensive reading that explores multiple aspects of your situation. Each position offers deeper insight into different factors affecting your question or circumstance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boxed Tabs -->
+        <div class="tabs-container tabs-boxed">
+          <h3 class="control-title" style="margin-bottom: 24px;">Boxed Tabs</h3>
+          <div class="tabs-header">
+            <button class="tab-button active" data-tab-boxed="seeker">Искатель</button>
+            <button class="tab-button" data-tab-boxed="adept">Адепт</button>
+            <button class="tab-button" data-tab-boxed="master">Мастер</button>
+            <button class="tab-button" data-tab-boxed="keeper">Смотритель</button>
+          </div>
+          <div class="tabs-content">
+            <div class="tab-content active" data-content-boxed="seeker">
+              <div class="tab-panel">
+                <h4>Искатель (Seeker)</h4>
+                <p>The entry level for new users. Seekers can generate up to 3 three-card spreads per day and view reading history for 1 day. This role provides a solid introduction to the platform's core features.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content-boxed="adept">
+              <div class="tab-panel">
+                <h4>Адепт (Adept)</h4>
+                <p>Intermediate users with expanded access. Adepts can generate 5 spreads daily, access 7 days of reading history, and choose from multiple deck options. Perfect for regular practitioners.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content-boxed="master">
+              <div class="tab-panel">
+                <h4>Мастер (Master)</h4>
+                <p>Advanced users with premium features. Masters enjoy 10 daily spreads, 15 days of history, and full access to all decks and customization options. Ideal for serious tarot enthusiasts.</p>
+              </div>
+            </div>
+            <div class="tab-content" data-content-boxed="keeper">
+              <div class="tab-panel">
+                <h4>Смотритель (Keeper)</h4>
+                <p>Administrative access with unlimited spreads, 30 days of history, and full platform management capabilities. Keepers can manage users, upload decks, and configure system settings.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-divider">
+        <span>✦</span>
+      </div>
+      <p class="footer-text">Tarot Daily • Mystical Design System</p>
+      <p class="footer-meta">Dark Theme • Version 1.0</p>
+    </footer>
+  </div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      themeToggle.classList.toggle('active');
+      // Here you would actually toggle between light/dark theme
+      console.log('Theme toggled');
+    });
+
+    // Language Switcher
+    const langOptions = document.querySelectorAll('.lang-option');
+    langOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        langOptions.forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+        console.log('Language changed to:', option.textContent);
+      });
+    });
+
+    // Nav Links Active State
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        
+        // Smooth scroll to section
+        const targetId = link.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Range Slider Value Update
+    const rangeInputs = document.querySelectorAll('.range-input');
+    rangeInputs.forEach(input => {
+      const valueDisplay = input.parentElement.querySelector('.range-value');
+      
+      input.addEventListener('input', (e) => {
+        valueDisplay.textContent = e.target.value + '%';
+      });
+    });
+
+    // User Profile Click
+    const userProfile = document.querySelector('.user-profile');
+    userProfile.addEventListener('click', () => {
+      console.log('User profile clicked - open dropdown menu');
+    });
+
+    // Tabs Functionality
+    function initTabs(tabSelector, contentSelector) {
+      const tabButtons = document.querySelectorAll(tabSelector);
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabGroup = button.closest('.tabs-container');
+          const tabId = button.dataset[Object.keys(button.dataset)[0]];
+          
+          // Remove active from all buttons in this group
+          tabGroup.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          
+          // Add active to clicked button
+          button.classList.add('active');
+          
+          // Hide all content in this group
+          tabGroup.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+          });
+          
+          // Show corresponding content
+          const targetContent = tabGroup.querySelector(`[${contentSelector}="${tabId}"]`);
+          if (targetContent) {
+            targetContent.classList.add('active');
+          }
+        });
+      });
+    }
+
+    // Initialize all tab variants
+    initTabs('[data-tab]', 'data-content');
+    initTabs('[data-tab-pills]', 'data-content-pills');
+    initTabs('[data-tab-boxed]', 'data-content-boxed');
+  </script>
+</body>
+</html>

@@ -1,13 +1,20 @@
 :root,
 [data-theme="light"] {
-  --color-bg: #f3efe6;
-  --color-bg-accent: radial-gradient(circle at top, rgba(167, 107, 75, 0.18), transparent 45%), linear-gradient(180deg, #fbf8f1 0%, #efe6d9 100%);
-  --color-surface: rgba(255, 251, 245, 0.86);
-  --color-surface-strong: #fffaf2;
-  --color-border: rgba(106, 74, 55, 0.16);
-  --color-text: #2f241d;
-  --color-text-muted: #6e5a4e;
-  --color-accent: #9f5c36;
-  --color-accent-strong: #7d4423;
-  --color-accent-contrast: #fff8f1;
+  --ds-color-bg-page: #f7f0e2;
+  --ds-color-bg-page-alt: #eee3cd;
+  --ds-color-bg-surface: rgba(255, 250, 241, 0.92);
+  --ds-color-bg-elevated: #fcf4e6;
+  --ds-color-text-primary: #2f2418;
+  --ds-color-text-secondary: #66523d;
+  --ds-color-text-muted: #8a745e;
+  --ds-color-accent-primary: #b28a3c;
+  --ds-color-accent-light: #dcc489;
+  --ds-color-accent-dark: #876520;
+  --ds-color-border-subtle: rgba(92, 71, 42, 0.16);
+  --ds-color-border-accent: rgba(178, 138, 60, 0.34);
+  --ds-color-danger: #b34a43;
+  --ds-color-overlay: rgba(35, 24, 13, 0.5);
+
+  --ds-shadow-soft: 0 18px 42px rgba(86, 63, 34, 0.12);
+  --ds-shadow-glow: 0 0 24px rgba(178, 138, 60, 0.14);
 }

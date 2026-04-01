@@ -11,7 +11,12 @@ Project agent note:
 
 Frontend agent rule:
 
-- For frontend work, the agent must use the project UI Kit as the default source of truth unless the user explicitly requests another direction.
-- Primary UI Kit design source: `specs/UI/UIKit.vue`
+- For frontend work, the agent must first consult `specs/docs/DESIGN_SYSTEM.md` and use it as the project-level source of truth unless the user explicitly requests another direction.
+- The approved project design-system reference is `specs/docs/DESIGN_SYSTEM.md`.
+- For work specifically within `specs/v0.1.0/phase-2-core-frontend`, if there is any overlap or conflict, the agent must prefer `specs/v0.1.0/phase-2-core-frontend/DESIGN_SYSTEM.md` as the phase-level implementation reference.
+- The current visual reference implementation is `frontend/src/pages/dev/UIKit.vue`.
+- The original UI Kit template source remains `specs/UI/UIKit.vue`.
 - Working app implementation must keep the UI Kit page dev-only, public without authorization, and fully autonomous from backend/auth flows.
-- New frontend components and pages should follow UI Kit tokens, structure, and interaction patterns by default.
+- New frontend components and pages should follow the design-system tokens, component map, structure, and interaction patterns by default.
+- If local frontend code, the UI Kit page, and older docs diverge, the agent should reconcile them toward `specs/docs/DESIGN_SYSTEM.md` and update documentation as part of the work when appropriate.
+- While executing `phase-2-core-frontend`, the agent should reconcile implementation details toward `specs/v0.1.0/phase-2-core-frontend/DESIGN_SYSTEM.md`, and only then sync higher-level docs when needed.

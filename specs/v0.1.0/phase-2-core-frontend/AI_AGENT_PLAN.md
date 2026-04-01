@@ -9,9 +9,12 @@ Before implementing the frontend shell, the agent must review:
 2. `specs/docs/TECHNICAL_SPEC.md`
 3. `specs/docs/IMPLEMENTATION_ROADMAP.md`
 4. `specs/v0.1.0/phase-2-core-frontend/README.md`
-5. `specs/v0.1.0/phase-2-core-frontend/MANUAL_TESTS.md`
+5. `specs/v0.1.0/phase-2-core-frontend/DESIGN_SYSTEM.md`
+6. `specs/v0.1.0/phase-2-core-frontend/MANUAL_TESTS.md`
 
 The agent must verify route structure, component inventory, auth flows, and i18n expectations before editing the frontend.
+
+If there is any overlap between central project docs and the local phase design-system document, implementation decisions for this phase must follow `specs/v0.1.0/phase-2-core-frontend/DESIGN_SYSTEM.md`.
 
 ## Mission
 
@@ -73,7 +76,7 @@ Keep services thin and route all stateful logic into stores.
 
 These primitives should:
 
-- respect theme variables
+- respect the phase design-system tokens and component map
 - be reusable by auth pages and later tarot/admin pages
 - be visible in the UI Kit
 
@@ -132,8 +135,8 @@ Keep composables small and focused on view-facing convenience logic.
 - do not add admin business pages yet
 - do not create one-off UI patterns that bypass the shared component layer
 - do not introduce frontend state that contradicts backend truth
+- do not resolve design ambiguity by inventing a third UI direction; prefer `specs/v0.1.0/phase-2-core-frontend/DESIGN_SYSTEM.md`
 
 ## Completion Standard
 
 This phase is complete only when a user can register, log in, land on a protected dashboard shell, and navigate a stable base application layout.
-

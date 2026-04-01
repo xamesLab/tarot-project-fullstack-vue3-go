@@ -1,0 +1,43 @@
+.base-surface {
+  position: relative;
+  background: var(--ds-color-bg-surface);
+  border: var(--ds-border-width) solid var(--ds-color-border-subtle);
+  box-shadow: var(--ds-shadow-soft);
+}
+
+.base-surface--elevated {
+  background: var(--ds-color-bg-elevated);
+}
+
+.base-surface--ghost {
+  background: rgba(0, 0, 0, 0.38);
+}
+
+.base-surface--outlined {
+  border-color: var(--ds-color-border-accent);
+}
+
+.base-surface--padding-sm {
+  padding: var(--ds-space-4);
+}
+
+.base-surface--padding-md {
+  padding: var(--ds-space-6);
+}
+
+.base-surface--padding-lg {
+  padding: var(--ds-space-10);
+}
+
+.base-surface--hoverable {
+  transition:
+    border-color var(--ds-motion-base),
+    box-shadow var(--ds-motion-base),
+    transform var(--ds-motion-base);
+}
+
+.base-surface--hoverable:hover {
+  transform: translateY(-2px);
+  border-color: var(--ds-color-border-accent);
+  box-shadow: var(--ds-shadow-soft), var(--ds-shadow-glow);
+}

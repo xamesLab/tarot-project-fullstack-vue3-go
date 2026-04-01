@@ -2,8 +2,8 @@
 ## Tarot Daily - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** March 31, 2026  
-**Status:** Draft for Review
+**Last Updated:** April 1, 2026  
+**Status:** Working Baseline
 
 ---
 
@@ -46,8 +46,11 @@
 - Build vertically (full stack features one at a time)
 - Test early and often (manual validation)
 - UI Kit first for all frontend work
+- Frontend implementation must reconcile with `specs/docs/DESIGN_SYSTEM.md`
 - Document as you build
 - Keep it simple (MVP scope only)
+
+**Current note:** preparatory frontend design-system work and `phase-2-core-frontend` baseline have already been completed. The approved project-level reference now lives in `specs/docs/DESIGN_SYSTEM.md`, and the next implementation focus is `phase-3-reading-features`.
 
 ### 1.3 Definition of Done
 
@@ -433,6 +436,11 @@ func GetAccountingDate(timezone string) (string, error) {
 **Duration:** 7-10 days  
 **Goal:** Build UI foundation, authentication flows, and layout
 
+**Frontend implementation baseline:**
+- use `specs/docs/DESIGN_SYSTEM.md` as the primary design and component reference
+- treat `frontend/src/pages/dev/UIKit.vue` as the visual showcase/reference implementation
+- do not introduce a second parallel UI language outside the design-system layer
+
 ### 5.2.1 API Service Layer
 
 **Tasks:**
@@ -532,41 +540,59 @@ func GetAccountingDate(timezone string) (string, error) {
 
 **Tasks:**
 
-**Common Components:**
-- [ ] Create `components/common/Button.vue`:
-  - Props: variant (primary, secondary, ghost), size, disabled
-  - Emit: click event
-  - Apply theme CSS variables
-  - Add to UI Kit page
+**Base Components:**
+- [ ] Create `components/base/BaseButton.vue`:
+  - variants from design system (`primary`, `secondary`, `ghost`, `outlined`, `text`)
+  - size props and disabled/loading states
+  - add to UI Kit showcase
 
-- [ ] Create `components/common/Input.vue`:
-  - Props: type, placeholder, modelValue, error
-  - Emit: update:modelValue
-  - Support validation error display
-  - Add to UI Kit page
+- [ ] Create `components/base/BaseInput.vue`:
+  - `modelValue`, `type`, `placeholder`, `error`, `disabled`
+  - support field-level error state
+  - add to UI Kit showcase
 
-- [ ] Create `components/common/Select.vue`:
-  - Props: options, modelValue, placeholder
-  - Emit: update:modelValue
-  - Add to UI Kit page
+- [ ] Create `components/base/BaseSelect.vue`:
+  - `options`, `modelValue`, `placeholder`, `error`
+  - add to UI Kit showcase
 
-- [ ] Create `components/common/Modal.vue`:
-  - Props: isOpen, title
-  - Slots: default (content), footer (actions)
-  - Emit: close event
-  - Add to UI Kit page
+- [ ] Create `components/base/BaseSurface.vue`:
+  - reusable surface wrapper for cards, auth blocks, dashboard sections
+  - align borders/backgrounds with design system
+
+- [ ] Create `components/base/BaseSegmentedToggle.vue`:
+  - use for `EN/RU` and `Light/Dark`
+  - adopt final toggle pattern from UI Kit
+
+- [ ] Create `components/base/BaseSwitchToggle.vue`:
+  - use for binary settings controls
+  - add to UI Kit showcase
+
+- [ ] Create `components/base/BaseTabs.vue`:
+  - variants: `underline`, `pills`, `boxed`
+  - add to UI Kit showcase
+
+- [ ] Create `components/base/BaseModal.vue`:
+  - props: `isOpen`, `title`
+  - slots: content, footer
+  - add to UI Kit showcase
 
 **Layout Components:**
-- [ ] Create `components/layout/Header.vue`:
-  - Logo
-  - Navigation (Dashboard, History, Profile)
-  - Theme toggle button
-  - Language switcher
-  - Logout button (if authenticated)
+- [ ] Create `components/layout/AppHeader.vue`:
+  - Brand
+  - segmented theme/language controls
+  - user/auth actions
 
-- [ ] Create `components/layout/Footer.vue`:
-  - Copyright info
-  - Links (if any)
+- [ ] Create `components/layout/AppFooter.vue`:
+  - ornamental divider
+  - supporting copy / meta text
+
+- [ ] Create `components/layout/PageContainer.vue`
+- [ ] Create `components/layout/PageSection.vue`
+
+**Domain Components:**
+- [ ] Create `components/domain/UserChip.vue`
+- [ ] Create `components/domain/TarotCardPreview.vue`
+- [ ] Create `components/domain/ReadingCard.vue`
 
 **Composables:**
 - [ ] Create `composables/useTheme.js`:
@@ -574,12 +600,17 @@ func GetAccountingDate(timezone string) (string, error) {
   - Toggle theme
   - Apply theme to DOM
 
+- [ ] Create `composables/useLocale.js`:
+  - Get current locale
+  - Toggle EN/RU
+  - Persist locale
+
 - [ ] Create `composables/useAuth.js`:
   - Get current user
   - Check authentication
   - Logout
 
-**Deliverable:** Basic UI components in UI Kit
+**Deliverable:** Base design-system components extracted from UI Kit and ready for page reuse
 
 ---
 
@@ -655,7 +686,7 @@ func GetAccountingDate(timezone string) (string, error) {
 - ✅ Router guards protecting routes
 - ✅ Theme toggle working
 - ✅ Language switcher working
-- ✅ Basic UI components in UI Kit
+- ✅ Base design-system components extracted from UI Kit
 - ✅ Dashboard skeleton visible
 
 **Estimated Time:** 7-10 days

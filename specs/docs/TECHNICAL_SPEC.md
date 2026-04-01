@@ -2,8 +2,8 @@
 ## Tarot Daily - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** March 31, 2026  
-**Status:** Draft for Review
+**Last Updated:** April 1, 2026  
+**Status:** Working Baseline
 
 ---
 
@@ -167,9 +167,6 @@ backend/
 #### Frontend (`frontend/`)
 ```
 frontend/
-├── public/
-│   ├── index.html
-│   └── favicon.ico
 ├── src/
 │   ├── main.js            # Entry point
 │   ├── App.vue            # Root component
@@ -183,8 +180,8 @@ frontend/
 │   ├── services/
 │   │   ├── api.js         # Axios instance & interceptors
 │   │   ├── auth.js        # Auth API calls
+│   │   ├── user.js        # User API calls
 │   │   ├── reading.js     # Reading API calls
-│   │   ├── deck.js        # Deck API calls
 │   │   └── admin.js       # Admin API calls
 │   ├── pages/
 │   │   ├── Login.vue
@@ -201,45 +198,60 @@ frontend/
 │   │   └── dev/
 │   │       └── UIKit.vue  # Dev-only
 │   ├── components/
-│   │   ├── common/
-│   │   │   ├── Button.vue
-│   │   │   ├── Input.vue
-│   │   │   ├── Modal.vue
-│   │   │   ├── Select.vue
-│   │   │   └── Card.vue   # Generic card container
+│   │   ├── base/
+│   │   │   ├── BaseButton.vue
+│   │   │   ├── BaseInput.vue
+│   │   │   ├── BaseSelect.vue
+│   │   │   ├── BaseSurface.vue
+│   │   │   ├── BaseSegmentedToggle.vue
+│   │   │   ├── BaseSwitchToggle.vue
+│   │   │   ├── BaseTabs.vue
+│   │   │   └── BaseModal.vue
+│   │   ├── form/
+│   │   │   ├── FormField.vue
+│   │   │   └── AuthCard.vue
 │   │   ├── layout/
-│   │   │   ├── Header.vue
-│   │   │   ├── Footer.vue
-│   │   │   └── Sidebar.vue
-│   │   ├── tarot/
-│   │   │   ├── TarotCard.vue       # Single tarot card display
-│   │   │   ├── CardOfDay.vue       # Card of day component
-│   │   │   ├── ThreeCardSpread.vue # 3-card spread component
-│   │   │   └── ReadingHistory.vue  # History list
-│   │   └── admin/
-│   │       ├── UserList.vue
-│   │       ├── DeckUpload.vue
-│   │       └── PolicyEditor.vue
+│   │   │   ├── AppHeader.vue
+│   │   │   ├── AppFooter.vue
+│   │   │   ├── PageContainer.vue
+│   │   │   └── PageSection.vue
+│   │   ├── domain/
+│   │   │   ├── UserChip.vue
+│   │   │   ├── TarotCardPreview.vue
+│   │   │   └── ReadingCard.vue
+│   │   └── feedback/
+│   │       ├── EmptyStateCard.vue
+│   │       └── LoadingCard.vue
 │   ├── composables/
 │   │   ├── useAuth.js     # Auth composition
-│   │   ├── useReading.js  # Reading composition
+│   │   ├── useLocale.js   # Locale composition
 │   │   └── useTheme.js    # Theme composition
 │   ├── locales/
 │   │   ├── en.json        # English translations
 │   │   └── ru.json        # Russian translations
 │   ├── styles/
-│   │   ├── main.scss      # Global styles
-│   │   ├── variables.scss # SCSS variables
+│   │   ├── main.scss      # Global styles entry
+│   │   ├── tokens.scss    # Design tokens
 │   │   ├── themes/
 │   │   │   ├── _light.scss
 │   │   │   └── _dark.scss
-│   │   └── components/    # Component-specific styles
+│   │   ├── foundations/
+│   │   │   ├── _reset.scss
+│   │   │   ├── _typography.scss
+│   │   │   └── _motion.scss
+│   │   └── components/
+│   │       ├── _button.scss
+│   │       ├── _field.scss
+│   │       ├── _surface.scss
+│   │       └── _tabs.scss
 │   └── utils/
 │       ├── date.js        # Date formatting
 │       └── validators.js  # Form validation
 ├── package.json
 └── vite.config.js
 ```
+
+**Design-system note:** canonical frontend visual and component architecture is defined in `specs/docs/DESIGN_SYSTEM.md`. The UI Kit page at `frontend/src/pages/dev/UIKit.vue` is the approved dev-only showcase/reference implementation for `v0.1.0`.
 
 ---
 
@@ -1610,54 +1622,38 @@ const formatDate = (date, language) => {
 
 ## 8. Theme System
 
+**Reference:** theme tokens, semantic roles, component states, and reusable UI primitives must follow `specs/docs/DESIGN_SYSTEM.md`.
+
 ### 8.1 CSS Variables
 
 **Base Structure:**
 ```scss
 // src/styles/themes/_light.scss
 :root {
-  // Colors
-  --color-background: #ffffff;
-  --color-surface: #f7fafc;
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #4a5568;
-  --color-border: #e2e8f0;
-  
-  // Primary palette
-  --color-primary: #6b46c1;
-  --color-primary-hover: #553c9a;
-  --color-primary-light: #9f7aea;
-  
-  // Semantic colors
-  --color-success: #38a169;
-  --color-warning: #d69e2e;
-  --color-error: #e53e3e;
-  --color-info: #3182ce;
-  
-  // Card specific
-  --card-background: #ffffff;
-  --card-border: #e2e8f0;
-  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  
-  // Transitions
-  --transition-speed: 0.2s;
+  --ds-color-bg-page: #f5f0e6;
+  --ds-color-bg-surface: #fffaf2;
+  --ds-color-text-primary: #2f241d;
+  --ds-color-text-secondary: #6e5a4e;
+  --ds-color-accent-primary: #9f5c36;
+  --ds-color-border-subtle: rgba(106, 74, 55, 0.16);
+  --ds-motion-base: 300ms ease;
 }
 
 // src/styles/themes/_dark.scss
 [data-theme="dark"] {
-  --color-background: #1a1a1a;
-  --color-surface: #2d3748;
-  --color-text-primary: #f7fafc;
-  --color-text-secondary: #cbd5e0;
-  --color-border: #4a5568;
-  
-  --color-primary: #9f7aea;
-  --color-primary-hover: #b794f4;
-  --color-primary-light: #d6bcfa;
-  
-  --card-background: #2d3748;
-  --card-border: #4a5568;
-  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --ds-color-bg-page: #000000;
+  --ds-color-bg-page-alt: #0d0d0d;
+  --ds-color-bg-surface: #1a1a1a;
+  --ds-color-bg-elevated: #111111;
+  --ds-color-text-primary: #ffffff;
+  --ds-color-text-secondary: #c4c4c4;
+  --ds-color-text-muted: #6b6b6b;
+  --ds-color-accent-primary: #d4af37;
+  --ds-color-accent-light: #f4e5b0;
+  --ds-color-accent-dark: #9b7e1f;
+  --ds-color-border-subtle: rgba(212, 175, 55, 0.18);
+  --ds-color-border-accent: rgba(212, 175, 55, 0.45);
+  --ds-motion-base: 300ms ease;
 }
 ```
 
@@ -2063,4 +2059,3 @@ VITE_API_URL=https://api.tarot-daily.com
 **End of Technical Specification**
 
 **Next Document:** Implementation Roadmap (phased development plan)
-

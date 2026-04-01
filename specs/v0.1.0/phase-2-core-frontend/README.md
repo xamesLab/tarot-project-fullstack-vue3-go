@@ -6,6 +6,14 @@
 
 ## Что должно быть реализовано
 
+### Артефакты дизайна
+
+- разработка должна в первую очередь опираться на [specs/docs/DESIGN_SYSTEM.md](../../docs/DESIGN_SYSTEM.md)
+- локальный [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) используется как фазовый артефакт и рабочая копия для `phase-2`
+- если между центральным docs и локальным phase-2 design-system есть пересечения или расхождения, реализация этого этапа должна следовать локальному [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)
+- `frontend/src/pages/dev/UIKit.vue` считается visual reference для `v0.1.0`
+- новые страницы и компоненты не должны вводить второй параллельный UI-язык
+
 ### 1. API слой
 
 - общий `Axios` client
@@ -65,6 +73,18 @@
 
 После этапа пользователь уже может открыть приложение, зарегистрироваться, войти, попасть на защищённый dashboard и пользоваться базовой оболочкой интерфейса.
 
+## Текущее состояние реализации
+
+На `April 1, 2026` этап собран как рабочий baseline для перехода к `phase-3`.
+
+- реализованы `Axios` client, `auth/user/reading` services и глобальные stores `auth/app/readings`
+- добавлены router guards для публичных, приватных, admin и dev-only маршрутов
+- собраны базовые primitives и layout shell по локальному `DESIGN_SYSTEM.md`
+- реализованы `Login`, `Register`, `Dashboard`, `Profile`, `History` и admin placeholders
+- `Profile` подключён к `PATCH /api/me/profile`, настройки темы и языка к `PATCH /api/me/settings`
+- `UI Kit` показывает вынесенные phase-2 base components как reusable showcase
+- production build frontend проходит и подтверждает целостность shell-слоя
+
 ## Зависимости
 
 - завершённый backend этапа 1
@@ -77,4 +97,3 @@
 - тема и язык переключаются
 - UI Kit содержит базовые компоненты
 - skeleton dashboard отображается после логина
-

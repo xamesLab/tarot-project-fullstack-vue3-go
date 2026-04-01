@@ -5,6 +5,7 @@
 - `specs/docs/PRD.md`
 - `specs/docs/TECHNICAL_SPEC.md`
 - `specs/docs/IMPLEMENTATION_ROADMAP.md`
+- `specs/docs/DESIGN_SYSTEM.md`
 
 Цель структуры `v0.1.0` — превратить общую дорожную карту в удобные для исполнения пакеты работ. Каждый этап оформлен отдельной папкой и включает:
 
@@ -32,6 +33,6 @@
 
 - не выходить за рамки MVP, зафиксированного в `PRD`
 - держать frontend и backend синхронизированными по API-контрактам из `TECHNICAL_SPEC`
+- для frontend-реализации опираться на `DESIGN_SYSTEM.md` и dev-only `UI Kit` как на source of truth
 - использовать вертикальную разработку и раннюю ручную проверку
 - учитывать двуязычность, темы и mobile-first поведение как обязательные условия готовности
-

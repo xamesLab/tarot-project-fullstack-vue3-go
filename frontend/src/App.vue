@@ -1,81 +1,85 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 
-const { locale, t } = useI18n()
+import AppFooter from './components/layout/AppFooter.vue'
+import AppHeader from './components/layout/AppHeader.vue'
+import BaseSurface from './components/base/BaseSurface.vue'
+import { useLocale } from './composables/useLocale'
+import { useTheme } from './composables/useTheme'
+import { APP_FORBIDDEN_EVENT, APP_UNAUTHORIZED_EVENT } from './services/api'
+import { useAppStore } from './stores/app'
+import { useAuthStore } from './stores/auth'
+
 const route = useRoute()
+const router = useRouter()
+const appStore = useAppStore()
+const authStore = useAuthStore()
 
-const storedTheme = typeof window !== 'undefined' ? window.localStorage.getItem('theme') : null
-const storedLanguage = typeof window !== 'undefined' ? window.localStorage.getItem('language') : null
+useTheme()
+useLocale()
 
-const theme = ref(storedTheme || 'light')
+const isReady = ref(false)
 
-if (storedLanguage && ['en', 'ru'].includes(storedLanguage)) {
-  locale.value = storedLanguage
+function handleUnauthorized() {
+  if (!authStore.hasToken) {
+    return
+  }
+
+  authStore.logout()
+
+  if (!['/login', '/register'].includes(router.currentRoute.value.path)) {
+    router.push('/login')
+  }
 }
 
-const pageTitle = computed(() => route.meta.titleKey ? t(route.meta.titleKey) : t('app.title'))
+function handleForbidden() {
+  if (!authStore.isAuthenticated) {
+    return
+  }
 
-const isUIKitRoute = computed(() => route.path === '/ui-kit')
-const isDevMode = import.meta.env.DEV
-
-function applyTheme(value) {
-  document.documentElement.setAttribute('data-theme', value)
-  window.localStorage.setItem('theme', value)
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/')
+  }
 }
 
-function toggleTheme() {
-  theme.value = theme.value === 'light' ? 'dark' : 'light'
-}
+onMounted(async () => {
+  appStore.init()
+  await authStore.hydrateSession()
+  isReady.value = true
 
-function toggleLanguage() {
-  locale.value = locale.value === 'en' ? 'ru' : 'en'
-}
-
-onMounted(() => {
-  applyTheme(theme.value)
+  if (typeof window !== 'undefined') {
+    window.addEventListener(APP_UNAUTHORIZED_EVENT, handleUnauthorized)
+    window.addEventListener(APP_FORBIDDEN_EVENT, handleForbidden)
+  }
 })
 
-watch(theme, (value) => {
-  applyTheme(value)
-})
-
-watch(locale, (value) => {
-  window.localStorage.setItem('language', value)
-  document.documentElement.setAttribute('lang', value)
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener(APP_UNAUTHORIZED_EVENT, handleUnauthorized)
+    window.removeEventListener(APP_FORBIDDEN_EVENT, handleForbidden)
+  }
 })
 </script>
 
 <template>
-  <div :class="['app-shell', { 'app-shell--ui-kit': isUIKitRoute }]">
-    <header class="app-shell__header">
-      <div>
-        <p class="app-shell__eyebrow">{{ t('app.badge') }}</p>
-        <h1 class="app-shell__title">{{ pageTitle }}</h1>
-      </div>
+  <RouterView v-if="route.path === '/ui-kit'" />
 
-      <div class="app-shell__actions">
-        <button class="shell-button shell-button--ghost" type="button" @click="toggleLanguage">
-          {{ locale.toUpperCase() }}
-        </button>
-        <button class="shell-button" type="button" @click="toggleTheme">
-          {{ theme === 'light' ? t('app.darkMode') : t('app.lightMode') }}
-        </button>
-      </div>
-    </header>
+  <div v-else-if="isReady" class="app-root">
+    <AppHeader />
 
-    <nav class="app-shell__nav" aria-label="Primary">
-      <RouterLink class="nav-link" to="/">{{ t('nav.home') }}</RouterLink>
-      <RouterLink v-if="isDevMode" class="nav-link" to="/ui-kit">{{ t('nav.uiKit') }}</RouterLink>
-    </nav>
-
-    <main class="app-shell__content">
+    <main class="app-main">
       <RouterView />
     </main>
 
-    <footer v-if="!isUIKitRoute" class="app-shell__footer">
-      <p>{{ t('app.footer') }}</p>
-    </footer>
+    <AppFooter />
+  </div>
+
+  <div v-else class="app-splash">
+    <BaseSurface class="app-splash__panel" tone="outlined" padding="lg" tag="section">
+      <h1 class="app-splash__title">Tarot Daily</h1>
+      <p class="app-splash__copy">Initializing application shell and restoring session.</p>
+      <div class="app-splash__loader"></div>
+    </BaseSurface>
   </div>
 </template>

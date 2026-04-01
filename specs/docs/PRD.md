@@ -2,8 +2,8 @@
 ## Tarot Daily - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** March 31, 2026  
-**Status:** Draft for Review
+**Last Updated:** April 1, 2026  
+**Status:** Working Baseline
 
 ---
 
@@ -63,6 +63,10 @@
 - 5-card spreads
 - Custom spread creation
 - Object storage (using local storage)
+
+**Approved Frontend Reference:**
+- MVP frontend implementation should follow the project design system in `specs/docs/DESIGN_SYSTEM.md`
+- `frontend/src/pages/dev/UIKit.vue` is the approved visual reference implementation for `v0.1.0`
 
 ---
 
@@ -1299,4 +1303,3 @@ Card of Day seed: hash(user_id + "2026-03-30" + "Europe/Amsterdam")
 **Review Cycle:** Monthly or as needed
 
 ---
-

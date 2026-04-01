@@ -1,0 +1,41 @@
+:root {
+  --ds-font-display: "Cinzel", "Times New Roman", serif;
+  --ds-font-body: "Cormorant Garamond", "Georgia", serif;
+  --ds-font-ui: "Inter", "Segoe UI", sans-serif;
+
+  --ds-text-display-1: 56px;
+  --ds-text-display-2: 42px;
+  --ds-text-heading-1: 32px;
+  --ds-text-heading-2: 24px;
+  --ds-text-heading-3: 18px;
+  --ds-text-body-lg: 20px;
+  --ds-text-body-md: 16px;
+  --ds-text-body-sm: 14px;
+  --ds-text-label: 12px;
+  --ds-text-caption: 11px;
+
+  --ds-space-2: 8px;
+  --ds-space-3: 12px;
+  --ds-space-4: 16px;
+  --ds-space-5: 20px;
+  --ds-space-6: 24px;
+  --ds-space-8: 32px;
+  --ds-space-10: 40px;
+  --ds-space-12: 48px;
+  --ds-space-15: 60px;
+
+  --ds-border-width: 1px;
+  --ds-border-width-strong: 2px;
+  --ds-radius-none: 0;
+
+  --ds-shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.32);
+  --ds-shadow-glow: 0 0 24px rgba(212, 175, 55, 0.18);
+
+  --ds-motion-fast: 160ms ease;
+  --ds-motion-base: 300ms ease;
+  --ds-motion-slow: 420ms ease;
+
+  --ds-header-height: 88px;
+  --ds-container-max: 1400px;
+  --ds-page-max: 1240px;
+}
