@@ -34,6 +34,7 @@ type Reading struct {
 	Timezone       string             `bson:"timezone" json:"timezone"`
 	Cards          []ReadingCard      `bson:"cards" json:"cards"`
 	DeckID         string             `bson:"deck_id" json:"deck_id"`
+	BackID         string             `bson:"back_id,omitempty" json:"back_id,omitempty"`
 	GeneratedAt    time.Time          `bson:"generated_at" json:"generated_at"`
 	ExpiresAt      time.Time          `bson:"expires_at" json:"expires_at"`
 	Metadata       ReadingMetadata    `bson:"metadata,omitempty" json:"metadata,omitempty"`
@@ -48,6 +49,7 @@ type ReadingCardResponse struct {
 	Tags             string `json:"tags"`
 	TagsRU           string `json:"tags_ru"`
 	ImageURL         string `json:"image_url"`
+	BackImageURL     string `json:"back_image_url,omitempty"`
 	Position         int    `json:"position"`
 	Reversed         bool   `json:"reversed"`
 }
@@ -64,6 +66,7 @@ type ReadingResponse struct {
 	GeneratedAt     time.Time             `json:"generated_at"`
 	Cards           []ReadingCardResponse `json:"cards"`
 	DeckID          string                `json:"deck_id,omitempty"`
+	BackID          string                `json:"back_id,omitempty"`
 	NextAvailableAt *time.Time            `json:"next_available_at,omitempty"`
 	RemainingToday  *RemainingToday       `json:"remaining_today,omitempty"`
 }

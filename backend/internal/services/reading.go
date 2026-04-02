@@ -49,28 +49,31 @@ type ReadingHistoryResult struct {
 }
 
 type ReadingService struct {
-	users    *repositories.UserRepository
-	cards    *repositories.CardRepository
-	readings *repositories.ReadingRepository
-	policies *repositories.PolicyRepository
-	settings *repositories.AdminSettingsRepository
-	now      func() time.Time
+	users     *repositories.UserRepository
+	cards     *repositories.CardRepository
+	cardBacks *repositories.CardBackRepository
+	readings  *repositories.ReadingRepository
+	policies  *repositories.PolicyRepository
+	settings  *repositories.AdminSettingsRepository
+	now       func() time.Time
 }
 
 func NewReadingService(
 	users *repositories.UserRepository,
 	cards *repositories.CardRepository,
+	cardBacks *repositories.CardBackRepository,
 	readings *repositories.ReadingRepository,
 	policies *repositories.PolicyRepository,
 	settings *repositories.AdminSettingsRepository,
 ) *ReadingService {
 	return &ReadingService{
-		users:    users,
-		cards:    cards,
-		readings: readings,
-		policies: policies,
-		settings: settings,
-		now:      time.Now,
+		users:     users,
+		cards:     cards,
+		cardBacks: cardBacks,
+		readings:  readings,
+		policies:  policies,
+		settings:  settings,
+		now:       time.Now,
 	}
 }
 
@@ -80,6 +83,10 @@ func (s *ReadingService) GenerateCardOfDay(ctx context.Context, userID primitive
 		return nil, err
 	}
 	deckID, err := s.resolveEffectiveDeckID(ctx, user.SelectedDeckID)
+	if err != nil {
+		return nil, err
+	}
+	backID, err := s.resolveEffectiveBackID(ctx, user.SelectedBackID)
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +127,7 @@ func (s *ReadingService) GenerateCardOfDay(ctx context.Context, userID primitive
 			{Key: selectedKey, Position: 0, Reversed: false},
 		},
 		DeckID:      deckID,
+		BackID:      backID,
 		GeneratedAt: now,
 		ExpiresAt:   now.AddDate(0, 0, policy.HistoryRetentionDays),
 		Metadata: models.ReadingMetadata{
@@ -146,6 +154,10 @@ func (s *ReadingService) GenerateThreeCardSpread(ctx context.Context, userID pri
 		return nil, err
 	}
 	deckID, err := s.resolveEffectiveDeckID(ctx, user.SelectedDeckID)
+	if err != nil {
+		return nil, err
+	}
+	backID, err := s.resolveEffectiveBackID(ctx, user.SelectedBackID)
 	if err != nil {
 		return nil, err
 	}
@@ -189,6 +201,7 @@ func (s *ReadingService) GenerateThreeCardSpread(ctx context.Context, userID pri
 		Timezone:       timezone,
 		Cards:          readingCards,
 		DeckID:         deckID,
+		BackID:         backID,
 		GeneratedAt:    now,
 		ExpiresAt:      now.AddDate(0, 0, policy.HistoryRetentionDays),
 		Metadata: models.ReadingMetadata{
@@ -329,8 +342,19 @@ func (s *ReadingService) buildReadingResponses(ctx context.Context, readings []m
 		cardMap[card.Key] = card
 	}
 
+	settings, err := s.settings.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defaultBackID := resolveBackID(settings.DefaultBackID)
+	backImageURLs, err := s.buildBackImageURLMap(ctx, readings, defaultBackID)
+	if err != nil {
+		return nil, err
+	}
+
 	responses := make([]models.ReadingResponse, 0, len(readings))
 	for _, reading := range readings {
+		effectiveBackID := resolveReadingBackID(reading.BackID, defaultBackID)
 		responseCards := make([]models.ReadingCardResponse, 0, len(reading.Cards))
 		for _, readingCard := range reading.Cards {
 			card, ok := cardMap[readingCard.Key]
@@ -347,6 +371,7 @@ func (s *ReadingService) buildReadingResponses(ctx context.Context, readings []m
 				Tags:             card.Tags.EN,
 				TagsRU:           card.Tags.RU,
 				ImageURL:         buildCardImageURL(reading.DeckID, card.Key),
+				BackImageURL:     backImageURLs[effectiveBackID],
 				Position:         readingCard.Position,
 				Reversed:         readingCard.Reversed,
 			})
@@ -363,6 +388,7 @@ func (s *ReadingService) buildReadingResponses(ctx context.Context, readings []m
 			GeneratedAt:    reading.GeneratedAt,
 			Cards:          responseCards,
 			DeckID:         reading.DeckID,
+			BackID:         effectiveBackID,
 		}
 		if remaining != nil && reading.Type == models.ReadingTypeThreeCard {
 			copyRemaining := *remaining
@@ -394,6 +420,14 @@ func resolveDeckID(deckID string) string {
 	return deckID
 }
 
+func resolveBackID(backID string) string {
+	backID = strings.TrimSpace(backID)
+	if backID == "" {
+		return "default"
+	}
+	return backID
+}
+
 func (s *ReadingService) resolveEffectiveDeckID(ctx context.Context, selectedDeckID string) (string, error) {
 	selectedDeckID = strings.TrimSpace(selectedDeckID)
 	if selectedDeckID != "" {
@@ -406,6 +440,20 @@ func (s *ReadingService) resolveEffectiveDeckID(ctx context.Context, selectedDec
 	}
 
 	return resolveDeckID(settings.DefaultDeckID), nil
+}
+
+func (s *ReadingService) resolveEffectiveBackID(ctx context.Context, selectedBackID string) (string, error) {
+	selectedBackID = strings.TrimSpace(selectedBackID)
+	if selectedBackID != "" {
+		return selectedBackID, nil
+	}
+
+	settings, err := s.settings.Get(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return resolveBackID(settings.DefaultBackID), nil
 }
 
 func buildDeterministicSeed(userID, accountingDate, timezone string) string {
@@ -467,11 +515,68 @@ func uniqueCardKeys(readings []models.Reading) []string {
 	return keys
 }
 
+func uniqueBackIDs(readings []models.Reading, defaultBackID string) []string {
+	set := make(map[string]struct{})
+	for _, reading := range readings {
+		backID := resolveReadingBackID(reading.BackID, defaultBackID)
+		set[backID] = struct{}{}
+	}
+
+	keys := make([]string, 0, len(set))
+	for key := range set {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func resolveReadingBackID(backID, defaultBackID string) string {
+	backID = strings.TrimSpace(backID)
+	if backID != "" {
+		return backID
+	}
+	return resolveBackID(defaultBackID)
+}
+
 func buildCardImageURL(deckID, cardKey string) string {
 	deckID = resolveDeckID(deckID)
 	relativePath := fmt.Sprintf("/uploads/decks/%s/cards/%s.png", deckID, cardKey)
 	absolutePath := filepath.Join("uploads", "decks", deckID, "cards", cardKey+".png")
 
+	if _, err := os.Stat(absolutePath); err != nil {
+		return ""
+	}
+
+	return relativePath
+}
+
+func (s *ReadingService) buildBackImageURLMap(ctx context.Context, readings []models.Reading, defaultBackID string) (map[string]string, error) {
+	backIDs := uniqueBackIDs(readings, defaultBackID)
+	backImageURLs := make(map[string]string, len(backIDs))
+
+	for _, backID := range backIDs {
+		cardBack, err := s.cardBacks.FindByID(ctx, backID)
+		if err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				backImageURLs[backID] = ""
+				continue
+			}
+			return nil, err
+		}
+
+		backImageURLs[backID] = buildStoredAssetURL(cardBack.ImagePath)
+	}
+
+	return backImageURLs, nil
+}
+
+func buildStoredAssetURL(relativePath string) string {
+	relativePath = strings.TrimSpace(relativePath)
+	if relativePath == "" {
+		return ""
+	}
+
+	absolutePath := filepath.Clean(strings.TrimPrefix(relativePath, "/"))
 	if _, err := os.Stat(absolutePath); err != nil {
 		return ""
 	}

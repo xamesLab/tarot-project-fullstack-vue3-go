@@ -25,6 +25,7 @@ const props = defineProps({
 
 const { locale } = useI18n()
 const imageLoadFailed = ref(false)
+const backImageLoadFailed = ref(false)
 
 const title = computed(() => (locale.value === 'ru' ? props.card.name_ru : props.card.name) || props.card.name)
 const interpretation = computed(() => (
@@ -39,11 +40,13 @@ const ornamentSymbol = computed(() => {
   return symbols[props.card.position] || '✦'
 })
 const imageUrl = computed(() => resolveApiAssetUrl(props.card.image_url))
+const backImageUrl = computed(() => resolveApiAssetUrl(props.card.back_image_url))
 
 watch(
-  () => props.card?.image_url,
+  () => [props.card?.image_url, props.card?.back_image_url],
   () => {
     imageLoadFailed.value = false
+    backImageLoadFailed.value = false
   },
   { immediate: true },
 )
@@ -69,6 +72,14 @@ watch(
           class="tarot-card__image"
           loading="lazy"
           @error="imageLoadFailed = true"
+        />
+        <img
+          v-else-if="backImageUrl && !backImageLoadFailed"
+          :src="backImageUrl"
+          :alt="`${title} card back`"
+          class="tarot-card__image tarot-card__image--back"
+          loading="lazy"
+          @error="backImageLoadFailed = true"
         />
         <div v-else class="tarot-card__ornament">
           <span class="tarot-card__symbol">{{ ornamentSymbol }}</span>
@@ -185,6 +196,10 @@ watch(
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.tarot-card__image--back {
+  opacity: 0.98;
 }
 
 .tarot-card__ornament::before,
