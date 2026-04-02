@@ -12,12 +12,15 @@
 
 .base-tabs__trigger {
   position: relative;
-  padding: 14px 22px;
+  padding: 16px 32px;
   font-family: var(--ds-font-ui);
   font-size: var(--ds-text-label);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  background: transparent;
+  border: 0;
+  border-bottom: var(--ds-border-width-strong) solid transparent;
   color: var(--ds-color-text-muted);
   cursor: pointer;
   transition:
@@ -26,12 +29,27 @@
     border-color var(--ds-motion-base);
 }
 
+.base-tabs__trigger:hover {
+  color: var(--ds-color-text-primary);
+  background: color-mix(in srgb, var(--ds-color-text-primary) 4%, transparent);
+}
+
 .base-tabs__trigger.is-active {
   color: var(--ds-color-accent-primary);
 }
 
 .base-tabs--underline .base-tabs__trigger.is-active {
-  border-bottom: var(--ds-border-width-strong) solid var(--ds-color-accent-primary);
+  border-bottom-color: var(--ds-color-accent-primary);
+}
+
+.base-tabs--underline .base-tabs__trigger.is-active::before {
+  content: "✦";
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: var(--ds-color-accent-primary);
 }
 
 .base-tabs--pills .base-tabs__list,

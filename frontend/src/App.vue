@@ -66,6 +66,7 @@ onBeforeUnmount(() => {
   <RouterView v-if="route.path === '/ui-kit'" />
 
   <div v-else-if="isReady" class="app-root">
+    <div class="app-background" aria-hidden="true"></div>
     <AppHeader />
 
     <main class="app-main">
@@ -76,10 +77,23 @@ onBeforeUnmount(() => {
   </div>
 
   <div v-else class="app-splash">
+    <div class="app-background" aria-hidden="true"></div>
     <BaseSurface class="app-splash__panel" tone="outlined" padding="lg" tag="section">
-      <h1 class="app-splash__title">Tarot Daily</h1>
+      <img class="app-splash__logo" src="/branding/nebula-tarot-logo.png" alt="Nebula Tarot" />
+      <h1 class="app-splash__title">Nebula Tarot</h1>
       <p class="app-splash__copy">Initializing application shell and restoring session.</p>
       <div class="app-splash__loader"></div>
     </BaseSurface>
   </div>
 </template>
+
+<style scoped>
+.app-splash__logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin: 0 auto 20px;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.18));
+}
+</style>

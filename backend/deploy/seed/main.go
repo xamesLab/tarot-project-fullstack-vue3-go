@@ -81,6 +81,9 @@ func main() {
 	if err := seedDefaultDeck(db); err != nil {
 		log.Fatalf("seed default deck: %v", err)
 	}
+	if err := seedDefaultCardBack(db); err != nil {
+		log.Fatalf("seed default card back: %v", err)
+	}
 
 	if err := ensureIndexes(db); err != nil {
 		log.Fatalf("ensure indexes: %v", err)
@@ -220,6 +223,8 @@ func seedAdminSettings(db *mongo.Database) error {
 		"maintenance_mode":     false,
 		"maintenance_message":  bson.M{"en": "Site under maintenance", "ru": "Сайт на обслуживании"},
 		"default_role":         "seeker",
+		"default_deck_id":      "default",
+		"default_back_id":      "default",
 		"registration_enabled": true,
 		"created_at":           time.Now().UTC(),
 		"updated_at":           time.Now().UTC(),
@@ -253,6 +258,28 @@ func seedDefaultDeck(db *mongo.Database) error {
 	return err
 }
 
+func seedDefaultCardBack(db *mongo.Database) error {
+	collection := db.Collection("card_backs")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := collection.Drop(ctx); err != nil {
+		return fmt.Errorf("drop card_backs collection: %w", err)
+	}
+
+	_, err := collection.InsertOne(ctx, bson.M{
+		"_id":         "default",
+		"name":        bson.M{"en": "Classic Back", "ru": "Классическая рубашка"},
+		"description": bson.M{"en": "Default classic card back.", "ru": "Базовая классическая рубашка карт."},
+		"tags":        []string{"traditional", "classic"},
+		"status":      "done",
+		"image_path":  "/uploads/decks/default/back.png",
+		"created_at":  time.Now().UTC(),
+		"updated_at":  time.Now().UTC(),
+	})
+	return err
+}
+
 func ensureIndexes(db *mongo.Database) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
@@ -272,6 +299,13 @@ func ensureIndexes(db *mongo.Database) error {
 	}
 
 	if _, err := db.Collection("decks").Indexes().CreateMany(ctx, []mongo.IndexModel{
+		{Keys: bson.D{{Key: "status", Value: 1}}},
+		{Keys: bson.D{{Key: "tags", Value: 1}}},
+	}); err != nil {
+		return err
+	}
+
+	if _, err := db.Collection("card_backs").Indexes().CreateMany(ctx, []mongo.IndexModel{
 		{Keys: bson.D{{Key: "status", Value: 1}}},
 		{Keys: bson.D{{Key: "tags", Value: 1}}},
 	}); err != nil {

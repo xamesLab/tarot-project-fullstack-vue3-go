@@ -4,14 +4,14 @@ import "github.com/golang-jwt/jwt/v5"
 
 type RegisterRequest struct {
 	Email    string `json:"email" validate:"required,email"`
-	Username string `json:"username" validate:"required,min=3,max=20,alphanum"`
+	Username string `json:"username" validate:"omitempty,min=3,max=20,username"`
 	Password string `json:"password" validate:"required,min=8,password"`
 	Timezone string `json:"timezone" validate:"required,timezone"`
 }
 
 type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8"`
+	Password string `json:"password" validate:"required"`
 }
 
 type JWTClaims struct {

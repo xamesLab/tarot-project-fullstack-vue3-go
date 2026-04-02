@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"tarot-daily/internal/models"
@@ -89,17 +90,17 @@ func (r *UserRepository) UpdateProfile(ctx context.Context, id primitive.ObjectI
 
 func (r *UserRepository) UpdateSettings(ctx context.Context, id primitive.ObjectID, req models.UpdateSettingsRequest) (*models.User, error) {
 	update := bson.M{"updated_at": time.Now().UTC()}
-	if req.Language != "" {
-		update["language"] = req.Language
+	if req.Language != nil {
+		update["language"] = *req.Language
 	}
-	if req.Theme != "" {
-		update["theme"] = req.Theme
+	if req.Theme != nil {
+		update["theme"] = *req.Theme
 	}
-	if req.SelectedDeckID != "" {
-		update["selected_deck_id"] = req.SelectedDeckID
+	if req.SelectedDeckID != nil {
+		update["selected_deck_id"] = *req.SelectedDeckID
 	}
-	if req.SelectedBackID != "" {
-		update["selected_back_id"] = req.SelectedBackID
+	if req.SelectedBackID != nil {
+		update["selected_back_id"] = *req.SelectedBackID
 	}
 
 	if err := r.collection.FindOneAndUpdate(
@@ -121,4 +122,95 @@ func (r *UserRepository) UpdateLastLogin(ctx context.Context, id primitive.Objec
 		},
 	})
 	return err
+}
+
+func (r *UserRepository) CountAll(ctx context.Context) (int64, error) {
+	return r.collection.CountDocuments(ctx, bson.M{})
+}
+
+func (r *UserRepository) CountByRole(ctx context.Context, role string) (int64, error) {
+	return r.collection.CountDocuments(ctx, bson.M{"role": role})
+}
+
+func (r *UserRepository) CountByStatus(ctx context.Context, status string) (int64, error) {
+	return r.collection.CountDocuments(ctx, bson.M{"status": status})
+}
+
+func (r *UserRepository) ListAdminUsers(ctx context.Context, search, role, status string, skip, limit int64) ([]models.User, error) {
+	filter := bson.M{}
+	search = strings.TrimSpace(search)
+	if search != "" {
+		filter["$or"] = []bson.M{
+			{"username": bson.M{"$regex": search, "$options": "i"}},
+			{"email": bson.M{"$regex": search, "$options": "i"}},
+		}
+	}
+	if role != "" && role != "all" {
+		filter["role"] = role
+	}
+	if status != "" && status != "all" {
+		filter["status"] = status
+	}
+
+	cursor, err := r.collection.Find(ctx, filter, options.Find().
+		SetSort(bson.D{{Key: "created_at", Value: -1}}).
+		SetSkip(skip).
+		SetLimit(limit),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var users []models.User
+	if err := cursor.All(ctx, &users); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (r *UserRepository) CountAdminUsers(ctx context.Context, search, role, status string) (int64, error) {
+	filter := bson.M{}
+	search = strings.TrimSpace(search)
+	if search != "" {
+		filter["$or"] = []bson.M{
+			{"username": bson.M{"$regex": search, "$options": "i"}},
+			{"email": bson.M{"$regex": search, "$options": "i"}},
+		}
+	}
+	if role != "" && role != "all" {
+		filter["role"] = role
+	}
+	if status != "" && status != "all" {
+		filter["status"] = status
+	}
+
+	return r.collection.CountDocuments(ctx, filter)
+}
+
+func (r *UserRepository) UpdateRole(ctx context.Context, id primitive.ObjectID, role string) (*models.User, error) {
+	if err := r.collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{
+		"$set": bson.M{
+			"role":       role,
+			"updated_at": time.Now().UTC(),
+		},
+	}).Err(); err != nil {
+		return nil, err
+	}
+
+	return r.FindByID(ctx, id)
+}
+
+func (r *UserRepository) UpdateStatus(ctx context.Context, id primitive.ObjectID, status string) (*models.User, error) {
+	if err := r.collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{
+		"$set": bson.M{
+			"status":     status,
+			"updated_at": time.Now().UTC(),
+		},
+	}).Err(); err != nil {
+		return nil, err
+	}
+
+	return r.FindByID(ctx, id)
 }

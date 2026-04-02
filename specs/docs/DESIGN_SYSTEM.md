@@ -1,4 +1,4 @@
-# Design System и компонентная архитектура для `Tarot Daily`
+# Design System и компонентная архитектура для `Nebula Tarot`
 
 > Статус: принят как рабочий reference для `v0.1.0`  
 > Source of truth: `frontend/src/pages/dev/UIKit.vue`  

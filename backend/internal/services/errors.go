@@ -9,4 +9,6 @@ var (
 	ErrInvalidToken       = errors.New("invalid_token")
 	ErrForbidden          = errors.New("forbidden")
 	ErrAccountDisabled    = errors.New("account_disabled")
+	ErrCardOfDayExists    = errors.New("card_of_day_already_generated")
+	ErrDailyLimitReached  = errors.New("daily_limit_reached")
 )

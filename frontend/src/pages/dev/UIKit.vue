@@ -1,14 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
-import BaseButton from '../../components/base/BaseButton.vue'
-import BaseInput from '../../components/base/BaseInput.vue'
-import BaseModal from '../../components/base/BaseModal.vue'
-import BaseSegmentedToggle from '../../components/base/BaseSegmentedToggle.vue'
-import BaseSelect from '../../components/base/BaseSelect.vue'
-import BaseSurface from '../../components/base/BaseSurface.vue'
 import BaseSwitchToggle from '../../components/base/BaseSwitchToggle.vue'
-import BaseTabs from '../../components/base/BaseTabs.vue'
 
 const activeLanguage = ref('EN')
 const themeActive = ref(false)
@@ -22,12 +15,10 @@ const boxedTab = ref('seeker')
 const animationSpeed = ref(75)
 const cardSize = ref(50)
 const backgroundOpacity = ref(30)
-const showcaseInput = ref('')
-const showcaseSelect = ref('')
-const showcaseSwitch = ref(true)
-const showcaseSegment = ref('dark')
-const showcaseTabs = ref('overview')
-const showcaseModalOpen = ref(false)
+const toggleDarkMode = ref(true)
+const toggleSoundEffects = ref(false)
+const toggleAutoShuffle = ref(true)
+const toggleShowHints = ref(false)
 
 const defaultTabs = [
   {
@@ -116,23 +107,6 @@ function toggleFinalTheme() {
   finalThemeDark.value = !finalThemeDark.value
 }
 
-const showcaseSelectOptions = [
-  { value: 'default', label: 'Tarot Classic' },
-  { value: 'moon', label: 'Moonlit Arcana' },
-  { value: 'solar', label: 'Solar Path' },
-]
-
-const showcaseSegmentOptions = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-]
-
-const showcaseTabsItems = [
-  { value: 'overview', label: 'Overview', content: 'Base tabs are now extracted into reusable phase-2 components.' },
-  { value: 'auth', label: 'Auth', content: 'Login and Register pages are composed from BaseInput, BaseButton, FormField, and AuthCard.' },
-  { value: 'shell', label: 'Shell', content: 'Header, footer, routing, theme, and locale controls are now shared across the app shell.' },
-]
-
 function currentDefaultTab() {
   return defaultTabs.find((tab) => tab.id === defaultTab.value) ?? defaultTabs[0]
 }
@@ -153,20 +127,8 @@ function currentBoxedTab() {
     <header class="main-header">
       <div class="header-container">
         <div class="logo-section">
-          <div class="logo">
-            <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M25 5 L30 15 L25 25 L20 15 Z" stroke="#D4AF37" stroke-width="1.5" fill="none" />
-              <circle cx="25" cy="15" r="2" fill="#D4AF37" />
-              <line x1="15" y1="15" x2="10" y2="15" stroke="#D4AF37" stroke-width="1" />
-              <line x1="35" y1="15" x2="40" y2="15" stroke="#D4AF37" stroke-width="1" />
-              <path d="M10 15 Q10 25 15 30" stroke="#D4AF37" stroke-width="1" fill="none" />
-              <path d="M40 15 Q40 25 35 30" stroke="#D4AF37" stroke-width="1" fill="none" />
-              <line x1="15" y1="30" x2="35" y2="30" stroke="#D4AF37" stroke-width="1" />
-              <circle cx="25" cy="40" r="3" fill="none" stroke="#D4AF37" stroke-width="1" />
-              <text x="25" y="42" font-size="4" fill="#D4AF37" text-anchor="middle">✦</text>
-            </svg>
-          </div>
-          <span class="brand-name">Tarot Daily</span>
+          <img class="logo" src="/branding/nebula-tarot-logo.png" alt="Nebula Tarot" />
+          <span class="brand-name">Nebula Tarot</span>
         </div>
 
         <div class="header-actions">
@@ -228,7 +190,7 @@ function currentBoxedTab() {
           </svg>
         </div>
 
-        <h1 class="title">Tarot Daily</h1>
+        <h1 class="title">Nebula Tarot</h1>
         <p class="subtitle">Mystical Design System • Dark Theme</p>
       </header>
 
@@ -428,83 +390,24 @@ function currentBoxedTab() {
         </div>
       </section>
 
-      <section class="section">
-        <div class="section-header">
-          <h2 class="section-title">Phase 2 Base Components</h2>
-        </div>
-
-        <div class="phase2-showcase">
-          <BaseSurface class="phase2-showcase__card" padding="lg" tag="section">
-            <div class="phase2-showcase__head">
-              <h3 class="control-title control-title--no-margin">Buttons</h3>
-              <p class="phase2-showcase__copy">Extracted `BaseButton` variants for shell, auth, and dashboard reuse.</p>
-            </div>
-            <div class="phase2-showcase__cluster">
-              <BaseButton>Primary</BaseButton>
-              <BaseButton variant="secondary">Secondary</BaseButton>
-              <BaseButton variant="ghost">Ghost</BaseButton>
-              <BaseButton variant="outlined">Outlined</BaseButton>
-              <BaseButton variant="text">Text</BaseButton>
-            </div>
-          </BaseSurface>
-
-          <BaseSurface class="phase2-showcase__card" padding="lg" tag="section">
-            <div class="phase2-showcase__head">
-              <h3 class="control-title control-title--no-margin">Fields</h3>
-              <p class="phase2-showcase__copy">`BaseInput` and `BaseSelect` follow the extracted form-field styling contract.</p>
-            </div>
-            <div class="phase2-showcase__stack">
-              <BaseInput v-model="showcaseInput" placeholder="Enter your mystical note" />
-              <BaseSelect v-model="showcaseSelect" :options="showcaseSelectOptions" placeholder="Select a deck" />
-            </div>
-          </BaseSurface>
-
-          <BaseSurface class="phase2-showcase__card" padding="lg" tag="section">
-            <div class="phase2-showcase__head">
-              <h3 class="control-title control-title--no-margin">Toggles</h3>
-              <p class="phase2-showcase__copy">Final shell toggles are now reusable base controls.</p>
-            </div>
-            <div class="phase2-showcase__stack">
-              <BaseSegmentedToggle
-                v-model="showcaseSegment"
-                :options="showcaseSegmentOptions"
-                aria-label="Theme showcase"
-              />
-              <BaseSwitchToggle v-model="showcaseSwitch" label="Enable reminders" />
-            </div>
-          </BaseSurface>
-
-          <BaseSurface class="phase2-showcase__card" padding="lg" tag="section">
-            <div class="phase2-showcase__head">
-              <h3 class="control-title control-title--no-margin">Tabs & Modal</h3>
-              <p class="phase2-showcase__copy">Phase-2 shell components also include reusable tabs and modal primitives.</p>
-            </div>
-            <div class="phase2-showcase__stack">
-              <BaseTabs v-model="showcaseTabs" :items="showcaseTabsItems" variant="pills" />
-              <BaseButton variant="secondary" @click="showcaseModalOpen = true">Open modal</BaseButton>
-            </div>
-          </BaseSurface>
-        </div>
-      </section>
-
       <section id="components" class="section">
         <div class="section-header">
           <h2 class="section-title">Cards</h2>
         </div>
 
         <div class="cards-showcase">
-          <div class="card">
+          <div class="card card--lg">
             <div class="card-header">
               <h3 class="card-title">Card of the Day</h3>
               <span class="card-badge">Today</span>
             </div>
             <div class="card-body">
+              <h4 class="card-name">The Fool</h4>
               <div class="tarot-card-back">
                 <div class="card-back-ornament">
                   <span class="card-symbol">✦</span>
                 </div>
               </div>
-              <h4 class="card-name">The Fool</h4>
               <p class="card-interpretation">
                 New beginnings, innocence, spontaneity. The Fool represents the start of a journey
                 with an open heart.
@@ -517,18 +420,18 @@ function currentBoxedTab() {
             </div>
           </div>
 
-          <div class="card">
+          <div class="card card--md">
             <div class="card-header">
               <h3 class="card-title">Three Card Spread</h3>
               <span class="card-badge">3 of 5</span>
             </div>
             <div class="card-body">
+              <h4 class="card-name">The Moon</h4>
               <div class="tarot-card-back">
                 <div class="card-back-ornament">
                   <span class="card-symbol">☽</span>
                 </div>
               </div>
-              <h4 class="card-name">The Moon</h4>
               <p class="card-interpretation">
                 Uncertainty, fears, and deep feelings call for caution and trust in intuition.
               </p>
@@ -540,18 +443,18 @@ function currentBoxedTab() {
             </div>
           </div>
 
-          <div class="card">
+          <div class="card card--sm">
             <div class="card-header">
               <h3 class="card-title">The Star</h3>
               <span class="card-badge">Major</span>
             </div>
             <div class="card-body">
+              <h4 class="card-name">The Star</h4>
               <div class="tarot-card-back">
                 <div class="card-back-ornament">
                   <span class="card-symbol">⋆</span>
                 </div>
               </div>
-              <h4 class="card-name">The Star</h4>
               <p class="card-interpretation">
                 After hardship, hope, faith, and quiet healing begin to return.
               </p>
@@ -708,37 +611,10 @@ function currentBoxedTab() {
           <div class="control-group">
             <h3 class="control-title">Toggle Switches</h3>
             <div class="control-items">
-              <div class="toggle-wrapper">
-                <span class="toggle-label">Dark Mode</span>
-                <label>
-                  <input type="checkbox" class="toggle-input" checked />
-                  <span class="toggle-switch"></span>
-                </label>
-              </div>
-
-              <div class="toggle-wrapper">
-                <span class="toggle-label">Sound Effects</span>
-                <label>
-                  <input type="checkbox" class="toggle-input" />
-                  <span class="toggle-switch"></span>
-                </label>
-              </div>
-
-              <div class="toggle-wrapper">
-                <span class="toggle-label">Auto-shuffle</span>
-                <label>
-                  <input type="checkbox" class="toggle-input" checked />
-                  <span class="toggle-switch"></span>
-                </label>
-              </div>
-
-              <div class="toggle-wrapper">
-                <span class="toggle-label">Show hints</span>
-                <label>
-                  <input type="checkbox" class="toggle-input" />
-                  <span class="toggle-switch"></span>
-                </label>
-              </div>
+              <BaseSwitchToggle v-model="toggleDarkMode" label="Dark Mode" />
+              <BaseSwitchToggle v-model="toggleSoundEffects" label="Sound Effects" />
+              <BaseSwitchToggle v-model="toggleAutoShuffle" label="Auto-shuffle" />
+              <BaseSwitchToggle v-model="toggleShowHints" label="Show hints" />
             </div>
           </div>
 
@@ -895,21 +771,11 @@ function currentBoxedTab() {
         <div class="footer-divider">
           <span>✦</span>
         </div>
-        <p class="footer-text">Tarot Daily • Mystical Design System</p>
+        <p class="footer-text">Nebula Tarot • Mystical Design System</p>
         <p class="footer-meta">Dark Theme • Version 1.0</p>
       </footer>
     </div>
 
-    <BaseModal :is-open="showcaseModalOpen" title="Phase 2 BaseModal" @close="showcaseModalOpen = false">
-      <p>
-        This modal is rendered by the extracted `BaseModal` component and shares the same design-system
-        tokens as the auth and shell layers.
-      </p>
-      <template #footer>
-        <BaseButton variant="text" @click="showcaseModalOpen = false">Close</BaseButton>
-        <BaseButton @click="showcaseModalOpen = false">Confirm</BaseButton>
-      </template>
-    </BaseModal>
   </div>
 </template>
 
@@ -1307,62 +1173,111 @@ function currentBoxedTab() {
 }
 
 .card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-gold);
+  --card-frame-max: 320px;
+  --card-header-padding: 30px;
+  --card-header-gap: 12px;
+  --card-body-padding: 30px;
+  --card-title-size: 20px;
+  --card-name-size: 24px;
+  --card-name-margin: 16px;
+  --card-copy-size: 16px;
+  --card-copy-line-height: 1.7;
+  --card-copy-margin: 20px;
+  --card-tag-gap: 10px;
+  --card-badge-padding-y: 6px;
+  --card-badge-padding-x: 16px;
+  --card-badge-font-size: 10px;
+  --card-badge-letter-spacing: 0.1em;
+  --card-back-margin: 20px;
+  --card-symbol-size: 48px;
+  --card-tag-padding-y: 6px;
+  --card-tag-padding-x: 14px;
+  --card-tag-font-size: 10px;
+  --card-tag-letter-spacing: 0.05em;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   position: relative;
-  transition: all 0.4s ease;
+  width: min(100%, var(--card-frame-max));
+  justify-self: center;
 }
 
-.card::before,
-.card::after {
-  content: "";
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 1px solid var(--gold-primary);
+.card--lg {
+  --card-frame-max: 320px;
 }
 
-.card::before {
-  top: -1px;
-  left: -1px;
-  border-right: none;
-  border-bottom: none;
+.card--md {
+  --card-frame-max: 280px;
+  --card-header-padding: 24px;
+  --card-header-gap: 10px;
+  --card-body-padding: 24px;
+  --card-title-size: 18px;
+  --card-name-size: 21px;
+  --card-name-margin: 14px;
+  --card-copy-size: 15px;
+  --card-copy-line-height: 1.65;
+  --card-copy-margin: 18px;
+  --card-tag-gap: 8px;
+  --card-badge-padding-y: 5px;
+  --card-badge-padding-x: 14px;
+  --card-badge-font-size: 9px;
+  --card-badge-letter-spacing: 0.09em;
+  --card-back-margin: 18px;
+  --card-symbol-size: 42px;
+  --card-tag-padding-y: 5px;
+  --card-tag-padding-x: 12px;
+  --card-tag-font-size: 9px;
+  --card-tag-letter-spacing: 0.04em;
 }
 
-.card::after {
-  bottom: -1px;
-  right: -1px;
-  border-left: none;
-  border-top: none;
-}
-
-.card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-  border-color: var(--gold-light);
+.card--sm {
+  --card-frame-max: 220px;
+  --card-header-padding: 18px;
+  --card-header-gap: 8px;
+  --card-body-padding: 18px;
+  --card-title-size: 15px;
+  --card-name-size: 18px;
+  --card-name-margin: 12px;
+  --card-copy-size: 14px;
+  --card-copy-line-height: 1.55;
+  --card-copy-margin: 16px;
+  --card-tag-gap: 6px;
+  --card-badge-padding-y: 4px;
+  --card-badge-padding-x: 10px;
+  --card-badge-font-size: 8px;
+  --card-badge-letter-spacing: 0.08em;
+  --card-back-margin: 16px;
+  --card-symbol-size: 34px;
+  --card-tag-padding-y: 4px;
+  --card-tag-padding-x: 10px;
+  --card-tag-font-size: 8px;
+  --card-tag-letter-spacing: 0.03em;
 }
 
 .card-header {
-  padding: 30px;
+  padding: var(--card-header-padding);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--card-header-gap);
 }
 
 .card-title {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: var(--card-title-size);
   font-weight: 500;
   letter-spacing: 0.05em;
 }
 
 .card-badge {
-  padding: 6px 16px;
+  padding: var(--card-badge-padding-y) var(--card-badge-padding-x);
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--card-badge-font-size);
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--card-badge-letter-spacing);
+  line-height: 1;
+  white-space: nowrap;
   text-transform: uppercase;
   background: rgba(212, 175, 55, 0.1);
   border: 1px solid var(--border-gold);
@@ -1370,7 +1285,7 @@ function currentBoxedTab() {
 }
 
 .card-body {
-  padding: 30px;
+  padding: var(--card-body-padding);
 }
 
 .tarot-card-back {
@@ -1378,11 +1293,18 @@ function currentBoxedTab() {
   aspect-ratio: 2 / 3;
   background: var(--bg-dark);
   border: 2px solid var(--gold-primary);
-  margin-bottom: 20px;
+  margin-bottom: var(--card-back-margin);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.tarot-card-back:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  border-color: var(--gold-light);
 }
 
 .card-back-ornament {
@@ -1417,7 +1339,7 @@ function currentBoxedTab() {
 }
 
 .card-symbol {
-  font-size: 48px;
+  font-size: var(--card-symbol-size);
   color: var(--gold-primary);
   position: relative;
   z-index: 1;
@@ -1425,33 +1347,36 @@ function currentBoxedTab() {
 
 .card-name {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: var(--card-name-size);
   font-weight: 400;
   letter-spacing: 0.05em;
   text-align: center;
-  margin-bottom: 16px;
+  line-height: 1.2;
+  margin-bottom: var(--card-name-margin);
 }
 
 .card-interpretation {
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.7;
+  font-size: var(--card-copy-size);
+  line-height: var(--card-copy-line-height);
   color: var(--text-secondary);
-  margin-bottom: 20px;
+  margin-bottom: var(--card-copy-margin);
 }
 
 .card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--card-tag-gap);
+  justify-content: center;
 }
 
 .tag {
-  padding: 6px 14px;
+  padding: var(--card-tag-padding-y) var(--card-tag-padding-x);
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--card-tag-font-size);
   font-weight: 400;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--card-tag-letter-spacing);
+  line-height: 1;
   background: rgba(212, 175, 55, 0.1);
   border: 1px solid var(--border-gold);
   color: var(--text-secondary);
@@ -1619,17 +1544,10 @@ function currentBoxedTab() {
 }
 
 .logo {
-  width: 50px;
-  height: 50px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo svg {
-  width: 100%;
-  height: 100%;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.18));
 }
 
 .brand-name {
@@ -1994,40 +1912,6 @@ function currentBoxedTab() {
   gap: 20px;
 }
 
-.phase2-showcase {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.phase2-showcase__card {
-  display: grid;
-  gap: 20px;
-}
-
-.phase2-showcase__head {
-  display: grid;
-  gap: 10px;
-}
-
-.phase2-showcase__copy {
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-.phase2-showcase__cluster {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.phase2-showcase__stack {
-  display: grid;
-  gap: 16px;
-}
-
 .checkbox-wrapper {
   display: flex;
   align-items: center;
@@ -2125,55 +2009,6 @@ function currentBoxedTab() {
 
 .radio-wrapper:hover .radio-custom {
   border-color: var(--gold-primary);
-}
-
-.toggle-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.toggle-label {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.toggle-input {
-  display: none;
-}
-
-.toggle-switch {
-  width: 50px;
-  height: 26px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  position: relative;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.toggle-switch::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  background: var(--text-muted);
-  transition: all 0.3s ease;
-}
-
-.toggle-input:checked + .toggle-switch {
-  background: rgba(212, 175, 55, 0.2);
-  border-color: var(--gold-primary);
-}
-
-.toggle-input:checked + .toggle-switch::after {
-  left: calc(100% - 21px);
-  background: var(--gold-primary);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
 .control-items--final-toggles {

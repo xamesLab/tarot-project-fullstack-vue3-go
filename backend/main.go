@@ -33,20 +33,42 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery(), middleware.CORS(cfg.FrontendURL))
+	router.MaxMultipartMemory = 256 << 20
+	router.Static("/uploads", "./uploads")
 
 	validate := utils.NewValidator()
 	userRepository := repositories.NewUserRepository(cfg.Database)
-	_ = repositories.NewCardRepository(cfg.Database)
+	cardRepository := repositories.NewCardRepository(cfg.Database)
+	policyRepository := repositories.NewPolicyRepository(cfg.Database)
+	readingRepository := repositories.NewReadingRepository(cfg.Database)
+	adminSettingsRepository := repositories.NewAdminSettingsRepository(cfg.Database)
+	deckRepository := repositories.NewDeckRepository(cfg.Database)
+	cardBackRepository := repositories.NewCardBackRepository(cfg.Database)
 	if err := userRepository.EnsureIndexes(context.Background()); err != nil {
 		log.Fatalf("ensure user indexes: %v", err)
 	}
+	if err := policyRepository.EnsureIndexes(context.Background()); err != nil {
+		log.Fatalf("ensure policy indexes: %v", err)
+	}
+	if err := readingRepository.EnsureIndexes(context.Background()); err != nil {
+		log.Fatalf("ensure reading indexes: %v", err)
+	}
+	if err := adminSettingsRepository.EnsureDefault(context.Background()); err != nil {
+		log.Fatalf("ensure admin settings: %v", err)
+	}
 
 	authService := services.NewAuthService(userRepository)
-	userService := services.NewUserService(userRepository)
+	userService := services.NewUserService(userRepository, deckRepository, cardBackRepository)
+	readingService := services.NewReadingService(userRepository, cardRepository, readingRepository, policyRepository, adminSettingsRepository)
+	adminService := services.NewAdminService(userRepository, cardRepository, readingRepository, policyRepository, adminSettingsRepository, deckRepository, cardBackRepository)
+	catalogService := services.NewCatalogService(deckRepository, cardBackRepository, adminSettingsRepository)
 
 	healthHandler := handlers.NewHealthHandler(cfg)
 	authHandler := handlers.NewAuthHandler(authService, validate, cfg)
 	userHandler := handlers.NewUserHandler(userService, validate)
+	readingHandler := handlers.NewReadingHandler(readingService, validate)
+	adminHandler := handlers.NewAdminHandler(adminService, validate)
+	catalogHandler := handlers.NewCatalogHandler(catalogService)
 
 	api := router.Group("/api")
 	healthHandler.Register(api)
@@ -57,6 +79,12 @@ func main() {
 	protected := api.Group("/")
 	protected.Use(middleware.AuthMiddleware(cfg.JWTSecret))
 	userHandler.RegisterRoutes(protected)
+	readingHandler.RegisterRoutes(protected)
+	catalogHandler.RegisterRoutes(protected)
+
+	adminRoutes := protected.Group("/admin")
+	adminRoutes.Use(middleware.RequireRole("keeper"))
+	adminHandler.RegisterRoutes(adminRoutes)
 
 	server := &http.Server{
 		Addr:              ":" + cfg.AppPort,

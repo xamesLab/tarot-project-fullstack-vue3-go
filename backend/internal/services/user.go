@@ -13,11 +13,21 @@ import (
 )
 
 type UserService struct {
-	users *repositories.UserRepository
+	users     *repositories.UserRepository
+	decks     *repositories.DeckRepository
+	cardBacks *repositories.CardBackRepository
 }
 
-func NewUserService(users *repositories.UserRepository) *UserService {
-	return &UserService{users: users}
+func NewUserService(
+	users *repositories.UserRepository,
+	decks *repositories.DeckRepository,
+	cardBacks *repositories.CardBackRepository,
+) *UserService {
+	return &UserService{
+		users:     users,
+		decks:     decks,
+		cardBacks: cardBacks,
+	}
 }
 
 func (s *UserService) GetUserProfile(ctx context.Context, id primitive.ObjectID) (*models.User, error) {
@@ -39,5 +49,44 @@ func (s *UserService) UpdateProfile(ctx context.Context, id primitive.ObjectID, 
 }
 
 func (s *UserService) UpdateSettings(ctx context.Context, id primitive.ObjectID, req models.UpdateSettingsRequest) (*models.User, error) {
+	user, err := s.users.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.SelectedDeckID != nil || req.SelectedBackID != nil {
+		if user.Role != "adept" && user.Role != "master" && user.Role != "keeper" {
+			return nil, wrapValidation("Custom deck settings are available only for adept, master, and keeper roles")
+		}
+	}
+
+	if req.SelectedDeckID != nil {
+		deckID := strings.TrimSpace(*req.SelectedDeckID)
+		if deckID != "" {
+			deck, err := s.decks.FindByID(ctx, deckID)
+			if err != nil {
+				return nil, err
+			}
+			if deck.Status != "done" {
+				return nil, wrapValidation("Selected deck is not available")
+			}
+		}
+		req.SelectedDeckID = &deckID
+	}
+
+	if req.SelectedBackID != nil {
+		backID := strings.TrimSpace(*req.SelectedBackID)
+		if backID != "" {
+			cardBack, err := s.cardBacks.FindByID(ctx, backID)
+			if err != nil {
+				return nil, err
+			}
+			if cardBack.Status != "done" {
+				return nil, wrapValidation("Selected card back is not available")
+			}
+		}
+		req.SelectedBackID = &backID
+	}
+
 	return s.users.UpdateSettings(ctx, id, req)
 }

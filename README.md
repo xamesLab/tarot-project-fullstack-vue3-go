@@ -1,6 +1,6 @@
-# Tarot Daily
+# Nebula Tarot
 
-`Tarot Daily` — это MVP веб-платформы для ежедневных таро-раскладов с двуязычным интерфейсом, ролевой моделью доступа и административной панелью. Репозиторий находится в активной реализации: backend-ядро и dev-only `UI Kit` уже собраны, а спецификации в `specs/` остаются основным источником проектного контекста.
+`Nebula Tarot` — это MVP веб-платформы для ежедневных таро-раскладов с двуязычным интерфейсом, ролевой моделью доступа и административной панелью. Репозиторий находится в активной реализации: backend-ядро и dev-only `UI Kit` уже собраны, а спецификации в `specs/` остаются основным источником проектного контекста.
 
 ## Что входит в MVP
 
@@ -78,16 +78,20 @@
 
 ## Текущий статус
 
-Актуальный статус на `April 1, 2026`:
+Актуальный статус на `April 2, 2026`:
 
 - продуктовые, технические и дизайн-системные документы уже зафиксированы как рабочий baseline
 - `phase-0` и основная часть `phase-1` фактически реализованы
 - backend уже содержит серверный каркас, auth, профиль пользователя и timezone/accounting-day логику
 - frontend уже содержит базовый shell, auth flow, profile/settings forms, i18n/theme infrastructure и dev-only `UI Kit`
 - `UI Kit v0.1.0` утверждён как source of truth для дальнейшей frontend-разработки
-- `phase-2-core-frontend` собран как рабочий baseline и подтверждён production build'ом frontend
+- `phase-2-core-frontend` завершён как стабильный frontend baseline
 - светлая и тёмная темы уже переведены на общий design-system token layer и визуально согласованы между собой
-- следующий основной фронтенд-фокус — реализация `phase-3-reading-features` поверх [DESIGN_SYSTEM](./specs/docs/DESIGN_SYSTEM.md)
+- `phase-3-reading-features` реализован: backend reading API, dashboard, history и tarot-компоненты подключены end-to-end
+- ручные тесты `phase-3` пройдены
+- `phase-4-admin-panel` реализован на уровне расширенного backend/frontend baseline: keeper-only admin routes, user management, role policies, global settings, независимые каталоги `decks` и `card backs`, global defaults и пользовательский override для `adept/master`
+- для `phase-4` ещё не зафиксирована финальная ручная приёмка
+- следующий основной шаг — manual acceptance для `phase-4`, затем `phase-5-polish-and-testing`
 
 ## Рекомендуемая последовательность старта
 
@@ -97,7 +101,7 @@
 2. Для frontend отдельно изучить [DESIGN_SYSTEM](./specs/docs/DESIGN_SYSTEM.md) и dev-only [UI Kit](./frontend/src/pages/dev/UIKit.vue)
 3. Поднять окружение: `Go 1.22+`, `Node.js 20 LTS`, `MongoDB 6.0+`
 4. Использовать `./start-dev.sh` для локального запуска стека
-5. Реализовывать задачи по фазам из [specs/v0.1.0](./specs/v0.1.0/README.md), начиная с `phase-3-reading-features`
+5. Реализовывать задачи по фазам из [specs/v0.1.0](./specs/v0.1.0/README.md), начиная с ручной приёмки `phase-4-admin-panel`, затем переходить к `phase-5-polish-and-testing`
 
 ## Предполагаемое локальное окружение
 
@@ -131,4 +135,4 @@
 
 ## Ближайшая цель репозитория
 
-Собрать первую рабочую версию fullstack-приложения по спецификациям: опираясь на завершённый `phase-2-core-frontend`, перейти к раскладам, истории, настройкам пользователя, а затем к административному контуру.
+Закрыть ручную приёмку `phase-4-admin-panel`, затем перейти к `phase-5-polish-and-testing`, финальной приёмке и deployment.

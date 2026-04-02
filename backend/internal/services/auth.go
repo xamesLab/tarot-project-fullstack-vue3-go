@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"errors"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,16 +25,13 @@ func NewAuthService(users *repositories.UserRepository) *AuthService {
 
 func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, jwtSecret, jwtTTL string) (*models.User, string, error) {
 	email := strings.TrimSpace(strings.ToLower(req.Email))
-	username := strings.TrimSpace(req.Username)
-
-	if _, err := s.users.FindByEmail(ctx, email); err == nil {
-		return nil, "", wrapValidation("Email is already registered")
-	} else if !errors.Is(err, mongo.ErrNoDocuments) {
+	username, err := s.resolveRegistrationUsername(ctx, strings.TrimSpace(req.Username), email)
+	if err != nil {
 		return nil, "", err
 	}
 
-	if _, err := s.users.FindByUsername(ctx, username); err == nil {
-		return nil, "", wrapValidation("Username unavailable")
+	if _, err := s.users.FindByEmail(ctx, email); err == nil {
+		return nil, "", wrapValidation("Email is already registered")
 	} else if !errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, "", err
 	}
@@ -52,8 +51,8 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 		Timezone:       req.Timezone,
 		Language:       "en",
 		Theme:          "light",
-		SelectedDeckID: "default",
-		SelectedBackID: "default",
+		SelectedDeckID: "",
+		SelectedBackID: "",
 		CreatedAt:      now,
 		UpdatedAt:      now,
 	}
@@ -115,4 +114,70 @@ func isDuplicateKey(err error) bool {
 
 func wrapValidation(message string) error {
 	return errors.Join(ErrValidationFailed, errors.New(message))
+}
+
+func (s *AuthService) resolveRegistrationUsername(ctx context.Context, rawUsername, email string) (string, error) {
+	username := strings.TrimSpace(rawUsername)
+	if username == "" {
+		return s.ensureUniqueUsername(ctx, buildUsernameFromEmail(email))
+	}
+
+	if _, err := s.users.FindByUsername(ctx, username); err == nil {
+		return "", wrapValidation("Username unavailable")
+	} else if !errors.Is(err, mongo.ErrNoDocuments) {
+		return "", err
+	}
+
+	return username, nil
+}
+
+func (s *AuthService) ensureUniqueUsername(ctx context.Context, base string) (string, error) {
+	base = strings.TrimSpace(base)
+	if base == "" {
+		base = "user"
+	}
+
+	for attempt := 0; attempt < 1000; attempt++ {
+		candidate := base
+		if attempt > 0 {
+			suffix := strconv.Itoa(attempt + 1)
+			candidate = truncateUsername(base, 20-len(suffix)) + suffix
+		}
+
+		_, err := s.users.FindByUsername(ctx, candidate)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return candidate, nil
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return "", wrapValidation("Username unavailable")
+}
+
+func buildUsernameFromEmail(email string) string {
+	localPart := strings.TrimSpace(strings.SplitN(strings.ToLower(email), "@", 2)[0])
+	localPart = regexp.MustCompile(`[^a-z0-9._-]+`).ReplaceAllString(localPart, "")
+
+	switch {
+	case len(localPart) >= 3:
+		return truncateUsername(localPart, 20)
+	case len(localPart) == 2:
+		return localPart + "1"
+	case len(localPart) == 1:
+		return localPart + "01"
+	default:
+		return "user"
+	}
+}
+
+func truncateUsername(value string, limit int) string {
+	if limit <= 0 {
+		return ""
+	}
+	if len(value) <= limit {
+		return value
+	}
+	return value[:limit]
 }

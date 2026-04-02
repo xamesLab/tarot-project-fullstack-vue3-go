@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
-## Tarot Daily - MVP v1.0
+## Nebula Tarot - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** April 1, 2026  
+**Last Updated:** April 2, 2026  
 **Status:** Working Baseline
 
 ---
@@ -26,7 +26,7 @@
 
 ### 1.1 Product Overview
 
-**Tarot Daily** is a web-based tarot reading platform designed for casual users, primarily women, seeking daily spiritual guidance through tarot card interpretations. The platform provides deterministic "card of the day" readings and random 3-card spreads with role-based access controls.
+**Nebula Tarot** is a web-based tarot reading platform designed for casual users, primarily women, seeking daily spiritual guidance through tarot card interpretations. The platform provides deterministic "card of the day" readings and random 3-card spreads with role-based access controls.
 
 ### 1.2 Business Model
 
@@ -168,7 +168,8 @@
 **Requirements:**
 - Email-based registration
 - Password requirements: minimum 8 characters, must contain letter and number
-- Username: 3-20 characters, alphanumeric only
+- Username: 3-20 characters, may include letters, numbers, dots, underscores and hyphens
+- Username is optional; if left blank, backend derives it from the email local-part
 - Timezone selection (IANA timezone format) - required
 - Default role: **Seeker**
 - Default theme: **Light**
@@ -179,7 +180,7 @@
 |-------|------|----------|------------|
 | Email | String | Yes | Valid email format, unique |
 | Password | String | Yes | Min 8 chars, 1 letter + 1 number |
-| Username | String | Yes | 3-20 chars, alphanumeric |
+| Username | String | No | 3-20 chars, letters/numbers/dot/underscore/hyphen |
 | Timezone | String | Yes | Valid IANA timezone |
 
 **Success Flow:**
@@ -467,9 +468,13 @@ if daily_spread_count >= user_role_limit:
 
 **Selection:**
 - User selects deck from settings
+- Deck selection is available only for roles `adept`, `master`, and `keeper`
 - Selected deck saved to user profile
 - All future readings use selected deck
 - Past readings retain original deck (immutable)
+
+**Fallback Behavior:**
+- If user has not selected a custom deck, the system uses the global default deck configured by admin
 
 **Default Deck:**
 - "Tarot Classic" (loaded from provided JSON)
@@ -486,6 +491,10 @@ if daily_spread_count >= user_role_limit:
 - Independent from deck selection
 - User can mix: Deck A + Card Back B
 - Saved to user profile
+- Card back selection is available only for roles `adept`, `master`, and `keeper`
+
+**Fallback Behavior:**
+- If user has not selected a custom card back, the system uses the global default card back configured by admin
 
 ---
 
@@ -605,12 +614,11 @@ if daily_spread_count >= user_role_limit:
    - Description (optional)
    - Author (optional)
    - Tags (optional, comma-separated)
-2. Upload card back image (PNG/JPG, max 2MB, 2:3 aspect ratio)
+2. Upload card back image separately (PNG/JPG, max 2MB, 2:3 aspect ratio)
 3. Upload cards:
-   - **Option A:** ZIP archive with structure:
+   - **Option A:** ZIP archive with structure containing only the 78 card images:
      ```
      deck-name.zip
-       ├── back.png
        ├── major/
        │   ├── 00-the-fool.png
        │   └── ... (22 cards)
@@ -636,6 +644,12 @@ if daily_spread_count >= user_role_limit:
 - Replace individual cards
 - Replace card back
 - Cannot delete deck if users have selected it (must disable instead)
+
+**Admin Defaults and Manual Selection:**
+- Admin can upload decks and card backs independently
+- Admin can choose the global default deck and the global default card back independently
+- These defaults apply to all users who have not chosen their own deck or card back
+- Users with roles `adept`, `master`, and `keeper` can override the global defaults from profile settings
 
 **Disable Deck:**
 - Deck no longer appears in user selection

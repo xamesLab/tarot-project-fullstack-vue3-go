@@ -62,7 +62,7 @@ function validatePassword(value) {
 }
 
 function validateUsername(value) {
-  return /^[a-zA-Z0-9]{3,20}$/.test(value)
+  return /^[a-zA-Z0-9._-]{3,20}$/.test(value)
 }
 
 function validateForm() {
@@ -77,9 +77,7 @@ function validateForm() {
     fieldErrors.email = t('auth.validation.email')
   }
 
-  if (!form.username) {
-    fieldErrors.username = t('auth.validation.required')
-  } else if (!validateUsername(form.username)) {
+  if (form.username && !validateUsername(form.username)) {
     fieldErrors.username = t('auth.validation.username')
   }
 
@@ -130,33 +128,41 @@ onMounted(() => {
     <div class="auth-page">
       <AuthCard :eyebrow="t('auth.registerEyebrow')" :title="t('auth.registerTitle')" :copy="t('auth.registerCopy')">
         <form class="stack-md" @submit.prevent="submit">
-          <FormField :label="t('auth.email')" :error="fieldErrors.email" for-id="register-email">
+          <FormField :label="t('auth.email')" :error="fieldErrors.email" for-id="register-email" required>
             <BaseInput
               id="register-email"
               v-model="form.email"
               type="email"
               autocomplete="email"
+              name="email"
               :placeholder="t('auth.emailPlaceholder')"
               :error="Boolean(fieldErrors.email)"
             />
           </FormField>
 
-          <FormField :label="t('auth.username')" :error="fieldErrors.username" for-id="register-username">
+          <FormField
+            :label="t('auth.username')"
+            :hint="t('auth.usernameOptionalHint')"
+            :error="fieldErrors.username"
+            for-id="register-username"
+          >
             <BaseInput
               id="register-username"
               v-model="form.username"
-              autocomplete="username"
+              autocomplete="off"
+              name="register_username"
               :placeholder="t('auth.usernamePlaceholder')"
               :error="Boolean(fieldErrors.username)"
             />
           </FormField>
 
-          <FormField :label="t('auth.password')" :error="fieldErrors.password" for-id="register-password">
+          <FormField :label="t('auth.password')" :error="fieldErrors.password" for-id="register-password" required>
             <BaseInput
               id="register-password"
               v-model="form.password"
               type="password"
               autocomplete="new-password"
+              name="new-password"
               :placeholder="t('auth.passwordPlaceholder')"
               :error="Boolean(fieldErrors.password)"
             />
@@ -167,6 +173,7 @@ onMounted(() => {
             :hint="t('auth.timezoneHint')"
             :error="fieldErrors.timezone"
             for-id="register-timezone"
+            required
           >
             <BaseSelect
               id="register-timezone"

@@ -4,7 +4,7 @@
       <div class="celestial-border">
         <h1 class="ui-kit__title">
           <span class="moon-phases">☽◯☾</span>
-          Tarot Daily UI Kit
+          Nebula Tarot UI Kit
           <span class="stars">✦✧✦</span>
         </h1>
         <p class="ui-kit__subtitle">Mystical Modern Design System</p>
@@ -528,7 +528,7 @@
         <span class="divider-center">☽◯☾</span>
         <span class="divider-right">◯</span>
       </div>
-      <p class="footer-text">Tarot Daily • Mystical Modern Design System</p>
+      <p class="footer-text">Nebula Tarot • Mystical Modern Design System</p>
       <p class="footer-meta">Dark Theme • v1.0</p>
     </footer>
   </div>

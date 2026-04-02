@@ -1,8 +1,8 @@
 # Implementation Roadmap
-## Tarot Daily - MVP v1.0
+## Nebula Tarot - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** April 1, 2026  
+**Last Updated:** April 2, 2026  
 **Status:** Working Baseline
 
 ---
@@ -50,7 +50,7 @@
 - Document as you build
 - Keep it simple (MVP scope only)
 
-**Current note:** preparatory frontend design-system work and `phase-2-core-frontend` baseline have already been completed. The approved project-level reference now lives in `specs/docs/DESIGN_SYSTEM.md`, and the next implementation focus is `phase-3-reading-features`.
+**Current note:** `phase-2-core-frontend` and `phase-3-reading-features` have already been completed, including manual validation for the reading flows. `phase-4-admin-panel` is now implemented as a working backend/frontend baseline, including keeper-only admin routes, user management, role policy editing, global settings, independent `deck` and `card back` catalogs, global defaults, and role-gated user overrides for `adept/master/keeper`. The approved project-level frontend reference lives in `specs/docs/DESIGN_SYSTEM.md`. The next step is manual acceptance for `phase-4`, then `phase-5-polish-and-testing`.
 
 ### 1.3 Definition of Done
 
@@ -219,10 +219,16 @@ Phase 6: Deployment
 - [ ] Create admin settings document in `admin_settings`:
   - maintenance_mode: false
   - default_role: "seeker"
+  - default_deck_id: "default"
+  - default_back_id: "default"
   - registration_enabled: true
 - [ ] Create default deck document in `decks`:
   - id: "default"
   - name: { en: "Tarot Classic", ru: "Таро Классика" }
+  - status: "done"
+- [ ] Create default card back document in `card_backs`:
+  - id: "default"
+  - name: { en: "Classic Back", ru: "Классическая рубашка" }
   - status: "done"
 - [ ] Run seed script and verify data
 
@@ -1018,6 +1024,7 @@ func GetAccountingDate(timezone string) (string, error) {
 - [ ] Create `services/deck.go`:
   - CreateDeck(metadata) → deck
   - UploadDeckZIP(deckID, zipFile) → error
+  - UploadDeckBackImage(deckID, imageFile) → error
   - ProcessDeckUpload(deckID) → error (async)
   - GetDeckDetails(deckID) → deck
   - ListDecks(filters) → decks
@@ -1033,10 +1040,13 @@ func GetAccountingDate(timezone string) (string, error) {
 
 **File Upload Handlers:**
 - [ ] Create `handlers/deck.go`:
-  - POST /api/admin/decks (create + upload ZIP)
+  - POST /api/admin/decks (create + upload ZIP only)
   - GET /api/admin/decks
   - GET /api/admin/decks/:deckId
   - PATCH /api/admin/decks/:deckId (metadata)
+  - POST /api/admin/card-backs (create + upload back image)
+  - GET /api/admin/card-backs
+  - endpoints or settings flow for choosing global default deck and global default back independently
 
 **ZIP Processing:**
 - [ ] Create `utils/deck_upload.go`:
@@ -1049,15 +1059,18 @@ func GetAccountingDate(timezone string) (string, error) {
     - Validate aspect ratio (2:3 ±5%)
 
 **Flow:**
-1. Admin uploads ZIP
-2. Backend saves to `/uploads/temp/{session}/`
+1. Admin uploads ZIP deck archive
+2. Backend saves it to `/uploads/temp/{session}/`
 3. Backend validates ZIP structure
-4. If valid: extract to `/uploads/decks/{deck_id}/`
+4. If valid: extract cards to `/uploads/decks/{deck_id}/`
 5. Update deck status: "processing" → "done"
 6. Delete temp files
+7. Admin uploads card back image independently
+8. Backend validates and saves it to `/uploads/card-backs/{card_back_id}/`
 
 **Testing:**
 - [ ] Test deck creation
+- [ ] Test separate back image upload
 - [ ] Test ZIP upload (valid structure)
 - [ ] Test ZIP validation (missing cards → error)
 - [ ] Test card image validation (wrong format → error)

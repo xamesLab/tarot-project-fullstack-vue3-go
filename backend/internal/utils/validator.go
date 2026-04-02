@@ -10,6 +10,7 @@ func NewValidator() *validator.Validate {
 	validate := validator.New()
 	_ = validate.RegisterValidation("password", passwordValidator)
 	_ = validate.RegisterValidation("timezone", timezoneValidator)
+	_ = validate.RegisterValidation("username", usernameValidator)
 	return validate
 }
 
@@ -22,4 +23,8 @@ func passwordValidator(fl validator.FieldLevel) bool {
 
 func timezoneValidator(fl validator.FieldLevel) bool {
 	return ValidateTimezone(fl.Field().String())
+}
+
+func usernameValidator(fl validator.FieldLevel) bool {
+	return regexp.MustCompile(`^[a-zA-Z0-9._-]+$`).MatchString(fl.Field().String())
 }

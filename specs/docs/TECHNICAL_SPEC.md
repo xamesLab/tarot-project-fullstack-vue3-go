@@ -1,8 +1,8 @@
 # Technical Specification
-## Tarot Daily - MVP v1.0
+## Nebula Tarot - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** April 1, 2026  
+**Last Updated:** April 2, 2026  
 **Status:** Working Baseline
 
 ---
@@ -355,8 +355,8 @@ require (
   "timezone": "Europe/Amsterdam",   // String, IANA timezone
   "language": "en",                 // String: en | ru
   "theme": "light",                 // String: light | dark
-  "selected_deck_id": "default",    // String, references decks._id
-  "selected_back_id": "default",    // String, references card_backs._id
+  "selected_deck_id": "",           // String, optional, references decks._id
+  "selected_back_id": "",           // String, optional, references card_backs._id
   "created_at": ISODate("..."),     // Date
   "updated_at": ISODate("..."),     // Date
   "last_login_at": ISODate("...")   // Date, nullable
@@ -471,7 +471,6 @@ db.daily_readings.createIndex({ "expires_at": 1 }, { expireAfterSeconds: 0 }) //
   "tags": ["traditional", "classic"],
   "status": "done",                 // String: processing | done | disabled
   "card_count": 78,                 // Number, must be 78
-  "back_image_path": "/uploads/decks/default/back.png",
   "card_image_base_path": "/uploads/decks/default/cards/",
   "created_at": ISODate("..."),
   "updated_at": ISODate("..."),
@@ -485,7 +484,36 @@ db.decks.createIndex({ "status": 1 })
 db.decks.createIndex({ "tags": 1 })
 ```
 
-#### 3.1.5 `role_policies`
+#### 3.1.5 `card_backs`
+
+**Purpose:** Store card back metadata independently from decks
+
+```javascript
+{
+  "_id": "default",                 // String, unique card back ID
+  "name": {
+    "en": "Classic Back",
+    "ru": "Классическая рубашка"
+  },
+  "description": {
+    "en": "Default classic card back.",
+    "ru": "Базовая классическая рубашка карт."
+  },
+  "tags": ["traditional", "classic"],
+  "status": "done",                 // String: processing | done | disabled
+  "image_path": "/uploads/card-backs/default/back.png",
+  "created_at": ISODate("..."),
+  "updated_at": ISODate("...")
+}
+```
+
+**Indexes:**
+```javascript
+db.card_backs.createIndex({ "status": 1 })
+db.card_backs.createIndex({ "tags": 1 })
+```
+
+#### 3.1.6 `role_policies`
 
 **Purpose:** Store daily limits per role
 
@@ -519,7 +547,7 @@ db.role_policies.createIndex({ "role": 1 }, { unique: true })
 ]
 ```
 
-#### 3.1.6 `admin_settings`
+#### 3.1.7 `admin_settings`
 
 **Purpose:** Global application settings
 
@@ -532,6 +560,8 @@ db.role_policies.createIndex({ "role": 1 }, { unique: true })
     "ru": "Сайт на обслуживании"
   },
   "default_role": "seeker",         // String, role for new users
+  "default_deck_id": "default",     // String, global fallback deck
+  "default_back_id": "default",     // String, global fallback card back
   "registration_enabled": true,     // Boolean, allow new registrations
   "created_at": ISODate("..."),
   "updated_at": ISODate("...")
@@ -540,7 +570,7 @@ db.role_policies.createIndex({ "role": 1 }, { unique: true })
 
 **Note:** Only one document with `_id: "global"`
 
-#### 3.1.7 `ask_requests` (Stub for Gateway)
+#### 3.1.8 `ask_requests` (Stub for Gateway)
 
 **Purpose:** Future AI interpretation requests
 
@@ -569,11 +599,14 @@ users (1) ──────── (N) daily_readings
   │
   └──── (1) selected_deck ──> decks (1)
   │
+  └──── (1) selected_back ──> card_backs (1)
+  │
   └──── (1) role ──> role_policies (1)
 
 daily_readings (N) ──────── (N) cards (via cards array)
 
 decks (1) ──────── (78) card_files (filesystem)
+card_backs (1) ──────── (1) back_image (filesystem)
 ```
 
 ---
@@ -598,7 +631,7 @@ decks (1) ──────── (78) card_files (filesystem)
 
 **Validation:**
 - `email`: required, valid email, unique
-- `username`: required, 3-20 chars, alphanumeric, unique
+- `username`: optional, 3-20 chars, letters/numbers/dot/underscore/hyphen, unique if provided
 - `password`: required, min 8 chars, contains letter + number
 - `timezone`: required, valid IANA timezone
 
@@ -661,9 +694,7 @@ decks (1) ──────── (78) card_files (filesystem)
     "role": "adept",
     "timezone": "Europe/Amsterdam",
     "language": "ru",
-    "theme": "dark",
-    "selected_deck_id": "default",
-    "selected_back_id": "default"
+    "theme": "dark"
   },
   "token": "jwt_token_here"
 }
@@ -697,11 +728,10 @@ decks (1) ──────── (78) card_files (filesystem)
     "username": "alice123",
     "email": "alice@example.com",
     "role": "adept",
+    "status": "active",
     "timezone": "Europe/Amsterdam",
     "language": "en",
     "theme": "light",
-    "selected_deck_id": "default",
-    "selected_back_id": "default",
     "created_at": "2026-03-15T10:00:00Z",
     "last_login_at": "2026-03-31T14:23:00Z"
   }
@@ -743,6 +773,11 @@ decks (1) ──────── (78) card_files (filesystem)
 
 **Description:** Update user settings
 
+**Notes:**
+- `selected_deck_id` and `selected_back_id` are optional user overrides
+- Empty string resets the value back to the admin default
+- Custom deck/back selection is available only for roles `adept`, `master`, and `keeper`
+
 **Request:**
 ```json
 {
@@ -757,7 +792,12 @@ decks (1) ──────── (78) card_files (filesystem)
 ```json
 {
   "success": true,
-  "settings": {
+  "user": {
+    "id": "uuid",
+    "username": "alice123",
+    "email": "alice@example.com",
+    "role": "adept",
+    "status": "active",
     "language": "ru",
     "theme": "dark",
     "selected_deck_id": "rider-waite-modern",
@@ -973,6 +1013,7 @@ decks (1) ──────── (78) card_files (filesystem)
 ```json
 {
   "success": true,
+  "default_deck_id": "default",
   "decks": [
     {
       "id": "default",
@@ -986,8 +1027,7 @@ decks (1) ──────── (78) card_files (filesystem)
         "/uploads/decks/default/cards/the_fool.png",
         "/uploads/decks/default/cards/the_magician.png",
         "/uploads/decks/default/cards/the_empress.png"
-      ],
-      "back_image": "/uploads/decks/default/back.png"
+      ]
     },
     {
       "id": "rider-waite-modern",
@@ -1000,6 +1040,40 @@ decks (1) ──────── (78) card_files (filesystem)
 ```
 
 **Note:** Only returns decks with `status: "done"`
+
+**Role Note:** custom deck selection is available only to `adept`, `master`, and `keeper`. Other roles continue using the global default deck.
+
+---
+
+#### GET `/api/card-backs/available`
+
+**Description:** Get available card backs for user
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "default_back_id": "default",
+  "card_backs": [
+    {
+      "id": "default",
+      "name": "Classic Back",
+      "name_ru": "Классическая рубашка",
+      "image_url": "/uploads/card-backs/default/back.png"
+    },
+    {
+      "id": "celestial",
+      "name": "Celestial",
+      "name_ru": "Небесная",
+      "image_url": "/uploads/card-backs/celestial/back.png"
+    }
+  ]
+}
+```
+
+**Note:** card back selection is independent from deck selection and is available only to `adept`, `master`, and `keeper`. Other roles continue using the global default card back.
 
 ---
 
@@ -1211,7 +1285,7 @@ decks (1) ──────── (78) card_files (filesystem)
 
 #### POST `/api/admin/decks`
 
-**Description:** Create new deck
+**Description:** Create new deck from ZIP archive only
 
 **Request (multipart/form-data):**
 ```
@@ -1221,8 +1295,7 @@ description_en: "A mystical deck..."
 description_ru: "Мистическая колода..."
 author: "Jane Smith"
 tags: "mystical,modern,ethereal"
-back_image: [file upload]
-cards_zip: [file upload] // ZIP with 78 cards
+cards_zip: [file upload] // ZIP with 78 cards only
 ```
 
 **Response (201):**
@@ -1232,18 +1305,75 @@ cards_zip: [file upload] // ZIP with 78 cards
   "deck": {
     "id": "uuid",
     "name": { "en": "Ethereal Dreams", "ru": "Эфирные Мечты" },
-    "status": "processing",
-    "card_count": 0
+    "status": "done",
+    "card_count": 78
   },
-  "message": "Deck created. Processing upload..."
+  "message": "Deck created and processed successfully"
 }
 ```
 
-**Async Processing:**
+**Processing:**
 - Backend extracts ZIP
 - Validates 78 cards
 - Saves to `/uploads/decks/{deck_id}/`
 - Updates `status: "done"`
+
+---
+
+#### POST `/api/admin/card-backs`
+
+**Description:** Create new card back
+
+**Request (multipart/form-data):**
+```
+name_en: "Moonlit Back"
+name_ru: "Лунная рубашка"
+description_en: "A celestial design..."
+description_ru: "Небесный дизайн..."
+tags: "moon,gold,minimal"
+back_image: [file upload]
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "card_back": {
+    "id": "uuid",
+    "name": { "en": "Moonlit Back", "ru": "Лунная рубашка" },
+    "status": "done",
+    "image_path": "/uploads/card-backs/uuid/back.png"
+  },
+  "message": "Card back created successfully"
+}
+```
+
+---
+
+#### GET `/api/admin/card-backs`
+
+**Description:** List uploaded card backs
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "card_backs": [
+    {
+      "id": "default",
+      "name": { "en": "Classic Back", "ru": "Классическая рубашка" },
+      "status": "done",
+      "image_path": "/uploads/card-backs/default/back.png"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 1,
+    "total_pages": 1
+  }
+}
+```
 
 ---
 
@@ -1263,7 +1393,6 @@ cards_zip: [file upload] // ZIP with 78 cards
     "tags": ["mystical", "modern"],
     "status": "done",
     "card_count": 78,
-    "back_image_path": "/uploads/decks/uuid/back.png",
     "cards": [
       {
         "key": "the_fool",
@@ -1290,10 +1419,17 @@ cards_zip: [file upload] // ZIP with 78 cards
       "ru": "Сайт на обслуживании"
     },
     "default_role": "seeker",
-    "registration_enabled": true
+    "registration_enabled": true,
+    "default_deck_id": "default",
+    "default_back_id": "default"
   }
 }
 ```
+
+**Behavior Notes:**
+- `default_deck_id` and `default_back_id` are configured independently by admin
+- They apply to all users who have not chosen custom values
+- User-level overrides are allowed only for roles `adept`, `master`, and `keeper`
 
 **PATCH Request:**
 ```json
@@ -1463,17 +1599,20 @@ api.GET("/profile", RequireRole("seeker", "adept", "master", "keeper"), handlers
 /uploads/
 ├── decks/
 │   ├── default/
-│   │   ├── back.png
 │   │   └── cards/
 │   │       ├── the_fool.png
 │   │       ├── the_magician.png
 │   │       └── ... (78 cards)
 │   ├── {deck_uuid_1}/
-│   │   ├── back.png
 │   │   └── cards/
 │   │       └── ...
 │   └── {deck_uuid_2}/
 │       └── ...
+├── card-backs/
+│   ├── default/
+│   │   └── back.png
+│   └── {card_back_uuid_1}/
+│       └── back.png
 └── temp/
     └── {upload_session_id}/
         └── ... (temporary uploads, cleaned up after processing)
@@ -1489,7 +1628,6 @@ api.GET("/profile", RequireRole("seeker", "adept", "master", "keeper"), handlers
 2. Backend saves ZIP to /uploads/temp/{session_id}/
    ↓
 3. Backend validates ZIP structure:
-   - Contains back.png
    - Contains 78 card images in correct structure
    - All files are PNG/JPG, under 2MB, 2:3 aspect ratio
    ↓
@@ -1498,6 +1636,20 @@ api.GET("/profile", RequireRole("seeker", "adept", "master", "keeper"), handlers
 5. Backend updates deck status: "processing" → "done"
    ↓
 6. Backend deletes temp files
+```
+
+**Card Back Upload:**
+
+```
+1. Admin uploads image via POST /api/admin/card-backs
+   ↓
+2. Backend saves image to /uploads/temp/{session_id}/
+   ↓
+3. Backend validates format, size, and aspect ratio
+   ↓
+4. Backend saves image to /uploads/card-backs/{card_back_id}/back.png
+   ↓
+5. Backend updates card back status: "processing" → "done"
 ```
 
 **Validation:**
@@ -2024,12 +2176,12 @@ PORT=8080
 MONGO_URI=mongodb://prod-host:27017
 MONGO_DB=tarot_daily
 JWT_SECRET=production_secret_min_32_chars
-FRONTEND_URL=https://tarot-daily.com
+FRONTEND_URL=https://nebula-taro.com
 ```
 
 **Frontend:**
 ```bash
-VITE_API_URL=https://api.tarot-daily.com
+VITE_API_URL=https://api.nebula-taro.com
 ```
 
 ### 12.3 Deployment Checklist

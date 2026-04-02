@@ -64,6 +64,16 @@
 
 После этого этапа пользователь уже получает полный core experience продукта и может использовать сервис по основному сценарию MVP.
 
+## Текущее состояние реализации
+
+На `April 2, 2026` этап считается завершённым.
+
+- backend reading domain и API реализованы
+- `Card of the Day`, `3-card spread`, history, retention и role-policy логика подключены end-to-end
+- frontend `Dashboard` и `History` работают с реальными данными, а tarot-компоненты интегрированы в shell
+- ручные тесты из [MANUAL_TESTS.md](./MANUAL_TESTS.md) пройдены
+- production build frontend и `go test ./...` для backend проходят
+
 ## Зависимости
 
 - завершённый этап 1
@@ -78,4 +88,3 @@
 - dashboard отображает актуальное состояние
 - history работает с учётом retention
 - EN и RU поддерживаются во всех user-facing сценариях
-

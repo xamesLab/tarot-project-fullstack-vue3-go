@@ -8,13 +8,16 @@ func ValidateTimezone(tz string) bool {
 }
 
 func GetAccountingDate(timezone string) (string, error) {
+	return GetAccountingDateAt(time.Now(), timezone)
+}
+
+func GetAccountingDateAt(now time.Time, timezone string) (string, error) {
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {
 		return "", err
 	}
 
-	now := time.Now().In(loc)
-	return getAccountingDateForTime(now), nil
+	return getAccountingDateForTime(now.In(loc)), nil
 }
 
 func getAccountingDateForTime(now time.Time) string {
@@ -26,13 +29,16 @@ func getAccountingDateForTime(now time.Time) string {
 }
 
 func GetNextResetTime(timezone string) (time.Time, error) {
+	return GetNextResetTimeAt(time.Now(), timezone)
+}
+
+func GetNextResetTimeAt(now time.Time, timezone string) (time.Time, error) {
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {
 		return time.Time{}, err
 	}
 
-	now := time.Now().In(loc)
-	return getNextResetTimeForTime(now), nil
+	return getNextResetTimeForTime(now.In(loc)), nil
 }
 
 func getNextResetTimeForTime(now time.Time) time.Time {

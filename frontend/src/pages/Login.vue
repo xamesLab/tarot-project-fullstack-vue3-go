@@ -74,23 +74,25 @@ async function submit() {
     <div class="auth-page">
       <AuthCard :eyebrow="t('auth.loginEyebrow')" :title="t('auth.loginTitle')" :copy="t('auth.loginCopy')">
         <form class="stack-md" @submit.prevent="submit">
-          <FormField :label="t('auth.email')" :error="fieldErrors.email" for-id="login-email">
+          <FormField :label="t('auth.email')" :error="fieldErrors.email" for-id="login-email" required>
             <BaseInput
               id="login-email"
               v-model="form.email"
               type="email"
               autocomplete="email"
+              name="email"
               :placeholder="t('auth.emailPlaceholder')"
               :error="Boolean(fieldErrors.email)"
             />
           </FormField>
 
-          <FormField :label="t('auth.password')" :error="fieldErrors.password" for-id="login-password">
+          <FormField :label="t('auth.password')" :error="fieldErrors.password" for-id="login-password" required>
             <BaseInput
               id="login-password"
               v-model="form.password"
               type="password"
               autocomplete="current-password"
+              name="password"
               :placeholder="t('auth.passwordPlaceholder')"
               :error="Boolean(fieldErrors.password)"
             />

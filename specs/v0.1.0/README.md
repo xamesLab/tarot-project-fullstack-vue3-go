@@ -1,6 +1,6 @@
 # План разработки v0.1.0
 
-Этот каталог содержит поэтапный план разработки MVP `Tarot Daily`, собранный на основе:
+Этот каталог содержит поэтапный план разработки MVP `Nebula Tarot`, собранный на основе:
 
 - `specs/docs/PRD.md`
 - `specs/docs/TECHNICAL_SPEC.md`
@@ -18,7 +18,7 @@
 2. `phase-1-core-backend` — аутентификация, профиль, базовые backend-слои и timezone-логика
 3. `phase-2-core-frontend` — UI-основа, роутинг, auth-страницы, stores и layout
 4. `phase-3-reading-features` — дневная карта, 3-карточный расклад, история и role-policy-логика
-5. `phase-4-admin-panel` — административный контур, роли, политики, глобальные настройки и колоды
+5. `phase-4-admin-panel` — административный контур, роли, политики, глобальные настройки, колоды и рубашки
 6. `phase-5-polish-and-testing` — адаптивность, accessibility, оптимизация, ошибки и финальная ручная приёмка
 7. `phase-6-deployment` — production deployment, smoke testing, мониторинг и запуск MVP
 
@@ -28,6 +28,17 @@
 2. Для каждого этапа реализовывать задачи из локального `README.md`
 3. После завершения реализации проходить `MANUAL_TESTS.md`
 4. Переходить к следующему этапу только после выполнения критериев готовности
+
+## Актуальный статус
+
+На `April 2, 2026`:
+
+- `phase-0-project-setup` — done
+- `phase-1-core-backend` — done
+- `phase-2-core-frontend` — done
+- `phase-3-reading-features` — done
+- `phase-4-admin-panel` — implementation complete, manual acceptance pending
+- текущий активный следующий шаг — ручная приёмка `phase-4-admin-panel`, затем `phase-5-polish-and-testing`
 
 ## Принципы исполнения
 

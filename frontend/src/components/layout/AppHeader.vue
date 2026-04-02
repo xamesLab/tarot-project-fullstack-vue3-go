@@ -68,11 +68,11 @@ async function handleLogout() {
 
 <template>
   <header class="site-header">
-    <PageContainer wide>
+    <PageContainer>
       <div class="site-header__inner">
         <div class="site-header__brand">
           <RouterLink class="brand-mark" to="/">
-            <span class="brand-mark__symbol">✦</span>
+            <img class="brand-mark__symbol" src="/branding/nebula-tarot-logo.png" :alt="t('app.title')" />
             <span class="brand-mark__copy">
               <span class="text-eyebrow">{{ t('app.badge') }}</span>
               <strong class="brand-mark__name">{{ t('app.title') }}</strong>
@@ -152,13 +152,11 @@ async function handleLogout() {
 }
 
 .brand-mark__symbol {
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--ds-color-border-accent);
-  color: var(--ds-color-accent-primary);
-  font-size: 22px;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.18));
 }
 
 .brand-mark__copy {

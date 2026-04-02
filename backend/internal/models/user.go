@@ -29,15 +29,15 @@ type User struct {
 }
 
 type UpdateProfileRequest struct {
-	Username string `json:"username" validate:"omitempty,min=3,max=20,alphanum"`
+	Username string `json:"username" validate:"omitempty,min=3,max=20,username"`
 	Timezone string `json:"timezone" validate:"omitempty,timezone"`
 }
 
 type UpdateSettingsRequest struct {
-	Language       string `json:"language" validate:"omitempty,oneof=en ru"`
-	Theme          string `json:"theme" validate:"omitempty,oneof=light dark"`
-	SelectedDeckID string `json:"selected_deck_id" validate:"omitempty"`
-	SelectedBackID string `json:"selected_back_id" validate:"omitempty"`
+	Language       *string `json:"language" validate:"omitempty,oneof=en ru"`
+	Theme          *string `json:"theme" validate:"omitempty,oneof=light dark"`
+	SelectedDeckID *string `json:"selected_deck_id"`
+	SelectedBackID *string `json:"selected_back_id"`
 }
 
 type UserResponse struct {
@@ -45,6 +45,7 @@ type UserResponse struct {
 	Username       string     `json:"username"`
 	Email          string     `json:"email"`
 	Role           string     `json:"role"`
+	Status         string     `json:"status"`
 	Timezone       string     `json:"timezone"`
 	Language       string     `json:"language"`
 	Theme          string     `json:"theme"`
@@ -60,6 +61,7 @@ func (u User) ToResponse(includeMeta bool) UserResponse {
 		Username:       u.Username,
 		Email:          u.Email,
 		Role:           u.Role,
+		Status:         u.Status,
 		Timezone:       u.Timezone,
 		Language:       u.Language,
 		Theme:          u.Theme,

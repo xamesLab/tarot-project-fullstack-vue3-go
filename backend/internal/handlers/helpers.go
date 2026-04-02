@@ -31,8 +31,8 @@ func respondValidationError(c *gin.Context, err error) {
 			case "timezone":
 				respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Please select a valid timezone")
 				return
-			case "alphanum":
-				respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Username must be alphanumeric")
+			case "username":
+				respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Username may contain only letters, numbers, dots, underscores, and hyphens")
 				return
 			}
 		}
@@ -54,6 +54,8 @@ func respondServiceError(c *gin.Context, err error) {
 		respondError(c, http.StatusUnauthorized, services.ErrInvalidCredentials.Error(), "Email or password incorrect")
 	case errors.Is(err, services.ErrAccountDisabled):
 		respondError(c, http.StatusForbidden, services.ErrAccountDisabled.Error(), "Your account has been suspended")
+	case errors.Is(err, services.ErrForbidden):
+		respondError(c, http.StatusForbidden, services.ErrForbidden.Error(), "Forbidden")
 	case errors.Is(err, services.ErrValidationFailed):
 		respondValidationError(c, err)
 	case errors.Is(err, mongo.ErrNoDocuments):

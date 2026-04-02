@@ -75,15 +75,16 @@
 
 ## Текущее состояние реализации
 
-На `April 1, 2026` этап собран как рабочий baseline для перехода к `phase-3`.
+На `April 2, 2026` этап считается завершённым и служит стабильным baseline для следующих фаз.
 
 - реализованы `Axios` client, `auth/user/reading` services и глобальные stores `auth/app/readings`
 - добавлены router guards для публичных, приватных, admin и dev-only маршрутов
 - собраны базовые primitives и layout shell по локальному `DESIGN_SYSTEM.md`
 - реализованы `Login`, `Register`, `Dashboard`, `Profile`, `History` и admin placeholders
 - `Profile` подключён к `PATCH /api/me/profile`, настройки темы и языка к `PATCH /api/me/settings`
-- `UI Kit` показывает вынесенные phase-2 base components как reusable showcase
+- `UI Kit` синхронизирован с актуальным shell и остаётся visual reference для дальнейшей frontend-работы
 - production build frontend проходит и подтверждает целостность shell-слоя
+- ручная приёмка пройдена, а страницы `Dashboard`, `History`, `Profile` и `Admin` приведены к общему tab/layout-паттерну
 
 ## Зависимости
 
