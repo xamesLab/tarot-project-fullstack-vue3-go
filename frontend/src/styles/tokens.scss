@@ -39,3 +39,30 @@
   --ds-container-max: 1400px;
   --ds-page-max: 1450px;
 }
+
+@media (max-width: 768px) {
+  :root {
+    --ds-text-display-1: 42px;
+    --ds-text-display-2: 34px;
+    --ds-text-heading-1: 28px;
+    --ds-text-heading-2: 22px;
+    --ds-text-heading-3: 17px;
+    --ds-text-body-lg: 18px;
+    --ds-text-body-md: 15px;
+    --ds-text-body-sm: 13px;
+    --ds-text-label: 11px;
+    --ds-text-caption: 10px;
+
+    --ds-space-2: 6px;
+    --ds-space-3: 10px;
+    --ds-space-4: 14px;
+    --ds-space-5: 18px;
+    --ds-space-6: 20px;
+    --ds-space-8: 24px;
+    --ds-space-10: 32px;
+    --ds-space-12: 36px;
+    --ds-space-15: 44px;
+
+    --ds-header-height: 72px;
+  }
+}

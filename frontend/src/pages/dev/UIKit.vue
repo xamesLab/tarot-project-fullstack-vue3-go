@@ -2127,14 +2127,15 @@ function currentBoxedTab() {
 @media (max-width: 768px) {
   .header-container {
     flex-direction: column;
-    padding: 15px 20px;
-    gap: 20px;
+    padding: 12px 16px;
+    gap: 14px;
   }
 
   .header-actions {
     margin-left: 0;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 8px;
   }
 
   .final-toggle-row {
@@ -2148,26 +2149,196 @@ function currentBoxedTab() {
 
   .user-profile {
     justify-content: center;
+    gap: 8px;
+    padding: 6px 10px;
   }
 
   .container {
-    padding: 40px 20px;
+    padding: 28px 16px;
   }
 
   .title {
-    font-size: 42px;
+    font-size: 34px;
   }
 
   .section-title {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .h1-example {
-    font-size: 36px;
+    font-size: 30px;
   }
 
   .h2-example {
-    font-size: 28px;
+    font-size: 24px;
+  }
+
+  .header {
+    margin-bottom: 48px;
+  }
+
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-header,
+  .tabs-sections,
+  .divider-showcase {
+    gap: 28px;
+  }
+
+  .type-grid,
+  .color-grid,
+  .controls-grid,
+  .form-grid {
+    gap: 20px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    font-size: 11px;
+  }
+
+  .btn-large {
+    padding: 14px 28px;
+    font-size: 12px;
+  }
+
+  .btn-small,
+  .btn-text {
+    padding: 8px 14px;
+  }
+
+  .btn-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .btn-star-sides {
+    gap: 10px;
+    padding: 12px 20px;
+  }
+
+  .tabs-container,
+  .control-group {
+    padding: 20px;
+  }
+
+  .tabs-header {
+    margin-bottom: 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs-header::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-button {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    font-size: 10px;
+  }
+
+  .tab-panel {
+    padding: 12px 0;
+  }
+
+  .tab-panel h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .tab-panel p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .control-title {
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  .control-items {
+    gap: 14px;
+  }
+
+  .form-input,
+  .form-select,
+  .select-custom {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .select-custom {
+    padding-right: 36px;
+  }
+
+  .range-input::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+
+  .range-input::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+  }
+
+  .header-binary-toggle {
+    width: 130px;
+  }
+
+  .header-binary-toggle__option {
+    min-height: 30px;
+    font-size: 10px;
+  }
+
+  .logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-name {
+    font-size: 16px;
+  }
+
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+
+  .user-name {
+    font-size: 11px;
+  }
+
+  .user-role {
+    font-size: 9px;
+  }
+
+  .cards-showcase {
+    gap: 20px;
+  }
+
+  .card {
+    --card-frame-width: 100%;
+    --card-body-padding: 18px;
+    --card-title-size: 14px;
+    --card-header-gap: 10px;
+    --card-badge-padding-y: 4px;
+    --card-badge-padding-x: 8px;
+    --card-badge-font-size: 8px;
+    --card-name-size: 18px;
+    --card-name-margin: 10px;
+    --card-copy-size: 14px;
+    --card-copy-line-height: 1.55;
+    --card-copy-margin: 12px;
+    --card-tag-gap: 6px;
+    --card-tag-padding-y: 4px;
+    --card-tag-padding-x: 8px;
+    --card-tag-font-size: 8px;
+    --card-symbol-size: 32px;
+    --card-back-margin: 12px;
   }
 
   .cards-showcase {
@@ -2181,6 +2352,11 @@ function currentBoxedTab() {
 
   .button-label {
     min-width: auto;
+  }
+
+  .footer {
+    padding-top: 48px;
+    margin-top: 56px;
   }
 }
 </style>

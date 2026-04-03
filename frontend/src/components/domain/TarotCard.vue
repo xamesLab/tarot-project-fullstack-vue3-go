@@ -61,6 +61,9 @@ const displayTitle = computed(() => (
 const displayCopy = computed(() => (
   props.revealed ? interpretation.value : t('readings.hiddenCardCopy')
 ))
+const revealAriaLabel = computed(() => (
+  props.revealed ? title.value : t('readings.revealCardAction', { title: displayTitle.value })
+))
 
 function handleReveal() {
   if (!isClickable.value) {
@@ -101,6 +104,7 @@ watch(
         :role="isClickable ? 'button' : undefined"
         :tabindex="isClickable ? 0 : undefined"
         :aria-busy="revealLoading ? 'true' : undefined"
+        :aria-label="isClickable ? revealAriaLabel : undefined"
         @click="handleReveal"
         @keydown.enter.prevent="handleReveal"
         @keydown.space.prevent="handleReveal"
@@ -341,5 +345,69 @@ watch(
 
 .tarot-card--compact .tarot-card__copy {
   font-size: var(--ds-text-body-sm);
+}
+
+@media (max-width: 720px) {
+  .tarot-card {
+    --card-frame-max: 272px;
+    --card-body-padding: 22px;
+    --card-title-size: 20px;
+    --card-position-margin: 8px;
+    --card-name-margin: 12px;
+    --card-copy-size: 14px;
+    --card-copy-line-height: 1.6;
+    --card-copy-margin: 14px;
+    --card-tag-gap: 6px;
+    --card-back-margin: 14px;
+    --card-symbol-size: 38px;
+    --card-tag-padding-y: 4px;
+    --card-tag-padding-x: 10px;
+    --card-tag-font-size: 8px;
+    --card-tag-letter-spacing: 0.03em;
+  }
+
+  .tarot-card--md {
+    --card-frame-max: 228px;
+    --card-body-padding: 18px;
+    --card-title-size: 18px;
+    --card-position-margin: 7px;
+    --card-name-margin: 10px;
+    --card-copy-size: 13px;
+    --card-copy-line-height: 1.55;
+    --card-copy-margin: 12px;
+    --card-tag-gap: 5px;
+    --card-back-margin: 12px;
+    --card-symbol-size: 32px;
+    --card-tag-padding-y: 4px;
+    --card-tag-padding-x: 8px;
+    --card-tag-font-size: 8px;
+    --card-tag-letter-spacing: 0.02em;
+  }
+
+  .tarot-card--sm {
+    --card-frame-max: 184px;
+    --card-body-padding: 14px;
+    --card-title-size: 16px;
+    --card-position-margin: 6px;
+    --card-name-margin: 8px;
+    --card-copy-size: 12px;
+    --card-copy-line-height: 1.5;
+    --card-copy-margin: 10px;
+    --card-tag-gap: 4px;
+    --card-back-margin: 10px;
+    --card-symbol-size: 26px;
+    --card-tag-padding-y: 3px;
+    --card-tag-padding-x: 7px;
+    --card-tag-font-size: 7px;
+    --card-tag-letter-spacing: 0.02em;
+  }
+
+  .tarot-card__back:hover {
+    transform: translateY(-4px);
+  }
+
+  .tarot-card__back--hidden:hover {
+    transform: translateY(-3px);
+  }
 }
 </style>

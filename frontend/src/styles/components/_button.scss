@@ -100,3 +100,26 @@
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 768px) {
+  .base-button {
+    gap: var(--ds-space-2);
+    min-height: 42px;
+    padding: 12px 18px;
+    letter-spacing: 0.08em;
+  }
+
+  .base-button--sm {
+    min-height: 36px;
+    padding: 8px 14px;
+  }
+
+  .base-button--lg {
+    min-height: 48px;
+    padding: 14px 22px;
+  }
+
+  .base-button--text {
+    padding: 6px 10px;
+  }
+}

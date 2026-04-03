@@ -41,3 +41,17 @@
   border-color: var(--ds-color-border-accent);
   box-shadow: var(--ds-shadow-soft), var(--ds-shadow-glow);
 }
+
+@media (max-width: 768px) {
+  .base-surface--padding-sm {
+    padding: var(--ds-space-3);
+  }
+
+  .base-surface--padding-md {
+    padding: var(--ds-space-5);
+  }
+
+  .base-surface--padding-lg {
+    padding: var(--ds-space-6);
+  }
+}

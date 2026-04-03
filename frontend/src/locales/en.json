@@ -17,6 +17,7 @@
   "controls": {
     "language": "Language",
     "theme": "Theme",
+    "close": "Close",
     "light": "Light",
     "dark": "Dark"
   },
@@ -136,6 +137,7 @@
     "accountingDateLabel": "Accounting date: {value}",
     "showDetails": "Show details",
     "hideDetails": "Hide details",
+    "revealCardAction": "Reveal card: {title}",
     "hiddenCardTitle": "New card",
     "hiddenCardCopy": "Click the card to reveal it and learn what fate has prepared for you.",
     "positions": {

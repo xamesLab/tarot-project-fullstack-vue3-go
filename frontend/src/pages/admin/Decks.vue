@@ -1012,4 +1012,73 @@ onBeforeUnmount(() => {
     align-items: flex-start;
   }
 }
+
+@media (max-width: 720px) {
+  .deck-summary {
+    gap: 10px;
+  }
+
+  .summary-card {
+    gap: 6px;
+  }
+
+  .list-head {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .deck-upload-grid {
+    gap: 12px;
+  }
+
+  .file-field {
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .file-field__content {
+    gap: 10px;
+  }
+
+  .file-field__check {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+
+  .admin-message {
+    margin-top: 12px;
+    padding: 12px 14px;
+  }
+
+  .deck-list {
+    gap: 12px;
+  }
+
+  .deck-card {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .deck-card__title {
+    margin-bottom: 6px;
+  }
+
+  .deck-card__badge {
+    padding: 4px 8px;
+  }
+
+  .card-actions {
+    gap: 8px;
+  }
+
+  .pagination-bar {
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .empty-state {
+    padding: 16px 0;
+  }
+}
 </style>

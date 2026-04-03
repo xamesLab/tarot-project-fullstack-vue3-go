@@ -100,4 +100,29 @@ const badgeLabel = computed(() => props.reading?.accounting_date || t('dashboard
   text-transform: uppercase;
   color: var(--ds-color-accent-primary);
 }
+
+@media (max-width: 720px) {
+  .card-of-day__head {
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+  }
+
+  .card-of-day__summary {
+    gap: 6px;
+  }
+
+  .card-of-day__title {
+    font-size: 16px;
+  }
+
+  .card-of-day__meta {
+    font-size: var(--ds-text-caption);
+  }
+
+  .card-of-day__badge {
+    padding: 4px 10px;
+    font-size: 8px;
+  }
+}
 </style>

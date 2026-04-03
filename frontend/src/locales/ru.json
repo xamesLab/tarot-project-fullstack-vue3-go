@@ -17,6 +17,7 @@
   "controls": {
     "language": "Язык",
     "theme": "Тема",
+    "close": "Закрыть",
     "light": "Light",
     "dark": "Dark"
   },
@@ -136,6 +137,7 @@
     "accountingDateLabel": "Учётная дата: {value}",
     "showDetails": "Показать детали",
     "hideDetails": "Скрыть детали",
+    "revealCardAction": "Открыть карту: {title}",
     "hiddenCardTitle": "Новая карта",
     "hiddenCardCopy": "Нажмите на карту, чтобы открыть её и узнать свою судьбу",
     "positions": {

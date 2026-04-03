@@ -76,3 +76,35 @@
 .base-tabs__panel {
   animation: ds-fade-in-up var(--ds-motion-base);
 }
+
+@media (max-width: 768px) {
+  .base-tabs {
+    gap: var(--ds-space-4);
+  }
+
+  .base-tabs__list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .base-tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .base-tabs__trigger {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    font-size: var(--ds-text-caption);
+    letter-spacing: 0.08em;
+  }
+
+  .base-tabs--underline .base-tabs__trigger.is-active::before {
+    left: 6px;
+  }
+
+  .base-tabs--pills .base-tabs__list,
+  .base-tabs--boxed .base-tabs__list {
+    gap: var(--ds-space-2);
+  }
+}

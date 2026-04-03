@@ -210,6 +210,47 @@
 
 @media (max-width: 720px) {
   .app-main {
-    padding: var(--ds-space-8) var(--ds-space-4) var(--ds-space-10);
+    padding: var(--ds-space-6) var(--ds-space-4) var(--ds-space-8);
+  }
+
+  .page-stack,
+  .page-grid,
+  .stack-lg {
+    gap: var(--ds-space-6);
+  }
+
+  .stack-md {
+    gap: var(--ds-space-4);
+  }
+
+  .stack-sm,
+  .cluster,
+  .section-head {
+    gap: var(--ds-space-3);
+  }
+
+  .section-head__title {
+    font-size: clamp(24px, 8vw, 32px);
+  }
+
+  .section-head__copy {
+    max-width: none;
+  }
+
+  .app-splash {
+    padding: var(--ds-space-4);
+  }
+
+  .app-splash__title {
+    font-size: clamp(28px, 10vw, 42px);
+  }
+
+  .app-splash__copy {
+    margin-bottom: var(--ds-space-5);
+  }
+
+  .app-splash__loader {
+    width: 52px;
+    height: 52px;
   }
 }

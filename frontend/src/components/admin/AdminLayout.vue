@@ -121,7 +121,16 @@ function isActive(path) {
   }
 
   .admin-nav {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    grid-template-columns: none;
+    scrollbar-width: thin;
+  }
+
+  .admin-nav__link {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 }
 </style>

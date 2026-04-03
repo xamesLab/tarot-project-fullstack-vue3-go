@@ -17,6 +17,8 @@ The agent must re-check:
 - editable role policy fields
 - editable global settings fields
 - expected deck upload validation rules
+- independent `deck` / `card back` lifecycle rules
+- archive / restore / permanent delete rules
 
 ## Mission
 
@@ -62,10 +64,12 @@ Every admin route must be protected with keeper-only middleware.
 - create deck repository and service logic
 - support deck metadata creation
 - support ZIP upload handling
-- validate ZIP structure and image constraints
+- validate strict `key-only` ZIP structure and image constraints
+- allow optional `0_meta.json` without treating it as a card
 - extract valid archives into the deck storage area
 - move deck status through the documented lifecycle
 - clean up temporary artifacts after processing
+- support archive / restore / permanent delete for decks and card backs
 
 ### Step 6. Build admin frontend shell
 
@@ -97,8 +101,10 @@ Pages should use shared UI primitives instead of ad hoc markup.
 - invalid archive path
 - missing cards
 - wrong file formats
-- wrong image dimensions or size
+- wrong image size
+- optional `0_meta.json` path
 - cleanup of rejected uploads
+- archive / restore / delete path
 
 ### Step 10. Validate role-sensitive behavior
 
@@ -116,10 +122,10 @@ Pages should use shared UI primitives instead of ad hoc markup.
 
 - do not make admin endpoints accessible to non-keeper roles
 - do not skip file validation for deck uploads
+- do not allow archived assets to remain selectable
 - do not expose destructive actions without explicit confirmation in the UI
 - do not silently mutate user-facing business rules outside documented policy fields
 
 ## Completion Standard
 
 This phase is complete only when a keeper user can safely operate the system through the admin UI and all admin actions are correctly enforced by the backend.
-

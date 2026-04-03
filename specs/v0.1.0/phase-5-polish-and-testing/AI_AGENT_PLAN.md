@@ -37,6 +37,8 @@ Bring the product from feature-complete to release-ready by tightening UX qualit
 - test dashboard on mobile
 - test history on mobile
 - test admin pages on mobile and tablet
+- test hidden/revealed card states on dashboard across breakpoints
+- test admin archive views on mobile and tablet
 - fix layout breakpoints and overflow issues
 
 ### Step 4. Audit accessibility
@@ -47,6 +49,7 @@ Bring the product from feature-complete to release-ready by tightening UX qualit
 - input labeling
 - color contrast
 - readable validation and error states
+- keyboard reveal for hidden cards
 
 ### Step 5. Audit performance
 
@@ -64,13 +67,16 @@ Bring the product from feature-complete to release-ready by tightening UX qualit
 - malformed requests
 - empty states
 - stale or deleted resource handling
+- archived resource fallback behavior
 
 ### Step 7. Validate domain edge cases
 
 - timezone changes with an active daily card
 - exact spread limit boundary
 - invalid deck uploads
-- access to deleted or disabled decks
+- `0_meta.json` in uploaded deck archives
+- repeated reveal of an already opened card
+- access to archived or deleted decks/card backs
 - accounting-day edge behavior
 
 ### Step 8. Fix defects in priority order
@@ -103,8 +109,8 @@ The agent should keep a defect list and close issues in a traceable way.
 - do not hide broken behavior behind cosmetic changes
 - do not claim accessibility compliance without actual verification
 - do not treat unresolved critical bugs as acceptable for release
+- do not break persisted reveal-state while polishing dashboard UI
 
 ## Completion Standard
 
 This phase is complete only when the implemented product feels coherent, stable, and trustworthy across the documented MVP journeys.
-

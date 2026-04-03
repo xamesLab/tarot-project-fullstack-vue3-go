@@ -206,12 +206,47 @@ async function handleLogout() {
   .site-header__inner {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
+    padding: 14px 0;
   }
 
   .site-header__nav,
   .site-header__controls {
     justify-content: center;
     margin-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-header__inner {
+    gap: 12px;
+    padding: 10px 0;
+  }
+
+  .brand-mark {
+    gap: 10px;
+  }
+
+  .brand-mark__symbol {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-mark__name {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+  }
+
+  .site-header__nav {
+    gap: 6px;
+  }
+
+  .site-header__nav-link {
+    padding: 8px 10px;
+  }
+
+  .site-header__controls {
+    gap: 8px;
   }
 }
 </style>

@@ -1,5 +1,6 @@
 <script setup>
-import { onBeforeUnmount, onMounted } from 'vue'
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import BaseSurface from './BaseSurface.vue'
 
@@ -15,11 +16,60 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
+const { t } = useI18n()
+const instance = getCurrentInstance()
+const dialogRef = ref(null)
+const closeButtonRef = ref(null)
+const lastFocusedElement = ref(null)
+const modalTitleId = computed(() => `base-modal-title-${instance?.uid || 'dialog'}`)
+
+function getFocusableElements() {
+  if (!dialogRef.value) {
+    return []
+  }
+
+  return Array.from(
+    dialogRef.value.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  )
+}
 
 function onKeydown(event) {
-  if (event.key === 'Escape' && props.isOpen) {
-    emit('close')
+  if (!props.isOpen) {
+    return
   }
+
+  if (event.key === 'Escape') {
+    emit('close')
+    return
+  }
+
+  if (event.key === 'Tab') {
+    const focusableElements = getFocusableElements()
+    if (!focusableElements.length) {
+      return
+    }
+
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault()
+      lastElement.focus()
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault()
+      firstElement.focus()
+    }
+  }
+}
+
+function applyOpenState() {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  document.body.style.overflow = props.isOpen ? 'hidden' : ''
 }
 
 onMounted(() => {
@@ -27,19 +77,65 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = ''
+  }
   window.removeEventListener('keydown', onKeydown)
 })
+
+watch(
+  () => props.isOpen,
+  async (isOpen) => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    if (isOpen) {
+      lastFocusedElement.value = document.activeElement
+      applyOpenState()
+      await nextTick()
+      closeButtonRef.value?.focus()
+      return
+    }
+
+    applyOpenState()
+    if (lastFocusedElement.value?.focus) {
+      lastFocusedElement.value.focus()
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
   <Teleport to="body">
     <div v-if="isOpen" class="base-modal">
-      <button type="button" class="base-modal__overlay" aria-label="Close modal" @click="emit('close')"></button>
-      <div class="base-modal__dialog">
+      <button
+        type="button"
+        class="base-modal__overlay"
+        :aria-label="t('controls.close')"
+        @click="emit('close')"
+      ></button>
+      <div
+        ref="dialogRef"
+        class="base-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="title ? modalTitleId : undefined"
+      >
         <BaseSurface tone="elevated" padding="lg" tag="div">
           <div class="base-modal__head">
-            <h3 class="base-modal__title">{{ title }}</h3>
-            <button type="button" class="base-modal__close" @click="emit('close')">×</button>
+            <h3 :id="modalTitleId" class="base-modal__title">{{ title }}</h3>
+            <button
+              ref="closeButtonRef"
+              type="button"
+              class="base-modal__close"
+              :aria-label="t('controls.close')"
+              :title="t('controls.close')"
+              @click="emit('close')"
+            >
+              ×
+            </button>
           </div>
           <div class="base-modal__body">
             <slot />

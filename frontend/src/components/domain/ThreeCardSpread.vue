@@ -115,4 +115,33 @@ const badgeLabel = computed(() => {
     gap: 32px;
   }
 }
+
+@media (max-width: 720px) {
+  .three-card-spread__head {
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+  }
+
+  .three-card-spread__summary {
+    gap: 6px;
+  }
+
+  .three-card-spread__title {
+    font-size: 16px;
+  }
+
+  .three-card-spread__meta {
+    font-size: var(--ds-text-caption);
+  }
+
+  .three-card-spread__badge {
+    padding: 4px 10px;
+    font-size: 8px;
+  }
+
+  .three-card-spread__grid {
+    gap: 20px;
+  }
+}
 </style>
