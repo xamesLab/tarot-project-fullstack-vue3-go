@@ -1,0 +1,125 @@
+.base-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-space-3);
+  min-height: 48px;
+  padding: 14px 24px;
+  border: var(--ds-border-width) solid transparent;
+  font-family: var(--ds-font-ui);
+  font-size: var(--ds-text-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--ds-motion-base),
+    border-color var(--ds-motion-base),
+    color var(--ds-motion-base),
+    box-shadow var(--ds-motion-base),
+    transform var(--ds-motion-base);
+}
+
+.base-button:hover:not(.is-disabled):not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.base-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.22);
+}
+
+.base-button.is-disabled,
+.base-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+  box-shadow: none;
+}
+
+.base-button--full {
+  width: 100%;
+}
+
+.base-button--sm {
+  min-height: 40px;
+  padding: 10px 18px;
+}
+
+.base-button--lg {
+  min-height: 56px;
+  padding: 18px 30px;
+}
+
+.base-button--primary {
+  background: linear-gradient(135deg, var(--ds-color-accent-dark), var(--ds-color-accent-primary));
+  color: var(--ds-color-bg-page);
+}
+
+.base-button--primary:hover:not(.is-disabled):not(:disabled) {
+  box-shadow: var(--ds-shadow-glow);
+}
+
+.base-button--secondary {
+  background: var(--ds-color-bg-surface);
+  border-color: var(--ds-color-border-accent);
+  color: var(--ds-color-accent-primary);
+}
+
+.base-button--ghost {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--ds-color-border-subtle);
+  color: var(--ds-color-text-primary);
+}
+
+.base-button--outlined {
+  background: transparent;
+  border-color: var(--ds-color-accent-primary);
+  color: var(--ds-color-accent-primary);
+}
+
+.base-button--text {
+  min-height: auto;
+  padding: 8px 12px;
+  color: var(--ds-color-accent-primary);
+}
+
+.base-button__loader {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ds-spin 0.8s linear infinite;
+}
+
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .base-button {
+    gap: var(--ds-space-2);
+    min-height: 42px;
+    padding: 12px 18px;
+    letter-spacing: 0.08em;
+  }
+
+  .base-button--sm {
+    min-height: 36px;
+    padding: 8px 14px;
+  }
+
+  .base-button--lg {
+    min-height: 48px;
+    padding: 14px 22px;
+  }
+
+  .base-button--text {
+    padding: 6px 10px;
+  }
+}

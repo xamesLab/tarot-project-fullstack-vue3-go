@@ -1,0 +1,110 @@
+.base-tabs {
+  display: grid;
+  gap: var(--ds-space-6);
+}
+
+.base-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-bottom: var(--ds-border-width) solid var(--ds-color-border-subtle);
+}
+
+.base-tabs__trigger {
+  position: relative;
+  padding: 16px 32px;
+  font-family: var(--ds-font-ui);
+  font-size: var(--ds-text-label);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 0;
+  border-bottom: var(--ds-border-width-strong) solid transparent;
+  color: var(--ds-color-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--ds-motion-base),
+    background var(--ds-motion-base),
+    border-color var(--ds-motion-base);
+}
+
+.base-tabs__trigger:hover {
+  color: var(--ds-color-text-primary);
+  background: color-mix(in srgb, var(--ds-color-text-primary) 4%, transparent);
+}
+
+.base-tabs__trigger.is-active {
+  color: var(--ds-color-accent-primary);
+}
+
+.base-tabs--underline .base-tabs__trigger.is-active {
+  border-bottom-color: var(--ds-color-accent-primary);
+}
+
+.base-tabs--underline .base-tabs__trigger.is-active::before {
+  content: "✦";
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: var(--ds-color-accent-primary);
+}
+
+.base-tabs--pills .base-tabs__list,
+.base-tabs--boxed .base-tabs__list {
+  border-bottom: 0;
+  gap: var(--ds-space-2);
+}
+
+.base-tabs--pills .base-tabs__trigger,
+.base-tabs--boxed .base-tabs__trigger {
+  border: var(--ds-border-width) solid var(--ds-color-border-subtle);
+}
+
+.base-tabs--pills .base-tabs__trigger.is-active {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: var(--ds-color-accent-primary);
+}
+
+.base-tabs--boxed .base-tabs__trigger.is-active {
+  background: var(--ds-color-bg-elevated);
+  border-color: var(--ds-color-accent-primary);
+}
+
+.base-tabs__panel {
+  animation: ds-fade-in-up var(--ds-motion-base);
+}
+
+@media (max-width: 768px) {
+  .base-tabs {
+    gap: var(--ds-space-4);
+  }
+
+  .base-tabs__list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .base-tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .base-tabs__trigger {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    font-size: var(--ds-text-caption);
+    letter-spacing: 0.08em;
+  }
+
+  .base-tabs--underline .base-tabs__trigger.is-active::before {
+    left: 6px;
+  }
+
+  .base-tabs--pills .base-tabs__list,
+  .base-tabs--boxed .base-tabs__list {
+    gap: var(--ds-space-2);
+  }
+}
