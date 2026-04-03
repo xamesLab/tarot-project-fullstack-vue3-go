@@ -24,6 +24,27 @@ const isLoading = computed(() => readingsStore.dashboardStatus === 'loading')
 const spreadLimitReached = computed(() => (
   readingsStore.spreadLimit && readingsStore.spreadLimit.count <= 0
 ))
+const cardOfDayRevealLoading = computed(() => {
+  if (!readingsStore.cardOfDay?.id || !readingsStore.cardOfDay?.cards?.length) {
+    return false
+  }
+
+  const position = readingsStore.cardOfDay.cards[0]?.position ?? 0
+  return readingsStore.revealStatusByKey[`${readingsStore.cardOfDay.id}:${position}`] === 'loading'
+})
+const spreadRevealMap = computed(() => {
+  const reading = readingsStore.latestSpread
+  if (!reading?.id) {
+    return {}
+  }
+
+  return Object.fromEntries(
+    (reading.cards || []).map((card) => [
+      card.position,
+      readingsStore.revealStatusByKey[`${reading.id}:${card.position}`] === 'loading',
+    ]),
+  )
+})
 const readingTabs = computed(() => [
   { value: 'card-of-day', label: t('dashboard.cardEyebrow') },
   { value: 'three-card', label: t('dashboard.spreadEyebrow') },
@@ -37,6 +58,14 @@ async function handleGenerateSpread() {
   await readingsStore.generateThreeCardSpread()
 }
 
+async function handleRevealCard(payload) {
+  if (!payload?.readingId || payload?.position == null) {
+    return
+  }
+
+  await readingsStore.revealCard(payload.readingId, payload.position)
+}
+
 onMounted(() => {
   readingsStore.loadDashboard()
 })
@@ -45,32 +74,7 @@ onMounted(() => {
 <template>
   <PageContainer>
     <div class="page-stack">
-      <PageSection :eyebrow="t('dashboard.eyebrow')" :title="greeting" :copy="t('dashboard.copy')">
-        <BaseSurface class="hero-panel" tone="outlined" padding="lg" tag="section">
-          <div class="hero-panel__content">
-            <div class="stack-md">
-              <p class="text-eyebrow">{{ t('dashboard.today') }}</p>
-              <h2 class="hero-panel__title">{{ t('dashboard.heroTitle') }}</h2>
-              <p class="hero-panel__copy">{{ t('dashboard.heroCopy') }}</p>
-            </div>
-
-            <div class="cluster">
-              <BaseButton :loading="readingsStore.cardOfDayStatus === 'loading'" @click="handleGenerateCardOfDay">
-                {{ t('dashboard.primaryAction') }}
-              </BaseButton>
-              <BaseButton
-                variant="secondary"
-                :loading="readingsStore.spreadStatus === 'loading'"
-                :disabled="spreadLimitReached"
-                @click="handleGenerateSpread"
-              >
-                {{ t('dashboard.spreadAction') }}
-              </BaseButton>
-              <BaseButton variant="ghost" to="/history">{{ t('dashboard.secondaryAction') }}</BaseButton>
-            </div>
-          </div>
-        </BaseSurface>
-      </PageSection>
+      <PageSection :eyebrow="t('dashboard.eyebrow')" :title="greeting" :copy="t('dashboard.copy')" />
 
       <BaseSurface class="dashboard-tabs-surface" padding="lg" tag="section">
         <BaseTabs v-model="activeReadingTab" :items="readingTabs">
@@ -96,6 +100,8 @@ onMounted(() => {
                 v-if="readingsStore.cardOfDay"
                 :reading="readingsStore.cardOfDay"
                 :next-available-at="readingsStore.cardOfDayNextAvailableAt"
+                :reveal-loading="cardOfDayRevealLoading"
+                @reveal="handleRevealCard"
               />
 
               <EmptyStateCard
@@ -122,7 +128,12 @@ onMounted(() => {
                 {{ readingsStore.spreadError }}
               </p>
 
-              <ThreeCardSpread v-if="readingsStore.latestSpread" :reading="readingsStore.latestSpread" />
+              <ThreeCardSpread
+                v-if="readingsStore.latestSpread"
+                :reading="readingsStore.latestSpread"
+                :revealing-map="spreadRevealMap"
+                @reveal="handleRevealCard"
+              />
 
               <EmptyStateCard
                 v-else
@@ -144,6 +155,31 @@ onMounted(() => {
             </div>
           </template>
         </BaseTabs>
+      </BaseSurface>
+
+      <BaseSurface class="hero-panel" tone="outlined" padding="lg" tag="section">
+        <div class="hero-panel__content">
+          <div class="stack-md">
+            <p class="text-eyebrow">{{ t('dashboard.today') }}</p>
+            <h2 class="hero-panel__title">{{ t('dashboard.heroTitle') }}</h2>
+            <p class="hero-panel__copy">{{ t('dashboard.heroCopy') }}</p>
+          </div>
+
+          <div class="cluster">
+            <BaseButton :loading="readingsStore.cardOfDayStatus === 'loading'" @click="handleGenerateCardOfDay">
+              {{ t('dashboard.primaryAction') }}
+            </BaseButton>
+            <BaseButton
+              variant="secondary"
+              :loading="readingsStore.spreadStatus === 'loading'"
+              :disabled="spreadLimitReached"
+              @click="handleGenerateSpread"
+            >
+              {{ t('dashboard.spreadAction') }}
+            </BaseButton>
+            <BaseButton variant="ghost" to="/history">{{ t('dashboard.secondaryAction') }}</BaseButton>
+          </div>
+        </div>
       </BaseSurface>
     </div>
   </PageContainer>

@@ -51,6 +51,7 @@ type ReadingHistoryResult struct {
 type ReadingService struct {
 	users     *repositories.UserRepository
 	cards     *repositories.CardRepository
+	decks     *repositories.DeckRepository
 	cardBacks *repositories.CardBackRepository
 	readings  *repositories.ReadingRepository
 	policies  *repositories.PolicyRepository
@@ -61,6 +62,7 @@ type ReadingService struct {
 func NewReadingService(
 	users *repositories.UserRepository,
 	cards *repositories.CardRepository,
+	decks *repositories.DeckRepository,
 	cardBacks *repositories.CardBackRepository,
 	readings *repositories.ReadingRepository,
 	policies *repositories.PolicyRepository,
@@ -69,6 +71,7 @@ func NewReadingService(
 	return &ReadingService{
 		users:     users,
 		cards:     cards,
+		decks:     decks,
 		cardBacks: cardBacks,
 		readings:  readings,
 		policies:  policies,
@@ -124,7 +127,7 @@ func (s *ReadingService) GenerateCardOfDay(ctx context.Context, userID primitive
 		AccountingDate: accountingDate,
 		Timezone:       timezone,
 		Cards: []models.ReadingCard{
-			{Key: selectedKey, Position: 0, Reversed: false},
+			{Key: selectedKey, Position: 0, Reversed: false, Viewed: false},
 		},
 		DeckID:      deckID,
 		BackID:      backID,
@@ -190,6 +193,7 @@ func (s *ReadingService) GenerateThreeCardSpread(ctx context.Context, userID pri
 			Key:      key,
 			Position: index,
 			Reversed: false,
+			Viewed:   false,
 		})
 	}
 
@@ -292,6 +296,56 @@ func (s *ReadingService) GetReadingHistory(ctx context.Context, userID primitive
 	}, nil
 }
 
+func (s *ReadingService) RevealReadingCard(ctx context.Context, userID primitive.ObjectID, readingID string, position int) (*models.ReadingResponse, error) {
+	readingObjectID, err := primitive.ObjectIDFromHex(strings.TrimSpace(readingID))
+	if err != nil {
+		return nil, wrapValidation("Invalid reading id")
+	}
+	if position < 0 {
+		return nil, wrapValidation("Card position must be zero or greater")
+	}
+
+	reading, err := s.readings.FindByIDAndUser(ctx, readingObjectID, userID)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, wrapValidation("Reading not found")
+		}
+		return nil, err
+	}
+
+	cardFound := false
+	updatedCards := make([]models.ReadingCard, len(reading.Cards))
+	copy(updatedCards, reading.Cards)
+
+	for index := range updatedCards {
+		if updatedCards[index].Position != position {
+			continue
+		}
+
+		cardFound = true
+		if updatedCards[index].Viewed {
+			return s.buildReadingResponse(ctx, reading, nil)
+		}
+
+		updatedCards[index].Viewed = true
+		break
+	}
+
+	if !cardFound {
+		return nil, wrapValidation("Card position not found in reading")
+	}
+
+	if err := s.readings.UpdateCards(ctx, reading.ID, userID, updatedCards); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, wrapValidation("Reading not found")
+		}
+		return nil, err
+	}
+
+	reading.Cards = updatedCards
+	return s.buildReadingResponse(ctx, reading, nil)
+}
+
 func (s *ReadingService) resolveReadingContext(ctx context.Context, userID primitive.ObjectID, requestedTimezone string) (*models.User, *models.RolePolicy, string, string, time.Time, error) {
 	user, err := s.users.FindByID(ctx, userID)
 	if err != nil {
@@ -374,6 +428,7 @@ func (s *ReadingService) buildReadingResponses(ctx context.Context, readings []m
 				BackImageURL:     backImageURLs[effectiveBackID],
 				Position:         readingCard.Position,
 				Reversed:         readingCard.Reversed,
+				Viewed:           readingCard.Viewed,
 			})
 		}
 
@@ -431,7 +486,13 @@ func resolveBackID(backID string) string {
 func (s *ReadingService) resolveEffectiveDeckID(ctx context.Context, selectedDeckID string) (string, error) {
 	selectedDeckID = strings.TrimSpace(selectedDeckID)
 	if selectedDeckID != "" {
-		return selectedDeckID, nil
+		deck, err := s.decksFallbackLookup(ctx, selectedDeckID)
+		if err != nil {
+			return "", err
+		}
+		if deck != nil {
+			return selectedDeckID, nil
+		}
 	}
 
 	settings, err := s.settings.Get(ctx)
@@ -445,7 +506,13 @@ func (s *ReadingService) resolveEffectiveDeckID(ctx context.Context, selectedDec
 func (s *ReadingService) resolveEffectiveBackID(ctx context.Context, selectedBackID string) (string, error) {
 	selectedBackID = strings.TrimSpace(selectedBackID)
 	if selectedBackID != "" {
-		return selectedBackID, nil
+		cardBack, err := s.cardBackFallbackLookup(ctx, selectedBackID)
+		if err != nil {
+			return "", err
+		}
+		if cardBack != nil {
+			return selectedBackID, nil
+		}
 	}
 
 	settings, err := s.settings.Get(ctx)
@@ -454,6 +521,34 @@ func (s *ReadingService) resolveEffectiveBackID(ctx context.Context, selectedBac
 	}
 
 	return resolveBackID(settings.DefaultBackID), nil
+}
+
+func (s *ReadingService) decksFallbackLookup(ctx context.Context, deckID string) (*models.Deck, error) {
+	deck, err := s.decks.FindByID(ctx, deckID)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if deck.Status != "done" {
+		return nil, nil
+	}
+	return deck, nil
+}
+
+func (s *ReadingService) cardBackFallbackLookup(ctx context.Context, cardBackID string) (*models.CardBack, error) {
+	cardBack, err := s.cardBacks.FindByID(ctx, cardBackID)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if cardBack.Status != "done" {
+		return nil, nil
+	}
+	return cardBack, nil
 }
 
 func buildDeterministicSeed(userID, accountingDate, timezone string) string {

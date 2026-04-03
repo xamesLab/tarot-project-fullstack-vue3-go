@@ -44,6 +44,30 @@ export function updateDeck(deckId, payload) {
   return api.patch(`/admin/decks/${deckId}`, payload).then((response) => response.data)
 }
 
+export function archiveDeck(deckId) {
+  return api.post(`/admin/decks/${deckId}/archive`).then((response) => response.data)
+}
+
+export function restoreDeck(deckId) {
+  return api.post(`/admin/decks/${deckId}/restore`).then((response) => response.data)
+}
+
+export function deleteDeck(deckId) {
+  return api.delete(`/admin/decks/${deckId}`).then((response) => response.data)
+}
+
+export function archiveCardBack(cardBackId) {
+  return api.post(`/admin/card-backs/${cardBackId}/archive`).then((response) => response.data)
+}
+
+export function restoreCardBack(cardBackId) {
+  return api.post(`/admin/card-backs/${cardBackId}/restore`).then((response) => response.data)
+}
+
+export function deleteCardBack(cardBackId) {
+  return api.delete(`/admin/card-backs/${cardBackId}`).then((response) => response.data)
+}
+
 export function getRolePolicies() {
   return api.get('/admin/roles').then((response) => response.data)
 }

@@ -9,7 +9,12 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  revealingMap: {
+    type: Object,
+    default: () => ({}),
+  },
 })
+const emit = defineEmits(['reveal'])
 
 const { t } = useI18n()
 
@@ -42,7 +47,11 @@ const badgeLabel = computed(() => {
         :key="`${reading.id}-${card.key}-${index}`"
         :card="card"
         :position-label="t(`readings.positions.${positionKeys[index] || 'future'}`)"
+        :revealed="Boolean(card.viewed)"
+        :revealable="true"
+        :reveal-loading="Boolean(revealingMap[card.position])"
         size="md"
+        @reveal="emit('reveal', { readingId: reading.id, position: card.position })"
       />
     </div>
   </section>

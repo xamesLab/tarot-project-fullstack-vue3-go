@@ -12,7 +12,7 @@ frontend/.env.*
 backend/.env
 backend/.env.*
 !backend/.env.example
-backend/uploads/
+# backend/uploads/
 backend/tmp/
 
 # Common

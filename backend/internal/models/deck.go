@@ -38,5 +38,5 @@ type AdminUpdateDeckRequest struct {
 	Author      *string        `json:"author"`
 	Year        *int           `json:"year"`
 	Tags        *[]string      `json:"tags"`
-	Status      *string        `json:"status" validate:"omitempty,oneof=processing done disabled"`
+	Status      *string        `json:"status" validate:"omitempty,oneof=processing done disabled archived"`
 }

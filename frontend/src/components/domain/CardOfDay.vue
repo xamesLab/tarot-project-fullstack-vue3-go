@@ -14,7 +14,12 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  revealLoading: {
+    type: Boolean,
+    default: false,
+  },
 })
+const emit = defineEmits(['reveal'])
 
 const { t, locale } = useI18n()
 
@@ -39,7 +44,14 @@ const badgeLabel = computed(() => props.reading?.accounting_date || t('dashboard
       <span class="card-of-day__badge">{{ badgeLabel }}</span>
     </div>
 
-    <TarotCard :card="reading.cards[0]" size="md" />
+    <TarotCard
+      :card="reading.cards[0]"
+      :revealed="Boolean(reading.cards[0]?.viewed)"
+      :revealable="true"
+      :reveal-loading="revealLoading"
+      size="md"
+      @reveal="emit('reveal', { readingId: reading.id, position: reading.cards[0]?.position ?? 0 })"
+    />
   </section>
 </template>
 

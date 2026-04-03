@@ -37,6 +37,9 @@
 - `CardOfDay`
 - `ThreeCardSpread`
 - отображение:
+  - скрытого состояния карты с рубашкой
+  - reveal по клику для каждой карты
+  - persisted `viewed` state внутри reading
   - имени карты
   - интерпретации
   - тегов
@@ -66,11 +69,12 @@
 
 ## Текущее состояние реализации
 
-На `April 2, 2026` этап считается завершённым.
+На `April 3, 2026` этап считается завершённым.
 
 - backend reading domain и API реализованы
 - `Card of the Day`, `3-card spread`, history, retention и role-policy логика подключены end-to-end
 - frontend `Dashboard` и `History` работают с реальными данными, а tarot-компоненты интегрированы в shell
+- активные карты на dashboard открываются по одной и сохраняют `viewed` state после перезагрузки
 - ручные тесты из [MANUAL_TESTS.md](./MANUAL_TESTS.md) пройдены
 - production build frontend и `go test ./...` для backend проходят
 

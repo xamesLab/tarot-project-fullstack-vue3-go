@@ -79,7 +79,25 @@ func TestValidateDeckZIPFailsOnMissingCard(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected validation error for missing card")
 	}
-	if !strings.Contains(err.Error(), "14 cards") && !strings.Contains(err.Error(), "missing card images") {
+	if !strings.Contains(err.Error(), "missing card images") && !strings.Contains(err.Error(), "exactly 78 unique card images") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestValidateDeckZIPRejectsNumericCardIDs(t *testing.T) {
+	t.Parallel()
+
+	expectedKeys := buildExpectedTestKeys()
+	zipPath := filepath.Join(t.TempDir(), "numeric-deck.zip")
+	if err := writeNumericTestDeckZip(zipPath); err != nil {
+		t.Fatalf("write zip: %v", err)
+	}
+
+	_, err := ValidateDeckZIP(zipPath, expectedKeys)
+	if err == nil {
+		t.Fatal("expected validation error for numeric card ids")
+	}
+	if !strings.Contains(err.Error(), "does not map to a known tarot card key") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -144,6 +162,28 @@ func writeTestDeckZip(zipPath string, omitLastMinor bool) error {
 			if err := addPNGToZip(writer, path); err != nil {
 				return err
 			}
+		}
+	}
+
+	return writer.Close()
+}
+
+func writeNumericTestDeckZip(zipPath string) error {
+	file, err := os.Create(zipPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := zip.NewWriter(file)
+
+	for id := 22; id <= 121; id++ {
+		entry, err := writer.Create(filepath.ToSlash(filepath.Join("card", fmt.Sprintf("%d.png", id))))
+		if err != nil {
+			return err
+		}
+		if err := writeImage(entry); err != nil {
+			return err
 		}
 	}
 

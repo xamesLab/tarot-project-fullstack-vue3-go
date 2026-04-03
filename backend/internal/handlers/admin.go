@@ -34,6 +34,12 @@ func (h *AdminHandler) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/card-backs", h.listCardBacks)
 	router.GET("/decks/:deckId", h.getDeck)
 	router.PATCH("/decks/:deckId", h.updateDeck)
+	router.POST("/decks/:deckId/archive", h.archiveDeck)
+	router.POST("/decks/:deckId/restore", h.restoreDeck)
+	router.DELETE("/decks/:deckId", h.deleteDeck)
+	router.POST("/card-backs/:cardBackId/archive", h.archiveCardBack)
+	router.POST("/card-backs/:cardBackId/restore", h.restoreCardBack)
+	router.DELETE("/card-backs/:cardBackId", h.deleteCardBack)
 	router.PATCH("/users/:userId/role", h.updateUserRole)
 	router.PATCH("/users/:userId/status", h.updateUserStatus)
 	router.GET("/roles", h.listRolePolicies)
@@ -215,8 +221,9 @@ func (h *AdminHandler) createCardBack(c *gin.Context) {
 func (h *AdminHandler) listDecks(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	scope := strings.TrimSpace(c.DefaultQuery("scope", "active"))
 
-	decks, pagination, err := h.adminService.ListDecks(c.Request.Context(), page, limit)
+	decks, pagination, err := h.adminService.ListDecks(c.Request.Context(), scope, page, limit)
 	if err != nil {
 		respondServiceError(c, err)
 		return
@@ -232,8 +239,9 @@ func (h *AdminHandler) listDecks(c *gin.Context) {
 func (h *AdminHandler) listCardBacks(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	scope := strings.TrimSpace(c.DefaultQuery("scope", "active"))
 
-	cardBacks, pagination, err := h.adminService.ListCardBacks(c.Request.Context(), page, limit)
+	cardBacks, pagination, err := h.adminService.ListCardBacks(c.Request.Context(), scope, page, limit)
 	if err != nil {
 		respondServiceError(c, err)
 		return
@@ -280,6 +288,64 @@ func (h *AdminHandler) updateDeck(c *gin.Context) {
 		"success": true,
 		"deck":    deck,
 	})
+}
+
+func (h *AdminHandler) archiveDeck(c *gin.Context) {
+	deck, err := h.adminService.ArchiveDeck(c.Request.Context(), c.Param("deckId"))
+	if err != nil {
+		respondServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "deck": deck})
+}
+
+func (h *AdminHandler) restoreDeck(c *gin.Context) {
+	deck, err := h.adminService.RestoreDeck(c.Request.Context(), c.Param("deckId"))
+	if err != nil {
+		respondServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "deck": deck})
+}
+
+func (h *AdminHandler) deleteDeck(c *gin.Context) {
+	if err := h.adminService.DeleteDeck(c.Request.Context(), c.Param("deckId")); err != nil {
+		respondServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (h *AdminHandler) archiveCardBack(c *gin.Context) {
+	cardBack, err := h.adminService.ArchiveCardBack(c.Request.Context(), c.Param("cardBackId"))
+	if err != nil {
+		respondServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "card_back": cardBack})
+}
+
+func (h *AdminHandler) restoreCardBack(c *gin.Context) {
+	cardBack, err := h.adminService.RestoreCardBack(c.Request.Context(), c.Param("cardBackId"))
+	if err != nil {
+		respondServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "card_back": cardBack})
+}
+
+func (h *AdminHandler) deleteCardBack(c *gin.Context) {
+	if err := h.adminService.DeleteCardBack(c.Request.Context(), c.Param("cardBackId")); err != nil {
+		respondServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func (h *AdminHandler) updateUserRole(c *gin.Context) {

@@ -59,7 +59,7 @@ func main() {
 
 	authService := services.NewAuthService(userRepository)
 	userService := services.NewUserService(userRepository, deckRepository, cardBackRepository)
-	readingService := services.NewReadingService(userRepository, cardRepository, cardBackRepository, readingRepository, policyRepository, adminSettingsRepository)
+	readingService := services.NewReadingService(userRepository, cardRepository, deckRepository, cardBackRepository, readingRepository, policyRepository, adminSettingsRepository)
 	adminService := services.NewAdminService(userRepository, cardRepository, readingRepository, policyRepository, adminSettingsRepository, deckRepository, cardBackRepository)
 	catalogService := services.NewCatalogService(deckRepository, cardBackRepository, adminSettingsRepository)
 

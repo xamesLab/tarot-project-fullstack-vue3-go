@@ -111,6 +111,10 @@ func (s *AdminService) GetDashboardMetrics(ctx context.Context) (*models.AdminDa
 	if err != nil {
 		return nil, err
 	}
+	metrics.Decks.ByStatus.Archived, err = s.decks.CountByStatus(ctx, "archived")
+	if err != nil {
+		return nil, err
+	}
 
 	return &metrics, nil
 }
@@ -228,7 +232,7 @@ func (s *AdminService) UpdateSettings(ctx context.Context, req models.AdminUpdat
 	return s.settings.Update(ctx, req)
 }
 
-func (s *AdminService) ListDecks(ctx context.Context, page, limit int) ([]models.Deck, models.PaginationResponse, error) {
+func (s *AdminService) ListDecks(ctx context.Context, scope string, page, limit int) ([]models.Deck, models.PaginationResponse, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -240,13 +244,17 @@ func (s *AdminService) ListDecks(ctx context.Context, page, limit int) ([]models
 	}
 
 	skip := int64((page - 1) * limit)
-
-	decks, err := s.decks.List(ctx, skip, int64(limit))
+	statuses, err := resolveAssetScopeStatuses(scope)
 	if err != nil {
 		return nil, models.PaginationResponse{}, err
 	}
 
-	total, err := s.decks.CountAll(ctx)
+	decks, err := s.decks.ListByStatuses(ctx, statuses, skip, int64(limit))
+	if err != nil {
+		return nil, models.PaginationResponse{}, err
+	}
+
+	total, err := s.decks.CountByStatuses(ctx, statuses)
 	if err != nil {
 		return nil, models.PaginationResponse{}, err
 	}
@@ -343,7 +351,7 @@ func (s *AdminService) CreateDeck(ctx context.Context, req models.AdminCreateDec
 	return updatedDeck, nil
 }
 
-func (s *AdminService) ListCardBacks(ctx context.Context, page, limit int) ([]models.CardBack, models.PaginationResponse, error) {
+func (s *AdminService) ListCardBacks(ctx context.Context, scope string, page, limit int) ([]models.CardBack, models.PaginationResponse, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -355,13 +363,17 @@ func (s *AdminService) ListCardBacks(ctx context.Context, page, limit int) ([]mo
 	}
 
 	skip := int64((page - 1) * limit)
-
-	cardBacks, err := s.cardBacks.List(ctx, skip, int64(limit))
+	statuses, err := resolveAssetScopeStatuses(scope)
 	if err != nil {
 		return nil, models.PaginationResponse{}, err
 	}
 
-	total, err := s.cardBacks.CountAll(ctx)
+	cardBacks, err := s.cardBacks.ListByStatuses(ctx, statuses, skip, int64(limit))
+	if err != nil {
+		return nil, models.PaginationResponse{}, err
+	}
+
+	total, err := s.cardBacks.CountByStatuses(ctx, statuses)
 	if err != nil {
 		return nil, models.PaginationResponse{}, err
 	}
@@ -491,6 +503,145 @@ func (s *AdminService) UpdateDeckMetadata(ctx context.Context, deckID string, re
 	}
 
 	return s.decks.Update(ctx, deckID, updates)
+}
+
+func (s *AdminService) ArchiveDeck(ctx context.Context, deckID string) (*models.Deck, error) {
+	deckID = strings.TrimSpace(deckID)
+	if deckID == "" {
+		return nil, wrapValidation("Deck id is required")
+	}
+
+	settings, err := s.settings.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if settings.DefaultDeckID == deckID {
+		return nil, wrapValidation("Cannot archive the current default deck")
+	}
+
+	return s.decks.Update(ctx, deckID, bson.M{"status": "archived"})
+}
+
+func (s *AdminService) RestoreDeck(ctx context.Context, deckID string) (*models.Deck, error) {
+	deckID = strings.TrimSpace(deckID)
+	if deckID == "" {
+		return nil, wrapValidation("Deck id is required")
+	}
+
+	deck, err := s.decks.FindByID(ctx, deckID)
+	if err != nil {
+		return nil, err
+	}
+	if deck.Status != "archived" {
+		return deck, nil
+	}
+
+	return s.decks.Update(ctx, deckID, bson.M{"status": "done"})
+}
+
+func (s *AdminService) DeleteDeck(ctx context.Context, deckID string) error {
+	deckID = strings.TrimSpace(deckID)
+	if deckID == "" {
+		return wrapValidation("Deck id is required")
+	}
+
+	settings, err := s.settings.Get(ctx)
+	if err != nil {
+		return err
+	}
+	if settings.DefaultDeckID == deckID {
+		return wrapValidation("Cannot delete the current default deck")
+	}
+
+	deck, err := s.decks.FindByID(ctx, deckID)
+	if err != nil {
+		return err
+	}
+	if deck.Status != "archived" {
+		return wrapValidation("Only archived decks can be deleted permanently")
+	}
+
+	if err := s.decks.Delete(ctx, deckID); err != nil {
+		return err
+	}
+
+	return os.RemoveAll(filepath.Join("uploads", "decks", deckID))
+}
+
+func (s *AdminService) ArchiveCardBack(ctx context.Context, cardBackID string) (*models.CardBack, error) {
+	cardBackID = strings.TrimSpace(cardBackID)
+	if cardBackID == "" {
+		return nil, wrapValidation("Card back id is required")
+	}
+
+	settings, err := s.settings.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if settings.DefaultBackID == cardBackID {
+		return nil, wrapValidation("Cannot archive the current default card back")
+	}
+
+	return s.cardBacks.Update(ctx, cardBackID, bson.M{"status": "archived"})
+}
+
+func (s *AdminService) RestoreCardBack(ctx context.Context, cardBackID string) (*models.CardBack, error) {
+	cardBackID = strings.TrimSpace(cardBackID)
+	if cardBackID == "" {
+		return nil, wrapValidation("Card back id is required")
+	}
+
+	cardBack, err := s.cardBacks.FindByID(ctx, cardBackID)
+	if err != nil {
+		return nil, err
+	}
+	if cardBack.Status != "archived" {
+		return cardBack, nil
+	}
+
+	return s.cardBacks.Update(ctx, cardBackID, bson.M{"status": "done"})
+}
+
+func (s *AdminService) DeleteCardBack(ctx context.Context, cardBackID string) error {
+	cardBackID = strings.TrimSpace(cardBackID)
+	if cardBackID == "" {
+		return wrapValidation("Card back id is required")
+	}
+
+	settings, err := s.settings.Get(ctx)
+	if err != nil {
+		return err
+	}
+	if settings.DefaultBackID == cardBackID {
+		return wrapValidation("Cannot delete the current default card back")
+	}
+
+	cardBack, err := s.cardBacks.FindByID(ctx, cardBackID)
+	if err != nil {
+		return err
+	}
+	if cardBack.Status != "archived" {
+		return wrapValidation("Only archived card backs can be deleted permanently")
+	}
+
+	if err := s.cardBacks.Delete(ctx, cardBackID); err != nil {
+		return err
+	}
+
+	return os.RemoveAll(filepath.Join("uploads", "card-backs", cardBackID))
+}
+
+func resolveAssetScopeStatuses(scope string) ([]string, error) {
+	switch strings.TrimSpace(scope) {
+	case "", "active":
+		return []string{"done", "processing", "disabled"}, nil
+	case "archived":
+		return []string{"archived"}, nil
+	case "all":
+		return nil, nil
+	default:
+		return nil, wrapValidation("Unsupported asset scope")
+	}
 }
 
 func sanitizeTags(raw []string) []string {

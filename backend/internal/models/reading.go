@@ -19,6 +19,7 @@ type ReadingCard struct {
 	Key      string `bson:"key" json:"key"`
 	Position int    `bson:"position" json:"position"`
 	Reversed bool   `bson:"reversed" json:"reversed"`
+	Viewed   bool   `bson:"viewed" json:"viewed"`
 }
 
 type ReadingMetadata struct {
@@ -52,6 +53,7 @@ type ReadingCardResponse struct {
 	BackImageURL     string `json:"back_image_url,omitempty"`
 	Position         int    `json:"position"`
 	Reversed         bool   `json:"reversed"`
+	Viewed           bool   `json:"viewed"`
 }
 
 type RemainingToday struct {

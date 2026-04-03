@@ -27,6 +27,15 @@ func (r *DeckRepository) CountByStatus(ctx context.Context, status string) (int6
 	return r.collection.CountDocuments(ctx, bson.M{"status": status})
 }
 
+func (r *DeckRepository) CountByStatuses(ctx context.Context, statuses []string) (int64, error) {
+	filter := bson.M{}
+	if len(statuses) > 0 {
+		filter["status"] = bson.M{"$in": statuses}
+	}
+
+	return r.collection.CountDocuments(ctx, filter)
+}
+
 func (r *DeckRepository) Create(ctx context.Context, deck *models.Deck) error {
 	_, err := r.collection.InsertOne(ctx, deck)
 	return err
@@ -34,6 +43,30 @@ func (r *DeckRepository) Create(ctx context.Context, deck *models.Deck) error {
 
 func (r *DeckRepository) List(ctx context.Context, skip, limit int64) ([]models.Deck, error) {
 	cursor, err := r.collection.Find(ctx, bson.M{}, options.Find().
+		SetSort(bson.D{{Key: "updated_at", Value: -1}}).
+		SetSkip(skip).
+		SetLimit(limit),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var decks []models.Deck
+	if err := cursor.All(ctx, &decks); err != nil {
+		return nil, err
+	}
+
+	return decks, nil
+}
+
+func (r *DeckRepository) ListByStatuses(ctx context.Context, statuses []string, skip, limit int64) ([]models.Deck, error) {
+	filter := bson.M{}
+	if len(statuses) > 0 {
+		filter["status"] = bson.M{"$in": statuses}
+	}
+
+	cursor, err := r.collection.Find(ctx, filter, options.Find().
 		SetSort(bson.D{{Key: "updated_at", Value: -1}}).
 		SetSkip(skip).
 		SetLimit(limit),

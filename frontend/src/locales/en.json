@@ -136,6 +136,8 @@
     "accountingDateLabel": "Accounting date: {value}",
     "showDetails": "Show details",
     "hideDetails": "Hide details",
+    "hiddenCardTitle": "New card",
+    "hiddenCardCopy": "Click the card to reveal it and learn what fate has prepared for you.",
     "positions": {
       "past": "Past",
       "present": "Present",
@@ -171,6 +173,8 @@
     "emptyUsers": "No users match the current filters.",
     "emptyDecks": "No decks are available yet.",
     "emptyCardBacks": "No card backs are available yet.",
+    "emptyArchivedDecks": "No archived decks yet.",
+    "emptyArchivedCardBacks": "No archived card backs yet.",
     "statuses": {
       "active": "Active",
       "disabled": "Disabled"
@@ -178,7 +182,17 @@
     "deckStatuses": {
       "done": "Done",
       "processing": "Processing",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "archived": "Archived"
+    },
+    "assetTabs": {
+      "catalog": "Catalog",
+      "archive": "Deck archive"
+    },
+    "actions": {
+      "archive": "Archive",
+      "restore": "Restore",
+      "deletePermanent": "Delete permanently"
     },
     "filters": {
       "search": "Search",
@@ -238,18 +252,20 @@
       "author": "Author",
       "year": "Year",
       "cardCount": "Cards",
-      "updatedAt": "Updated"
+      "updatedAt": "Updated",
+      "archiveCopy": "Archived decks are hidden from selection and can be restored or permanently deleted here."
     },
     "cardBackTable": {
       "title": "Card back catalog",
       "copy": "Uploaded card backs are stored independently and can be assigned as the system default.",
       "imagePath": "Image path",
-      "updatedAt": "Updated"
+      "updatedAt": "Updated",
+      "archiveCopy": "Archived card backs are hidden from selection and can be restored or permanently deleted here."
     },
     "deckUpload": {
       "title": "Create deck",
       "copy": "Upload one ZIP archive with all 78 cards. Card backs are managed separately.",
-      "structureHint": "ZIP must contain only the major/minor folder structure with all 78 card images.",
+      "structureHint": "ZIP must use tarot key file names like the_fool.png or ace_of_wands.jpg. Legacy major/minor folders are still allowed if file names use keys.",
       "nameEn": "Name, EN",
       "nameRu": "Name, RU",
       "namePlaceholder": "Ethereal Dreams",
@@ -262,7 +278,7 @@
       "tags": "Tags",
       "tagsPlaceholder": "mystical, celestial, classic",
       "zip": "Deck ZIP",
-      "zipHint": "The archive should contain only 78 card images. Allowed formats: PNG/JPG, max 2MB each, 2:3 aspect ratio.",
+      "zipHint": "The archive should contain exactly 78 card images named by tarot key. Allowed formats: PNG/JPG, max 2MB each.",
       "chooseZip": "Choose ZIP archive",
       "submit": "Upload deck",
       "success": "Deck uploaded successfully.",
@@ -303,7 +319,7 @@
       "readingsWeek": "Readings this week",
       "totalDecks": "Decks in catalog",
       "usersMeta": "{active} active / {disabled} disabled",
-      "decksMeta": "{done} done / {processing} processing / {disabled} disabled",
+      "decksMeta": "{done} done / {processing} processing / {disabled} disabled / {archived} archived",
       "readingsSplit": "{cardOfDay} card of day / {threeCard} three-card",
       "usersTitle": "Users by role",
       "usersPanelCopy": "Quickly inspect role distribution before jumping into detailed account management.",
@@ -314,7 +330,11 @@
       "threeCardToday": "Three-card today",
       "cardOfDayWeek": "Card of the Day this week",
       "threeCardWeek": "Three-card this week"
-    }
+    },
+    "archiveDeckConfirm": "Archive deck \"{name}\"?",
+    "deleteDeckConfirm": "Delete deck \"{name}\" permanently? This cannot be undone.",
+    "archiveCardBackConfirm": "Archive card back \"{name}\"?",
+    "deleteCardBackConfirm": "Delete card back \"{name}\" permanently? This cannot be undone."
   },
   "uiKit": {
     "title": "UI Kit"

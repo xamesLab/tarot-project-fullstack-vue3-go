@@ -2,7 +2,7 @@
 ## Nebula Tarot - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** April 2, 2026  
+**Last Updated:** April 3, 2026  
 **Status:** Working Baseline
 
 ---
@@ -279,8 +279,14 @@
 └─────────────────────────────┘
 ```
 
+**Reveal Behavior:**
+- A newly generated card is initially shown face-down using the selected card back
+- Title, interpretation, and tags are hidden until the user opens the card
+- On click/tap, the card flips to its face and becomes `viewed`
+- Viewed state is persisted per reading, so reloading the dashboard keeps already opened cards revealed
+
 **Available Actions:**
-- View interpretation (always visible)
+- Reveal card contents
 - Save to history (automatic)
 - View in deck context (optional: show card position in deck)
 
@@ -376,6 +382,12 @@
 │   [Generate New Spread] [Save]      │
 └─────────────────────────────────────┘
 ```
+
+**Reveal Behavior:**
+- New spread cards are initially hidden by the selected card back
+- Each card opens independently on user click/tap
+- Opening one card does not reveal the others
+- Viewed state is persisted inside the reading and remains stable after reload
 
 #### 4.3.2 Limit Enforcement
 
@@ -485,7 +497,7 @@ if daily_spread_count >= user_role_limit:
 **Available Card Backs:**
 - Default card back always available
 - Admin can upload additional card backs
-- Card back is cosmetic only (shown during card reveal animation, future feature)
+- Card back is used in the live dashboard reading flow while cards remain unopened
 
 **Selection:**
 - Independent from deck selection
@@ -616,45 +628,38 @@ if daily_spread_count >= user_role_limit:
    - Tags (optional, comma-separated)
 2. Upload card back image separately (PNG/JPG, max 2MB, 2:3 aspect ratio)
 3. Upload cards:
-   - **Option A:** ZIP archive with structure containing only the 78 card images:
+   - **Option A:** ZIP archive with structure containing only the 78 card images named by tarot `key`:
      ```
      deck-name.zip
-       ├── major/
-       │   ├── 00-the-fool.png
-       │   └── ... (22 cards)
-       └── minor/
-           ├── wands/ (14 cards)
-           ├── cups/ (14 cards)
-           ├── swords/ (14 cards)
-           └── pentacles/ (14 cards)
+       ├── 0_meta.json               // optional metadata autofill
+       ├── the_fool.png
+       ├── the_magician.png
+       ├── ace_of_wands.jpg
+       └── ... (78 cards total)
      ```
-   - **Option B:** Upload cards individually (78 uploads)
 4. Backend validates:
    - All 78 cards present
+   - File names match known tarot `key` values
    - Valid image formats
-   - File sizes under 2MB
-   - Aspect ratio 2:3 (±5% tolerance)
+   - File sizes under allowed limit
+   - `0_meta.json` may be present and is ignored by backend validation
 5. Deck status set to `processing`
 6. Backend processes images (save to `/uploads/decks/{deck_id}/`)
 7. Deck status set to `done`
 8. Deck becomes available to users
 
-**Edit Deck:**
-- Change metadata (name, description, author)
-- Replace individual cards
-- Replace card back
-- Cannot delete deck if users have selected it (must disable instead)
+**Archive and Delete:**
+- Active decks and card backs can be moved to archive from admin UI
+- Archived assets are not available in user/admin selection lists
+- Archived assets can be restored
+- Permanent deletion is available only from archive
+- Current global defaults cannot be archived or deleted until another default is assigned
 
 **Admin Defaults and Manual Selection:**
 - Admin can upload decks and card backs independently
 - Admin can choose the global default deck and the global default card back independently
 - These defaults apply to all users who have not chosen their own deck or card back
 - Users with roles `adept`, `master`, and `keeper` can override the global defaults from profile settings
-
-**Disable Deck:**
-- Deck no longer appears in user selection
-- Users with this deck selected keep it (grandfathered)
-- Can be re-enabled
 
 #### 4.6.6 Global Settings
 

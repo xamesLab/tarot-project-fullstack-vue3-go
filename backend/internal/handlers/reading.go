@@ -28,6 +28,7 @@ func (h *ReadingHandler) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/reading/generate/card-of-day", h.generateCardOfDay)
 	router.POST("/reading/generate/three-card", h.generateThreeCardSpread)
 	router.POST("/reading/generate/spread-a", h.generateThreeCardSpread)
+	router.POST("/reading/:readingId/cards/:position/reveal", h.revealCard)
 	router.GET("/reading/history", h.getHistory)
 }
 
@@ -148,6 +149,31 @@ func (h *ReadingHandler) getHistory(c *gin.Context) {
 		"readings":       result.Readings,
 		"pagination":     result.Pagination,
 		"retention_info": result.RetentionInfo,
+	})
+}
+
+func (h *ReadingHandler) revealCard(c *gin.Context) {
+	userID, ok := parseUserID(c)
+	if !ok {
+		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
+		return
+	}
+
+	position, err := strconv.Atoi(c.Param("position"))
+	if err != nil || position < 0 {
+		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Card position must be a non-negative integer")
+		return
+	}
+
+	reading, err := h.readingService.RevealReadingCard(c.Request.Context(), userID, c.Param("readingId"), position)
+	if err != nil {
+		respondServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"reading": reading,
 	})
 }
 

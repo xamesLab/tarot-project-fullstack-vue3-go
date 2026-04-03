@@ -27,6 +27,15 @@ func (r *CardBackRepository) CountByStatus(ctx context.Context, status string) (
 	return r.collection.CountDocuments(ctx, bson.M{"status": status})
 }
 
+func (r *CardBackRepository) CountByStatuses(ctx context.Context, statuses []string) (int64, error) {
+	filter := bson.M{}
+	if len(statuses) > 0 {
+		filter["status"] = bson.M{"$in": statuses}
+	}
+
+	return r.collection.CountDocuments(ctx, filter)
+}
+
 func (r *CardBackRepository) Create(ctx context.Context, cardBack *models.CardBack) error {
 	_, err := r.collection.InsertOne(ctx, cardBack)
 	return err
@@ -34,6 +43,30 @@ func (r *CardBackRepository) Create(ctx context.Context, cardBack *models.CardBa
 
 func (r *CardBackRepository) List(ctx context.Context, skip, limit int64) ([]models.CardBack, error) {
 	cursor, err := r.collection.Find(ctx, bson.M{}, options.Find().
+		SetSort(bson.D{{Key: "updated_at", Value: -1}}).
+		SetSkip(skip).
+		SetLimit(limit),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var cardBacks []models.CardBack
+	if err := cursor.All(ctx, &cardBacks); err != nil {
+		return nil, err
+	}
+
+	return cardBacks, nil
+}
+
+func (r *CardBackRepository) ListByStatuses(ctx context.Context, statuses []string, skip, limit int64) ([]models.CardBack, error) {
+	filter := bson.M{}
+	if len(statuses) > 0 {
+		filter["status"] = bson.M{"$in": statuses}
+	}
+
+	cursor, err := r.collection.Find(ctx, filter, options.Find().
 		SetSort(bson.D{{Key: "updated_at", Value: -1}}).
 		SetSkip(skip).
 		SetLimit(limit),

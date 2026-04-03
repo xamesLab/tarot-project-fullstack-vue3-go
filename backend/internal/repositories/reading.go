@@ -55,6 +55,38 @@ func (r *ReadingRepository) FindByUserTypeAndAccountingDate(ctx context.Context,
 	return &reading, nil
 }
 
+func (r *ReadingRepository) FindByIDAndUser(ctx context.Context, readingID, userID primitive.ObjectID) (*models.Reading, error) {
+	var reading models.Reading
+	err := r.collection.FindOne(ctx, bson.M{
+		"_id":     readingID,
+		"user_id": userID,
+	}).Decode(&reading)
+	if err != nil {
+		return nil, err
+	}
+
+	return &reading, nil
+}
+
+func (r *ReadingRepository) UpdateCards(ctx context.Context, readingID, userID primitive.ObjectID, cards []models.ReadingCard) error {
+	result, err := r.collection.UpdateOne(ctx, bson.M{
+		"_id":     readingID,
+		"user_id": userID,
+	}, bson.M{
+		"$set": bson.M{
+			"cards": cards,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	return nil
+}
+
 func (r *ReadingRepository) CountByUserTypeAndAccountingDate(ctx context.Context, userID primitive.ObjectID, readingType, accountingDate string) (int64, error) {
 	return r.collection.CountDocuments(ctx, bson.M{
 		"user_id":         userID,

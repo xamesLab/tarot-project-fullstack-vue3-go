@@ -7,11 +7,14 @@ import CardBackCropModal from '../../components/admin/CardBackCropModal.vue'
 import BaseButton from '../../components/base/BaseButton.vue'
 import BaseInput from '../../components/base/BaseInput.vue'
 import BaseSurface from '../../components/base/BaseSurface.vue'
+import BaseTabs from '../../components/base/BaseTabs.vue'
 import FormField from '../../components/form/FormField.vue'
 import { useAdminStore } from '../../stores/admin'
+import { readDeckMetaFromZip } from '../../utils/zip-meta'
 
 const { t, locale } = useI18n()
 const adminStore = useAdminStore()
+const activeAssetTab = ref('catalog')
 
 const deckUploadForm = reactive({
   nameEn: '',
@@ -73,6 +76,16 @@ const deckSummary = computed(() => [
     label: t('admin.deckStatuses.disabled'),
     value: adminStore.dashboardMetrics?.decks?.by_status?.disabled ?? 0,
   },
+  {
+    key: 'archived',
+    label: t('admin.deckStatuses.archived'),
+    value: adminStore.dashboardMetrics?.decks?.by_status?.archived ?? 0,
+  },
+])
+
+const assetTabs = computed(() => [
+  { value: 'catalog', label: t('admin.assetTabs.catalog') },
+  { value: 'archive', label: t('admin.assetTabs.archive') },
 ])
 
 function localizeText(value) {
@@ -102,9 +115,39 @@ function loadCardBacks(page = 1) {
   return adminStore.loadCardBacks({ page })
 }
 
-function handleZipChange(event) {
+function loadArchivedDecks(page = 1) {
+  return adminStore.loadArchivedDecks({ page })
+}
+
+function loadArchivedCardBacks(page = 1) {
+  return adminStore.loadArchivedCardBacks({ page })
+}
+
+function applyDeckMeta(meta) {
+  deckUploadForm.nameEn = meta.nameEn
+  deckUploadForm.nameRu = meta.nameRu
+  deckUploadForm.descriptionEn = meta.descriptionEn
+  deckUploadForm.descriptionRu = meta.descriptionRu
+  deckUploadForm.author = meta.author
+  deckUploadForm.year = meta.year
+  deckUploadForm.tags = meta.tags
+}
+
+async function handleZipChange(event) {
   const [file] = event.target.files || []
   zipFile.value = file || null
+  if (!file) {
+    return
+  }
+
+  try {
+    const meta = await readDeckMetaFromZip(file)
+    if (meta) {
+      applyDeckMeta(meta)
+    }
+  } catch (error) {
+    console.warn('Failed to read 0_meta.json from deck archive', error)
+  }
 }
 
 function handleCardBackChange(event) {
@@ -229,6 +272,46 @@ async function submitCardBack() {
   resetCardBackForm()
 }
 
+async function archiveDeck(deck) {
+  if (!window.confirm(t('admin.archiveDeckConfirm', { name: localizeText(deck.name) }))) {
+    return
+  }
+
+  await adminStore.archiveDeck(deck.id)
+}
+
+async function restoreDeck(deck) {
+  await adminStore.restoreDeck(deck.id)
+}
+
+async function deleteDeck(deck) {
+  if (!window.confirm(t('admin.deleteDeckConfirm', { name: localizeText(deck.name) }))) {
+    return
+  }
+
+  await adminStore.deleteDeck(deck.id)
+}
+
+async function archiveCardBack(cardBack) {
+  if (!window.confirm(t('admin.archiveCardBackConfirm', { name: localizeText(cardBack.name) }))) {
+    return
+  }
+
+  await adminStore.archiveCardBack(cardBack.id)
+}
+
+async function restoreCardBack(cardBack) {
+  await adminStore.restoreCardBack(cardBack.id)
+}
+
+async function deleteCardBack(cardBack) {
+  if (!window.confirm(t('admin.deleteCardBackConfirm', { name: localizeText(cardBack.name) }))) {
+    return
+  }
+
+  await adminStore.deleteCardBack(cardBack.id)
+}
+
 onMounted(async () => {
   const tasks = []
 
@@ -242,6 +325,14 @@ onMounted(async () => {
 
   if (adminStore.cardBacksStatus === 'idle') {
     tasks.push(loadCardBacks())
+  }
+
+  if (adminStore.archivedDecksStatus === 'idle') {
+    tasks.push(loadArchivedDecks())
+  }
+
+  if (adminStore.archivedCardBacksStatus === 'idle') {
+    tasks.push(loadArchivedCardBacks())
   }
 
   await Promise.all(tasks)
@@ -397,131 +488,335 @@ onBeforeUnmount(() => {
       </BaseSurface>
 
       <BaseSurface padding="lg" tag="section">
-        <div class="list-head">
-          <div>
-            <p class="text-eyebrow">{{ t('admin.deckTable.title') }}</p>
-            <p class="text-body-muted">{{ t('admin.deckTable.copy') }}</p>
-          </div>
-        </div>
+        <BaseTabs v-model="activeAssetTab" :items="assetTabs">
+          <template #panel="{ activeItem }">
+            <div v-if="activeItem?.value === 'catalog'" class="page-stack">
+              <section>
+                <div class="list-head">
+                  <div>
+                    <p class="text-eyebrow">{{ t('admin.deckTable.title') }}</p>
+                    <p class="text-body-muted">{{ t('admin.deckTable.copy') }}</p>
+                  </div>
+                </div>
 
-        <div v-if="adminStore.decksError" class="admin-message admin-message--error">
-          {{ adminStore.decksError }}
-        </div>
+                <div v-if="adminStore.decksError" class="admin-message admin-message--error">
+                  {{ adminStore.decksError }}
+                </div>
 
-        <div v-if="!adminStore.deckList.length && adminStore.decksStatus === 'ready'" class="empty-state">
-          {{ t('admin.emptyDecks') }}
-        </div>
+                <div v-if="!adminStore.deckList.length && adminStore.decksStatus === 'ready'" class="empty-state">
+                  {{ t('admin.emptyDecks') }}
+                </div>
 
-        <div v-else class="deck-list">
-          <article v-for="deck in adminStore.deckList" :key="deck.id" class="deck-card">
-            <div class="deck-card__head">
-              <div>
-                <h3 class="deck-card__title">{{ localizeText(deck.name) }}</h3>
-                <p class="text-body-muted">{{ localizeText(deck.description) }}</p>
-              </div>
-              <span class="deck-card__badge">{{ t(`admin.deckStatuses.${deck.status}`) }}</span>
+                <div v-else class="deck-list">
+                  <article v-for="deck in adminStore.deckList" :key="deck.id" class="deck-card">
+                    <div class="deck-card__head">
+                      <div>
+                        <h3 class="deck-card__title">{{ localizeText(deck.name) }}</h3>
+                        <p class="text-body-muted">{{ localizeText(deck.description) }}</p>
+                      </div>
+                      <span class="deck-card__badge">{{ t(`admin.deckStatuses.${deck.status}`) }}</span>
+                    </div>
+
+                    <dl class="deck-meta">
+                      <div>
+                        <dt>{{ t('admin.deckTable.author') }}</dt>
+                        <dd>{{ deck.author || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.deckTable.year') }}</dt>
+                        <dd>{{ deck.year || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.deckTable.cardCount') }}</dt>
+                        <dd>{{ deck.card_count || 0 }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.deckTable.updatedAt') }}</dt>
+                        <dd>{{ localizeDate(deck.updated_at) }}</dd>
+                      </div>
+                    </dl>
+
+                    <div class="card-actions">
+                      <BaseButton
+                        variant="text"
+                        :loading="adminStore.deckMutationStatusById[deck.id] === 'loading'"
+                        @click="archiveDeck(deck)"
+                      >
+                        {{ t('admin.actions.archive') }}
+                      </BaseButton>
+                    </div>
+                    <p v-if="adminStore.deckMutationErrorById[deck.id]" class="admin-inline-error">
+                      {{ adminStore.deckMutationErrorById[deck.id] }}
+                    </p>
+                  </article>
+                </div>
+
+                <div class="pagination-bar">
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.deckPagination.page <= 1 || adminStore.decksStatus === 'loading'"
+                    @click="loadDecks(adminStore.deckPagination.page - 1)"
+                  >
+                    {{ t('admin.pagination.previous') }}
+                  </BaseButton>
+                  <span class="text-body-muted">
+                    {{ t('admin.pagination.page', { page: adminStore.deckPagination.page, total: adminStore.deckPagination.total_pages }) }}
+                  </span>
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.deckPagination.page >= adminStore.deckPagination.total_pages || adminStore.decksStatus === 'loading'"
+                    @click="loadDecks(adminStore.deckPagination.page + 1)"
+                  >
+                    {{ t('admin.pagination.next') }}
+                  </BaseButton>
+                </div>
+              </section>
+
+              <section>
+                <div class="list-head">
+                  <div>
+                    <p class="text-eyebrow">{{ t('admin.cardBackTable.title') }}</p>
+                    <p class="text-body-muted">{{ t('admin.cardBackTable.copy') }}</p>
+                  </div>
+                </div>
+
+                <div v-if="adminStore.cardBacksError" class="admin-message admin-message--error">
+                  {{ adminStore.cardBacksError }}
+                </div>
+
+                <div v-if="!adminStore.cardBackList.length && adminStore.cardBacksStatus === 'ready'" class="empty-state">
+                  {{ t('admin.emptyCardBacks') }}
+                </div>
+
+                <div v-else class="deck-list">
+                  <article v-for="cardBack in adminStore.cardBackList" :key="cardBack.id" class="deck-card">
+                    <div class="deck-card__head">
+                      <div>
+                        <h3 class="deck-card__title">{{ localizeText(cardBack.name) }}</h3>
+                        <p class="text-body-muted">{{ localizeText(cardBack.description) }}</p>
+                      </div>
+                      <span class="deck-card__badge">{{ t(`admin.deckStatuses.${cardBack.status}`) }}</span>
+                    </div>
+
+                    <dl class="deck-meta">
+                      <div>
+                        <dt>{{ t('admin.cardBackTable.imagePath') }}</dt>
+                        <dd>{{ cardBack.image_path || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.cardBackTable.updatedAt') }}</dt>
+                        <dd>{{ localizeDate(cardBack.updated_at) }}</dd>
+                      </div>
+                    </dl>
+
+                    <div class="card-actions">
+                      <BaseButton
+                        variant="text"
+                        :loading="adminStore.cardBackMutationStatusById[cardBack.id] === 'loading'"
+                        @click="archiveCardBack(cardBack)"
+                      >
+                        {{ t('admin.actions.archive') }}
+                      </BaseButton>
+                    </div>
+                    <p v-if="adminStore.cardBackMutationErrorById[cardBack.id]" class="admin-inline-error">
+                      {{ adminStore.cardBackMutationErrorById[cardBack.id] }}
+                    </p>
+                  </article>
+                </div>
+
+                <div class="pagination-bar">
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.cardBackPagination.page <= 1 || adminStore.cardBacksStatus === 'loading'"
+                    @click="loadCardBacks(adminStore.cardBackPagination.page - 1)"
+                  >
+                    {{ t('admin.pagination.previous') }}
+                  </BaseButton>
+                  <span class="text-body-muted">
+                    {{ t('admin.pagination.page', { page: adminStore.cardBackPagination.page, total: adminStore.cardBackPagination.total_pages }) }}
+                  </span>
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.cardBackPagination.page >= adminStore.cardBackPagination.total_pages || adminStore.cardBacksStatus === 'loading'"
+                    @click="loadCardBacks(adminStore.cardBackPagination.page + 1)"
+                  >
+                    {{ t('admin.pagination.next') }}
+                  </BaseButton>
+                </div>
+              </section>
             </div>
 
-            <dl class="deck-meta">
-              <div>
-                <dt>{{ t('admin.deckTable.author') }}</dt>
-                <dd>{{ deck.author || '—' }}</dd>
-              </div>
-              <div>
-                <dt>{{ t('admin.deckTable.year') }}</dt>
-                <dd>{{ deck.year || '—' }}</dd>
-              </div>
-              <div>
-                <dt>{{ t('admin.deckTable.cardCount') }}</dt>
-                <dd>{{ deck.card_count || 0 }}</dd>
-              </div>
-              <div>
-                <dt>{{ t('admin.deckTable.updatedAt') }}</dt>
-                <dd>{{ localizeDate(deck.updated_at) }}</dd>
-              </div>
-            </dl>
-          </article>
-        </div>
+            <div v-else class="page-stack">
+              <section>
+                <div class="list-head">
+                  <div>
+                    <p class="text-eyebrow">{{ t('admin.deckTable.title') }}</p>
+                    <p class="text-body-muted">{{ t('admin.deckTable.archiveCopy') }}</p>
+                  </div>
+                </div>
 
-        <div class="pagination-bar">
-          <BaseButton
-            variant="text"
-            :disabled="adminStore.deckPagination.page <= 1 || adminStore.decksStatus === 'loading'"
-            @click="loadDecks(adminStore.deckPagination.page - 1)"
-          >
-            {{ t('admin.pagination.previous') }}
-          </BaseButton>
-          <span class="text-body-muted">
-            {{ t('admin.pagination.page', { page: adminStore.deckPagination.page, total: adminStore.deckPagination.total_pages }) }}
-          </span>
-          <BaseButton
-            variant="text"
-            :disabled="adminStore.deckPagination.page >= adminStore.deckPagination.total_pages || adminStore.decksStatus === 'loading'"
-            @click="loadDecks(adminStore.deckPagination.page + 1)"
-          >
-            {{ t('admin.pagination.next') }}
-          </BaseButton>
-        </div>
-      </BaseSurface>
+                <div v-if="adminStore.archivedDecksError" class="admin-message admin-message--error">
+                  {{ adminStore.archivedDecksError }}
+                </div>
 
-      <BaseSurface padding="lg" tag="section">
-        <div class="list-head">
-          <div>
-            <p class="text-eyebrow">{{ t('admin.cardBackTable.title') }}</p>
-            <p class="text-body-muted">{{ t('admin.cardBackTable.copy') }}</p>
-          </div>
-        </div>
+                <div v-if="!adminStore.archivedDeckList.length && adminStore.archivedDecksStatus === 'ready'" class="empty-state">
+                  {{ t('admin.emptyArchivedDecks') }}
+                </div>
 
-        <div v-if="adminStore.cardBacksError" class="admin-message admin-message--error">
-          {{ adminStore.cardBacksError }}
-        </div>
+                <div v-else class="deck-list">
+                  <article v-for="deck in adminStore.archivedDeckList" :key="deck.id" class="deck-card">
+                    <div class="deck-card__head">
+                      <div>
+                        <h3 class="deck-card__title">{{ localizeText(deck.name) }}</h3>
+                        <p class="text-body-muted">{{ localizeText(deck.description) }}</p>
+                      </div>
+                      <span class="deck-card__badge">{{ t(`admin.deckStatuses.${deck.status}`) }}</span>
+                    </div>
 
-        <div v-if="!adminStore.cardBackList.length && adminStore.cardBacksStatus === 'ready'" class="empty-state">
-          {{ t('admin.emptyCardBacks') }}
-        </div>
+                    <dl class="deck-meta">
+                      <div>
+                        <dt>{{ t('admin.deckTable.author') }}</dt>
+                        <dd>{{ deck.author || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.deckTable.year') }}</dt>
+                        <dd>{{ deck.year || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.deckTable.cardCount') }}</dt>
+                        <dd>{{ deck.card_count || 0 }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.deckTable.updatedAt') }}</dt>
+                        <dd>{{ localizeDate(deck.updated_at) }}</dd>
+                      </div>
+                    </dl>
 
-        <div v-else class="deck-list">
-          <article v-for="cardBack in adminStore.cardBackList" :key="cardBack.id" class="deck-card">
-            <div class="deck-card__head">
-              <div>
-                <h3 class="deck-card__title">{{ localizeText(cardBack.name) }}</h3>
-                <p class="text-body-muted">{{ localizeText(cardBack.description) }}</p>
-              </div>
-              <span class="deck-card__badge">{{ t(`admin.deckStatuses.${cardBack.status}`) }}</span>
+                    <div class="card-actions">
+                      <BaseButton
+                        variant="text"
+                        :loading="adminStore.deckMutationStatusById[deck.id] === 'loading'"
+                        @click="restoreDeck(deck)"
+                      >
+                        {{ t('admin.actions.restore') }}
+                      </BaseButton>
+                      <BaseButton
+                        variant="text"
+                        :loading="adminStore.deckMutationStatusById[deck.id] === 'loading'"
+                        @click="deleteDeck(deck)"
+                      >
+                        {{ t('admin.actions.deletePermanent') }}
+                      </BaseButton>
+                    </div>
+                    <p v-if="adminStore.deckMutationErrorById[deck.id]" class="admin-inline-error">
+                      {{ adminStore.deckMutationErrorById[deck.id] }}
+                    </p>
+                  </article>
+                </div>
+
+                <div class="pagination-bar">
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.archivedDeckPagination.page <= 1 || adminStore.archivedDecksStatus === 'loading'"
+                    @click="loadArchivedDecks(adminStore.archivedDeckPagination.page - 1)"
+                  >
+                    {{ t('admin.pagination.previous') }}
+                  </BaseButton>
+                  <span class="text-body-muted">
+                    {{ t('admin.pagination.page', { page: adminStore.archivedDeckPagination.page, total: adminStore.archivedDeckPagination.total_pages }) }}
+                  </span>
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.archivedDeckPagination.page >= adminStore.archivedDeckPagination.total_pages || adminStore.archivedDecksStatus === 'loading'"
+                    @click="loadArchivedDecks(adminStore.archivedDeckPagination.page + 1)"
+                  >
+                    {{ t('admin.pagination.next') }}
+                  </BaseButton>
+                </div>
+              </section>
+
+              <section>
+                <div class="list-head">
+                  <div>
+                    <p class="text-eyebrow">{{ t('admin.cardBackTable.title') }}</p>
+                    <p class="text-body-muted">{{ t('admin.cardBackTable.archiveCopy') }}</p>
+                  </div>
+                </div>
+
+                <div v-if="adminStore.archivedCardBacksError" class="admin-message admin-message--error">
+                  {{ adminStore.archivedCardBacksError }}
+                </div>
+
+                <div v-if="!adminStore.archivedCardBackList.length && adminStore.archivedCardBacksStatus === 'ready'" class="empty-state">
+                  {{ t('admin.emptyArchivedCardBacks') }}
+                </div>
+
+                <div v-else class="deck-list">
+                  <article v-for="cardBack in adminStore.archivedCardBackList" :key="cardBack.id" class="deck-card">
+                    <div class="deck-card__head">
+                      <div>
+                        <h3 class="deck-card__title">{{ localizeText(cardBack.name) }}</h3>
+                        <p class="text-body-muted">{{ localizeText(cardBack.description) }}</p>
+                      </div>
+                      <span class="deck-card__badge">{{ t(`admin.deckStatuses.${cardBack.status}`) }}</span>
+                    </div>
+
+                    <dl class="deck-meta">
+                      <div>
+                        <dt>{{ t('admin.cardBackTable.imagePath') }}</dt>
+                        <dd>{{ cardBack.image_path || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ t('admin.cardBackTable.updatedAt') }}</dt>
+                        <dd>{{ localizeDate(cardBack.updated_at) }}</dd>
+                      </div>
+                    </dl>
+
+                    <div class="card-actions">
+                      <BaseButton
+                        variant="text"
+                        :loading="adminStore.cardBackMutationStatusById[cardBack.id] === 'loading'"
+                        @click="restoreCardBack(cardBack)"
+                      >
+                        {{ t('admin.actions.restore') }}
+                      </BaseButton>
+                      <BaseButton
+                        variant="text"
+                        :loading="adminStore.cardBackMutationStatusById[cardBack.id] === 'loading'"
+                        @click="deleteCardBack(cardBack)"
+                      >
+                        {{ t('admin.actions.deletePermanent') }}
+                      </BaseButton>
+                    </div>
+                    <p v-if="adminStore.cardBackMutationErrorById[cardBack.id]" class="admin-inline-error">
+                      {{ adminStore.cardBackMutationErrorById[cardBack.id] }}
+                    </p>
+                  </article>
+                </div>
+
+                <div class="pagination-bar">
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.archivedCardBackPagination.page <= 1 || adminStore.archivedCardBacksStatus === 'loading'"
+                    @click="loadArchivedCardBacks(adminStore.archivedCardBackPagination.page - 1)"
+                  >
+                    {{ t('admin.pagination.previous') }}
+                  </BaseButton>
+                  <span class="text-body-muted">
+                    {{ t('admin.pagination.page', { page: adminStore.archivedCardBackPagination.page, total: adminStore.archivedCardBackPagination.total_pages }) }}
+                  </span>
+                  <BaseButton
+                    variant="text"
+                    :disabled="adminStore.archivedCardBackPagination.page >= adminStore.archivedCardBackPagination.total_pages || adminStore.archivedCardBacksStatus === 'loading'"
+                    @click="loadArchivedCardBacks(adminStore.archivedCardBackPagination.page + 1)"
+                  >
+                    {{ t('admin.pagination.next') }}
+                  </BaseButton>
+                </div>
+              </section>
             </div>
-
-            <dl class="deck-meta">
-              <div>
-                <dt>{{ t('admin.cardBackTable.imagePath') }}</dt>
-                <dd>{{ cardBack.image_path || '—' }}</dd>
-              </div>
-              <div>
-                <dt>{{ t('admin.cardBackTable.updatedAt') }}</dt>
-                <dd>{{ localizeDate(cardBack.updated_at) }}</dd>
-              </div>
-            </dl>
-          </article>
-        </div>
-
-        <div class="pagination-bar">
-          <BaseButton
-            variant="text"
-            :disabled="adminStore.cardBackPagination.page <= 1 || adminStore.cardBacksStatus === 'loading'"
-            @click="loadCardBacks(adminStore.cardBackPagination.page - 1)"
-          >
-            {{ t('admin.pagination.previous') }}
-          </BaseButton>
-          <span class="text-body-muted">
-            {{ t('admin.pagination.page', { page: adminStore.cardBackPagination.page, total: adminStore.cardBackPagination.total_pages }) }}
-          </span>
-          <BaseButton
-            variant="text"
-            :disabled="adminStore.cardBackPagination.page >= adminStore.cardBackPagination.total_pages || adminStore.cardBacksStatus === 'loading'"
-            @click="loadCardBacks(adminStore.cardBackPagination.page + 1)"
-          >
-            {{ t('admin.pagination.next') }}
-          </BaseButton>
-        </div>
+          </template>
+        </BaseTabs>
       </BaseSurface>
     </div>
 
@@ -543,7 +838,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .deck-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -635,6 +930,18 @@ onBeforeUnmount(() => {
   padding: 18px;
   border: 1px solid var(--ds-color-border-subtle);
   background: var(--ds-color-surface-secondary);
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-inline-error {
+  margin: 0;
+  color: var(--ds-color-danger);
+  font-size: var(--ds-text-body-sm);
 }
 
 .deck-card__head {

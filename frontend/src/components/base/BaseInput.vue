@@ -39,7 +39,7 @@ const classes = computed(() => ['base-input', { 'is-error': props.error }])
 
 <template>
   <input
-    :id="id"
+    :id="id || undefined"
     :value="modelValue"
     :type="type"
     :placeholder="placeholder"

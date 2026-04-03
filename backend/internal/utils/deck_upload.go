@@ -60,13 +60,6 @@ func ValidateDeckZIP(zipPath string, expectedKeys []string) (*DeckUploadManifest
 	}
 
 	cardZipPaths := make(map[string]string, len(expectedKeys))
-	majorCount := 0
-	minorCounts := map[string]int{
-		"wands":     0,
-		"cups":      0,
-		"swords":    0,
-		"pentacles": 0,
-	}
 
 	for _, file := range reader.File {
 		cleanedPath, skip, err := normalizeZipEntryPath(file)
@@ -89,25 +82,6 @@ func ValidateDeckZIP(zipPath string, expectedKeys []string) (*DeckUploadManifest
 			return nil, fmt.Errorf("duplicate card image for key %s", cardKey)
 		}
 		cardZipPaths[cardKey] = cleanedPath
-
-		if strings.HasPrefix(cleanedPath, "major/") {
-			majorCount++
-			continue
-		}
-
-		parts := strings.Split(cleanedPath, "/")
-		if len(parts) == 3 {
-			minorCounts[parts[1]]++
-		}
-	}
-
-	if majorCount != 22 {
-		return nil, fmt.Errorf("major arcana must contain exactly 22 cards")
-	}
-	for suit, count := range minorCounts {
-		if count != 14 {
-			return nil, fmt.Errorf("minor/%s must contain exactly 14 cards", suit)
-		}
 	}
 	if len(cardZipPaths) != len(expectedSet) {
 		return nil, fmt.Errorf("zip must contain exactly %d unique card images", len(expectedSet))
@@ -199,23 +173,27 @@ func normalizeZipEntryPath(file *zip.File) (string, bool, error) {
 
 func isIgnorableZipEntry(cleaned string) bool {
 	base := path.Base(cleaned)
-	return strings.HasPrefix(cleaned, "__MACOSX/") || base == ".DS_Store"
+	return strings.HasPrefix(cleaned, "__MACOSX/") || base == ".DS_Store" || strings.EqualFold(base, "0_meta.json")
 }
 
 func classifyDeckZipEntry(cleanedPath string, expectedKeys map[string]struct{}) (string, string, error) {
 	parts := strings.Split(cleanedPath, "/")
 	base := strings.ToLower(path.Base(cleanedPath))
+	stem := strings.TrimSuffix(base, path.Ext(base))
 
 	switch {
 	case len(parts) == 2 && parts[0] == "major":
-		key, err := normalizeDeckCardKey(strings.TrimSuffix(base, path.Ext(base)), "", expectedKeys)
+		key, err := normalizeDeckCardKey(stem, "", expectedKeys)
 		return "card", key, err
 	case len(parts) == 3 && parts[0] == "minor":
 		suit := parts[1]
 		if _, ok := minorSuitFolders[suit]; !ok {
 			return "", "", fmt.Errorf("unexpected minor arcana suit folder: %s", suit)
 		}
-		key, err := normalizeDeckCardKey(strings.TrimSuffix(base, path.Ext(base)), suit, expectedKeys)
+		key, err := normalizeDeckCardKey(stem, suit, expectedKeys)
+		return "card", key, err
+	case len(parts) == 1 || len(parts) == 2:
+		key, err := normalizeDeckCardKey(stem, "", expectedKeys)
 		return "card", key, err
 	default:
 		return "", "", fmt.Errorf("unexpected file structure in deck zip: %s", cleanedPath)
@@ -269,7 +247,7 @@ func validateZipImage(file *zip.File) error {
 	}
 	defer reader.Close()
 
-	return validateImageReader(reader)
+	return validateImageReader(reader, false)
 }
 
 func ValidateAndSaveBackImage(sourcePath, destPath string) error {
@@ -304,10 +282,10 @@ func validateImagePath(filePath string) error {
 	}
 	defer file.Close()
 
-	return validateImageReader(file)
+	return validateImageReader(file, true)
 }
 
-func validateImageReader(reader io.Reader) error {
+func validateImageReader(reader io.Reader, requireAspectRatio bool) error {
 	config, format, err := image.DecodeConfig(reader)
 	if err != nil {
 		return fmt.Errorf("decode image config: %w", err)
@@ -317,6 +295,10 @@ func validateImageReader(reader io.Reader) error {
 	}
 	if config.Width <= 0 || config.Height <= 0 {
 		return fmt.Errorf("invalid image dimensions")
+	}
+
+	if !requireAspectRatio {
+		return nil
 	}
 
 	ratio := float64(config.Width) / float64(config.Height)

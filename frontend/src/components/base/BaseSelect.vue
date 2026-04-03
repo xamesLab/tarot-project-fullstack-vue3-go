@@ -36,7 +36,7 @@ const classes = computed(() => ['base-select', { 'is-error': props.error }])
 <template>
   <div class="base-select-wrap">
     <select
-      :id="id"
+      :id="id || undefined"
       :value="modelValue"
       :class="classes"
       :disabled="disabled"

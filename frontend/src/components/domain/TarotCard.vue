@@ -21,9 +21,22 @@ const props = defineProps({
     default: 'lg',
     validator: (value) => ['lg', 'md', 'sm'].includes(value),
   },
+  revealed: {
+    type: Boolean,
+    default: true,
+  },
+  revealable: {
+    type: Boolean,
+    default: false,
+  },
+  revealLoading: {
+    type: Boolean,
+    default: false,
+  },
 })
+const emit = defineEmits(['reveal'])
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const imageLoadFailed = ref(false)
 const backImageLoadFailed = ref(false)
 
@@ -41,6 +54,21 @@ const ornamentSymbol = computed(() => {
 })
 const imageUrl = computed(() => resolveApiAssetUrl(props.card.image_url))
 const backImageUrl = computed(() => resolveApiAssetUrl(props.card.back_image_url))
+const isClickable = computed(() => props.revealable && !props.revealed && !props.revealLoading)
+const displayTitle = computed(() => (
+  props.revealed ? title.value : t('readings.hiddenCardTitle')
+))
+const displayCopy = computed(() => (
+  props.revealed ? interpretation.value : t('readings.hiddenCardCopy')
+))
+
+function handleReveal() {
+  if (!isClickable.value) {
+    return
+  }
+
+  emit('reveal')
+}
 
 watch(
   () => [props.card?.image_url, props.card?.back_image_url],
@@ -62,11 +90,23 @@ watch(
   >
     <div class="tarot-card__body">
       <p v-if="positionLabel" class="tarot-card__position">{{ positionLabel }}</p>
-      <h3 class="tarot-card__title">{{ title }}</h3>
+      <h3 class="tarot-card__title">{{ displayTitle }}</h3>
 
-      <div class="tarot-card__back">
+      <div
+        class="tarot-card__back"
+        :class="{
+          'tarot-card__back--interactive': isClickable,
+          'tarot-card__back--hidden': !revealed,
+        }"
+        :role="isClickable ? 'button' : undefined"
+        :tabindex="isClickable ? 0 : undefined"
+        :aria-busy="revealLoading ? 'true' : undefined"
+        @click="handleReveal"
+        @keydown.enter.prevent="handleReveal"
+        @keydown.space.prevent="handleReveal"
+      >
         <img
-          v-if="imageUrl && !imageLoadFailed"
+          v-if="revealed && imageUrl && !imageLoadFailed"
           :src="imageUrl"
           :alt="title"
           class="tarot-card__image"
@@ -74,7 +114,7 @@ watch(
           @error="imageLoadFailed = true"
         />
         <img
-          v-else-if="backImageUrl && !backImageLoadFailed"
+          v-else-if="!revealed && backImageUrl && !backImageLoadFailed"
           :src="backImageUrl"
           :alt="`${title} card back`"
           class="tarot-card__image tarot-card__image--back"
@@ -85,8 +125,8 @@ watch(
           <span class="tarot-card__symbol">{{ ornamentSymbol }}</span>
         </div>
       </div>
-      <p class="tarot-card__copy">{{ interpretation }}</p>
-      <div v-if="tags.length" class="tarot-card__tags">
+      <p class="tarot-card__copy">{{ displayCopy }}</p>
+      <div v-if="revealed && tags.length" class="tarot-card__tags">
         <span v-for="tag in tags" :key="tag" class="tarot-card__tag">{{ tag }}</span>
       </div>
     </div>
@@ -181,6 +221,19 @@ watch(
   border-color: color-mix(in srgb, var(--ds-color-accent-primary) 65%, white);
 }
 
+.tarot-card__back--interactive {
+  cursor: pointer;
+}
+
+.tarot-card__back--interactive:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ds-color-accent-primary) 70%, white);
+  outline-offset: 3px;
+}
+
+.tarot-card__back--hidden:hover {
+  transform: translateY(-6px);
+}
+
 .tarot-card__ornament {
   position: relative;
   width: 80%;
@@ -194,8 +247,10 @@ watch(
 .tarot-card__image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   display: block;
+  background: rgba(8, 7, 15, 0.92);
 }
 
 .tarot-card__image--back {

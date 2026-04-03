@@ -9,6 +9,22 @@ function resolveRequestTimezone(user) {
   return user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 }
 
+function buildRevealKey(readingId, position) {
+  return `${readingId}:${position}`
+}
+
+function mergeReadingState(previousReading, nextReading) {
+  if (!previousReading) {
+    return nextReading
+  }
+
+  return {
+    ...previousReading,
+    ...nextReading,
+    cards: nextReading?.cards || previousReading.cards || [],
+  }
+}
+
 export const useReadingsStore = defineStore('readings', {
   state: () => ({
     cardOfDay: null,
@@ -32,6 +48,8 @@ export const useReadingsStore = defineStore('readings', {
     historyError: '',
     cardOfDayError: '',
     spreadError: '',
+    revealStatusByKey: {},
+    revealErrorByKey: {},
   }),
 
   actions: {
@@ -40,6 +58,26 @@ export const useReadingsStore = defineStore('readings', {
       this.historyError = ''
       this.cardOfDayError = ''
       this.spreadError = ''
+    },
+
+    replaceReading(updatedReading) {
+      if (!updatedReading?.id) {
+        return
+      }
+
+      if (this.cardOfDay?.id === updatedReading.id) {
+        this.cardOfDay = mergeReadingState(this.cardOfDay, updatedReading)
+      }
+
+      if (this.latestSpread?.id === updatedReading.id) {
+        this.latestSpread = mergeReadingState(this.latestSpread, updatedReading)
+      }
+
+      this.history = this.history.map((reading) => (
+        reading.id === updatedReading.id
+          ? mergeReadingState(reading, updatedReading)
+          : reading
+      ))
     },
 
     prependReading(reading) {
@@ -158,6 +196,39 @@ export const useReadingsStore = defineStore('readings', {
         this.spreadError = normalized.message
         this.spreadStatus = 'error'
         return { ok: false, error: normalized, payload }
+      }
+    },
+
+    async revealCard(readingId, position) {
+      const revealKey = buildRevealKey(readingId, position)
+      this.revealStatusByKey = {
+        ...this.revealStatusByKey,
+        [revealKey]: 'loading',
+      }
+      this.revealErrorByKey = {
+        ...this.revealErrorByKey,
+        [revealKey]: '',
+      }
+
+      try {
+        const response = await readingService.revealReadingCard(readingId, position)
+        this.replaceReading(response.reading)
+        this.revealStatusByKey = {
+          ...this.revealStatusByKey,
+          [revealKey]: 'ready',
+        }
+        return { ok: true, reading: response.reading }
+      } catch (error) {
+        const normalized = normalizeApiError(error)
+        this.revealStatusByKey = {
+          ...this.revealStatusByKey,
+          [revealKey]: 'error',
+        }
+        this.revealErrorByKey = {
+          ...this.revealErrorByKey,
+          [revealKey]: normalized.message,
+        }
+        return { ok: false, error: normalized }
       }
     },
   },

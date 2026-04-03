@@ -2,7 +2,7 @@
 ## Nebula Tarot - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** April 2, 2026  
+**Last Updated:** April 3, 2026  
 **Status:** Working Baseline
 
 ---
@@ -66,6 +66,7 @@
 │  │  - cards             │  │  └─ backs/      │  │
 │  │  - daily_readings    │  └─────────────────┘  │
 │  │  - decks             │                       │
+│  │  - card_backs        │                       │
 │  │  - role_policies     │                       │
 │  │  - admin_settings    │                       │
 │  │  - ask_requests      │                       │
@@ -124,28 +125,29 @@ backend/
 │   │   ├── auth.go        # Auth endpoints
 │   │   ├── user.go        # User profile endpoints
 │   │   ├── reading.go     # Reading generation endpoints
-│   │   ├── deck.go        # Deck management endpoints
 │   │   ├── admin.go       # Admin endpoints
+│   │   ├── catalog.go     # Deck/card back catalog endpoints
 │   │   └── gateway.go     # Gateway stub endpoints
 │   ├── services/
 │   │   ├── auth.go        # Auth business logic
 │   │   ├── user.go        # User management
 │   │   ├── reading.go     # Reading generation logic
-│   │   ├── deck.go        # Deck management
-│   │   ├── card.go        # Card operations
+│   │   ├── catalog.go     # Catalog selection logic
 │   │   └── admin.go       # Admin operations
 │   ├── repositories/
 │   │   ├── user.go        # User data access
 │   │   ├── card.go        # Card data access
 │   │   ├── reading.go     # Reading data access
 │   │   ├── deck.go        # Deck data access
+│   │   ├── card_back.go   # Card back data access
 │   │   ├── policy.go      # Role policy data access
-│   │   └── settings.go    # Settings data access
+│   │   └── admin_settings.go # Settings data access
 │   ├── models/
 │   │   ├── user.go        # User model
 │   │   ├── card.go        # Card model
 │   │   ├── reading.go     # Reading model
 │   │   ├── deck.go        # Deck model
+│   │   ├── admin.go       # Admin API models
 │   │   ├── policy.go      # RolePolicy model
 │   │   └── settings.go    # AdminSettings model
 │   └── utils/
@@ -157,10 +159,12 @@ backend/
 └── uploads/               # File storage (gitignored)
     ├── decks/
     │   └── {deck_id}/
-    │       ├── back.png
     │       └── cards/
     │           ├── the_fool.png
     │           └── ...
+    ├── card-backs/
+    │   └── {card_back_id}/
+    │       └── back.png
     └── temp/              # Temporary uploads
 ```
 
@@ -425,12 +429,14 @@ db.cards.createIndex({ "arcana": 1 })
     {
       "key": "the_fool",            // String, references cards._id
       "position": 0,                // Number, position in spread
-      "reversed": false             // Boolean (always false in MVP)
+      "reversed": false,            // Boolean (always false in MVP)
+      "viewed": false               // Boolean, persisted reveal state
     }
     // For three_card: 3 cards
     // For card_of_day: 1 card
   ],
   "deck_id": "default",             // String, deck used for this reading
+  "back_id": "default",             // String, card back used for this reading
   "generated_at": ISODate("..."),   // Date, when reading was created
   "expires_at": ISODate("..."),     // Date, calculated based on role retention
   "metadata": {                     // Optional metadata
@@ -469,7 +475,7 @@ db.daily_readings.createIndex({ "expires_at": 1 }, { expireAfterSeconds: 0 }) //
   "author": "Pamela Colman Smith",  // String, optional
   "year": 1909,                     // Number, optional
   "tags": ["traditional", "classic"],
-  "status": "done",                 // String: processing | done | disabled
+  "status": "done",                 // String: processing | done | archived
   "card_count": 78,                 // Number, must be 78
   "card_image_base_path": "/uploads/decks/default/cards/",
   "created_at": ISODate("..."),
@@ -500,7 +506,7 @@ db.decks.createIndex({ "tags": 1 })
     "ru": "Базовая классическая рубашка карт."
   },
   "tags": ["traditional", "classic"],
-  "status": "done",                 // String: processing | done | disabled
+  "status": "done",                 // String: processing | done | archived
   "image_path": "/uploads/card-backs/default/back.png",
   "created_at": ISODate("..."),
   "updated_at": ISODate("...")
@@ -842,10 +848,14 @@ card_backs (1) ──────── (1) back_image (filesystem)
         "tags": "New ideas, inspiration, opportunities...",
         "tags_ru": "Новые идеи, вдохновение, возможности...",
         "image_url": "/uploads/decks/default/cards/the_fool.png",
+        "back_image_url": "/uploads/card-backs/default/back.png",
         "position": 0,
-        "reversed": false
+        "reversed": false,
+        "viewed": false
       }
     ],
+    "deck_id": "default",
+    "back_id": "default",
     "next_available_at": "2026-04-01T03:00:00+02:00"
   }
 }
@@ -902,8 +912,10 @@ card_backs (1) ──────── (1) back_image (filesystem)
         "tags": "...",
         "tags_ru": "...",
         "image_url": "/uploads/decks/default/cards/the_magician.png",
+        "back_image_url": "/uploads/card-backs/default/back.png",
         "position": 0,
-        "reversed": false
+        "reversed": false,
+        "viewed": false
       },
       {
         "key": "ace_of_cups",
@@ -914,8 +926,10 @@ card_backs (1) ──────── (1) back_image (filesystem)
         "tags": "...",
         "tags_ru": "...",
         "image_url": "/uploads/decks/default/cards/ace_of_cups.png",
+        "back_image_url": "/uploads/card-backs/default/back.png",
         "position": 1,
-        "reversed": false
+        "reversed": false,
+        "viewed": false
       },
       {
         "key": "strength",
@@ -926,10 +940,14 @@ card_backs (1) ──────── (1) back_image (filesystem)
         "tags": "...",
         "tags_ru": "...",
         "image_url": "/uploads/decks/default/cards/strength.png",
+        "back_image_url": "/uploads/card-backs/default/back.png",
         "position": 2,
-        "reversed": false
+        "reversed": false,
+        "viewed": false
       }
     ],
+    "deck_id": "default",
+    "back_id": "default",
     "remaining_today": {
       "count": 2,
       "limit": 5
@@ -998,6 +1016,42 @@ card_backs (1) ──────── (1) back_image (filesystem)
   }
 }
 ```
+
+---
+
+#### POST `/api/reading/:readingId/cards/:position/reveal`
+
+**Description:** Persistently reveal one card inside an existing reading
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "reading": {
+    "id": "uuid",
+    "type": "three_card",
+    "cards": [
+      {
+        "key": "the_magician",
+        "position": 0,
+        "viewed": true
+      },
+      {
+        "key": "ace_of_cups",
+        "position": 1,
+        "viewed": false
+      }
+    ]
+  }
+}
+```
+
+**Behavior Notes:**
+- reveal is idempotent for an already opened card
+- viewed state is stored in `daily_readings.cards[].viewed`
+- reveal affects only the targeted card and only for the owner of the reading
 
 ---
 
@@ -1145,7 +1199,7 @@ card_backs (1) ──────── (1) back_image (filesystem)
       "by_status": {
         "done": 2,
         "processing": 1,
-        "disabled": 0
+        "archived": 1
       }
     }
   }
@@ -1295,7 +1349,7 @@ description_en: "A mystical deck..."
 description_ru: "Мистическая колода..."
 author: "Jane Smith"
 tags: "mystical,modern,ethereal"
-cards_zip: [file upload] // ZIP with 78 cards only
+cards_zip: [file upload] // ZIP with 78 card images named by tarot key
 ```
 
 **Response (201):**
@@ -1314,7 +1368,9 @@ cards_zip: [file upload] // ZIP with 78 cards only
 
 **Processing:**
 - Backend extracts ZIP
+- Accepts optional `0_meta.json`
 - Validates 78 cards
+- Validates filenames against known tarot `key` values
 - Saves to `/uploads/decks/{deck_id}/`
 - Updates `status: "done"`
 
@@ -1353,6 +1409,9 @@ back_image: [file upload]
 #### GET `/api/admin/card-backs`
 
 **Description:** List uploaded card backs
+
+**Query Parameters:**
+- `scope` (optional): `active` | `archived` | `all` (default: `active`)
 
 **Response (200):**
 ```json
@@ -1406,6 +1465,55 @@ back_image: [file upload]
 
 ---
 
+#### GET `/api/admin/decks`
+
+**Description:** List uploaded decks
+
+**Query Parameters:**
+- `scope` (optional): `active` | `archived` | `all` (default: `active`)
+
+---
+
+#### POST `/api/admin/decks/:deckId/archive`
+
+**Description:** Move deck to archive
+
+**Behavior Notes:**
+- archived decks are removed from active selection lists
+- current default deck cannot be archived
+
+---
+
+#### POST `/api/admin/decks/:deckId/restore`
+
+**Description:** Restore archived deck to active catalog
+
+---
+
+#### DELETE `/api/admin/decks/:deckId`
+
+**Description:** Permanently delete archived deck and its filesystem assets
+
+---
+
+#### POST `/api/admin/card-backs/:cardBackId/archive`
+
+**Description:** Move card back to archive
+
+---
+
+#### POST `/api/admin/card-backs/:cardBackId/restore`
+
+**Description:** Restore archived card back to active catalog
+
+---
+
+#### DELETE `/api/admin/card-backs/:cardBackId`
+
+**Description:** Permanently delete archived card back and its filesystem assets
+
+---
+
 #### GET/PATCH `/api/admin/settings`
 
 **GET Response (200):**
@@ -1430,6 +1538,7 @@ back_image: [file upload]
 - `default_deck_id` and `default_back_id` are configured independently by admin
 - They apply to all users who have not chosen custom values
 - User-level overrides are allowed only for roles `adept`, `master`, and `keeper`
+- Archived decks and card backs are excluded from available selection lists
 
 **PATCH Request:**
 ```json
@@ -1628,8 +1737,10 @@ api.GET("/profile", RequireRole("seeker", "adept", "master", "keeper"), handlers
 2. Backend saves ZIP to /uploads/temp/{session_id}/
    ↓
 3. Backend validates ZIP structure:
-   - Contains 78 card images in correct structure
-   - All files are PNG/JPG, under 2MB, 2:3 aspect ratio
+   - Contains exactly 78 card images
+   - File names match known tarot `key` values
+   - Optional `0_meta.json` may exist for frontend autofill
+   - All files are PNG/JPG and under allowed size
    ↓
 4. Backend extracts ZIP to /uploads/decks/{deck_id}/
    ↓
@@ -1656,12 +1767,12 @@ api.GET("/profile", RequireRole("seeker", "adept", "master", "keeper"), handlers
 ```go
 func ValidateDeckZIP(zipPath string) error {
     // Extract to temp
-    // Check for back.png
-    // Check for 78 cards in major/ and minor/ subdirectories
+    // Ignore 0_meta.json if present
+    // Check for exactly 78 cards
+    // Check that file names map to known tarot keys
     // Validate each file:
     //   - Format: PNG or JPG
     //   - Size: <= 2MB
-    //   - Dimensions: aspect ratio 2:3 (±5%)
     // Return error if any validation fails
 }
 ```

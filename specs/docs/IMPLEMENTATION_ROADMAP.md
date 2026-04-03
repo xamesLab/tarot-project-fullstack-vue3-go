@@ -2,7 +2,7 @@
 ## Nebula Tarot - MVP v1.0
 
 **Document Version:** 1.0  
-**Last Updated:** April 2, 2026  
+**Last Updated:** April 3, 2026  
 **Status:** Working Baseline
 
 ---
@@ -50,7 +50,7 @@
 - Document as you build
 - Keep it simple (MVP scope only)
 
-**Current note:** `phase-2-core-frontend` and `phase-3-reading-features` have already been completed, including manual validation for the reading flows. `phase-4-admin-panel` is now implemented as a working backend/frontend baseline, including keeper-only admin routes, user management, role policy editing, global settings, independent `deck` and `card back` catalogs, global defaults, and role-gated user overrides for `adept/master/keeper`. The approved project-level frontend reference lives in `specs/docs/DESIGN_SYSTEM.md`. The next step is manual acceptance for `phase-4`, then `phase-5-polish-and-testing`.
+**Current note:** `phase-2-core-frontend` and `phase-3-reading-features` have already been completed, including manual validation for the reading flows. `phase-3` now also includes persisted per-card reveal state for active dashboard readings. `phase-4-admin-panel` is implemented as a working backend/frontend baseline, including keeper-only admin routes, user management, role policy editing, global settings, independent `deck` and `card back` catalogs, global defaults, archive/restore/delete flows for decks and card backs, and role-gated user overrides for `adept/master/keeper`. The approved project-level frontend reference lives in `specs/docs/DESIGN_SYSTEM.md`. The next step is manual acceptance for `phase-4`, then `phase-5-polish-and-testing`.
 
 ### 1.3 Definition of Done
 
@@ -1029,7 +1029,9 @@ func GetAccountingDate(timezone string) (string, error) {
   - GetDeckDetails(deckID) → deck
   - ListDecks(filters) → decks
   - UpdateDeckMetadata(deckID, updates)
-  - DisableDeck(deckID)
+  - ArchiveDeck(deckID)
+  - RestoreDeck(deckID)
+  - DeleteDeck(deckID)
 
 **Deck Repository:**
 - [ ] Create `repositories/deck.go`:
@@ -1054,9 +1056,10 @@ func GetAccountingDate(timezone string) (string, error) {
   - ExtractDeckZIP(zipPath, destPath) → error
   - ValidateCardImages(dirPath) → error
     - Check 78 cards present
+    - Ignore optional `0_meta.json`
+    - Validate tarot `key` filenames
     - Validate file formats (PNG/JPG)
     - Validate file sizes (<2MB)
-    - Validate aspect ratio (2:3 ±5%)
 
 **Flow:**
 1. Admin uploads ZIP deck archive
@@ -1075,6 +1078,7 @@ func GetAccountingDate(timezone string) (string, error) {
 - [ ] Test ZIP validation (missing cards → error)
 - [ ] Test card image validation (wrong format → error)
 - [ ] Test deck listing
+- [ ] Test archive / restore / permanent delete
 - [ ] Test deck detail retrieval
 
 **Deliverable:** Deck upload system working

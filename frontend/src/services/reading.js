@@ -11,3 +11,7 @@ export function generateThreeCard(payload = {}) {
 export function getHistory(params = {}) {
   return api.get('/reading/history', { params }).then((response) => response.data)
 }
+
+export function revealReadingCard(readingId, position) {
+  return api.post(`/reading/${readingId}/cards/${position}/reveal`).then((response) => response.data)
+}

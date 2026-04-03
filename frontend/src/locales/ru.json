@@ -136,6 +136,8 @@
     "accountingDateLabel": "Учётная дата: {value}",
     "showDetails": "Показать детали",
     "hideDetails": "Скрыть детали",
+    "hiddenCardTitle": "Новая карта",
+    "hiddenCardCopy": "Нажмите на карту, чтобы открыть её и узнать свою судьбу",
     "positions": {
       "past": "Прошлое",
       "present": "Настоящее",
@@ -171,6 +173,8 @@
     "emptyUsers": "По текущим фильтрам пользователи не найдены.",
     "emptyDecks": "Колоды пока отсутствуют.",
     "emptyCardBacks": "Рубашки пока отсутствуют.",
+    "emptyArchivedDecks": "В архиве пока нет колод.",
+    "emptyArchivedCardBacks": "В архиве пока нет рубашек.",
     "statuses": {
       "active": "Активен",
       "disabled": "Отключён"
@@ -178,7 +182,17 @@
     "deckStatuses": {
       "done": "Готова",
       "processing": "Обрабатывается",
-      "disabled": "Отключена"
+      "disabled": "Отключена",
+      "archived": "В архиве"
+    },
+    "assetTabs": {
+      "catalog": "Каталог",
+      "archive": "Архив колод"
+    },
+    "actions": {
+      "archive": "В архив",
+      "restore": "Вернуть",
+      "deletePermanent": "Удалить навсегда"
     },
     "filters": {
       "search": "Поиск",
@@ -238,18 +252,20 @@
       "author": "Автор",
       "year": "Год",
       "cardCount": "Карт",
-      "updatedAt": "Обновлена"
+      "updatedAt": "Обновлена",
+      "archiveCopy": "Архивные колоды скрыты из выбора и могут быть восстановлены или удалены навсегда здесь."
     },
     "cardBackTable": {
       "title": "Каталог рубашек",
       "copy": "Рубашки хранятся отдельно и могут независимо назначаться как системные по умолчанию.",
       "imagePath": "Путь к изображению",
-      "updatedAt": "Обновлена"
+      "updatedAt": "Обновлена",
+      "archiveCopy": "Архивные рубашки скрыты из выбора и могут быть восстановлены или удалены навсегда здесь."
     },
     "deckUpload": {
       "title": "Создать колоду",
       "copy": "Загрузите один ZIP-архив со всеми 78 картами. Рубашки управляются отдельно.",
-      "structureHint": "ZIP должен содержать только структуру major/minor со всеми 78 изображениями карт.",
+      "structureHint": "ZIP должен использовать имена файлов по tarot key, например the_fool.png или ace_of_wands.jpg. Структура major/minor допустима, если сами файлы названы по key.",
       "nameEn": "Название, EN",
       "nameRu": "Название, RU",
       "namePlaceholder": "Ethereal Dreams",
@@ -262,7 +278,7 @@
       "tags": "Теги",
       "tagsPlaceholder": "mystical, celestial, classic",
       "zip": "ZIP колоды",
-      "zipHint": "Архив должен содержать только 78 изображений карт. Допустимые форматы: PNG/JPG, до 2MB каждое, соотношение сторон 2:3.",
+      "zipHint": "Архив должен содержать ровно 78 изображений карт, названных по tarot key. Допустимые форматы: PNG/JPG, до 2MB каждое.",
       "chooseZip": "Выбрать ZIP-архив",
       "submit": "Загрузить колоду",
       "success": "Колода успешно загружена.",
@@ -303,7 +319,7 @@
       "readingsWeek": "Чтений за неделю",
       "totalDecks": "Колод в каталоге",
       "usersMeta": "{active} активных / {disabled} отключённых",
-      "decksMeta": "{done} готовых / {processing} в обработке / {disabled} отключённых",
+      "decksMeta": "{done} готовых / {processing} в обработке / {disabled} отключённых / {archived} в архиве",
       "readingsSplit": "{cardOfDay} карта дня / {threeCard} трёхкарточных",
       "usersTitle": "Пользователи по ролям",
       "usersPanelCopy": "Быстро оцените распределение ролей, прежде чем переходить к детальному управлению аккаунтами.",
@@ -314,7 +330,11 @@
       "threeCardToday": "3-card spread сегодня",
       "cardOfDayWeek": "Card of the Day за неделю",
       "threeCardWeek": "3-card spread за неделю"
-    }
+    },
+    "archiveDeckConfirm": "Переместить колоду \"{name}\" в архив?",
+    "deleteDeckConfirm": "Удалить колоду \"{name}\" навсегда? Это действие нельзя отменить.",
+    "archiveCardBackConfirm": "Переместить рубашку \"{name}\" в архив?",
+    "deleteCardBackConfirm": "Удалить рубашку \"{name}\" навсегда? Это действие нельзя отменить."
   },
   "uiKit": {
     "title": "UI Kit"

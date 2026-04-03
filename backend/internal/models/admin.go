@@ -69,6 +69,7 @@ type AdminDeckStatusCounts struct {
 	Done       int64 `json:"done"`
 	Processing int64 `json:"processing"`
 	Disabled   int64 `json:"disabled"`
+	Archived   int64 `json:"archived"`
 }
 
 type AdminDeckMetrics struct {

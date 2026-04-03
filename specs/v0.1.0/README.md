@@ -31,13 +31,13 @@
 
 ## Актуальный статус
 
-На `April 2, 2026`:
+На `April 3, 2026`:
 
 - `phase-0-project-setup` — done
 - `phase-1-core-backend` — done
 - `phase-2-core-frontend` — done
 - `phase-3-reading-features` — done
-- `phase-4-admin-panel` — implementation complete, manual acceptance pending
+- `phase-4-admin-panel` — implementation complete, including deck/card back archive flow; manual acceptance pending
 - текущий активный следующий шаг — ручная приёмка `phase-4-admin-panel`, затем `phase-5-polish-and-testing`
 
 ## Принципы исполнения

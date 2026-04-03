@@ -78,7 +78,7 @@
 
 ## Текущий статус
 
-Актуальный статус на `April 2, 2026`:
+Актуальный статус на `April 3, 2026`:
 
 - продуктовые, технические и дизайн-системные документы уже зафиксированы как рабочий baseline
 - `phase-0` и основная часть `phase-1` фактически реализованы
@@ -87,9 +87,9 @@
 - `UI Kit v0.1.0` утверждён как source of truth для дальнейшей frontend-разработки
 - `phase-2-core-frontend` завершён как стабильный frontend baseline
 - светлая и тёмная темы уже переведены на общий design-system token layer и визуально согласованы между собой
-- `phase-3-reading-features` реализован: backend reading API, dashboard, history и tarot-компоненты подключены end-to-end
+- `phase-3-reading-features` реализован: backend reading API, dashboard, history и tarot-компоненты подключены end-to-end, включая persisted reveal-state карт в раскладах
 - ручные тесты `phase-3` пройдены
-- `phase-4-admin-panel` реализован на уровне расширенного backend/frontend baseline: keeper-only admin routes, user management, role policies, global settings, независимые каталоги `decks` и `card backs`, global defaults и пользовательский override для `adept/master`
+- `phase-4-admin-panel` реализован на уровне расширенного backend/frontend baseline: keeper-only admin routes, user management, role policies, global settings, независимые каталоги `decks` и `card backs`, global defaults, архив для колод и рубашек и пользовательский override для `adept/master/keeper`
 - для `phase-4` ещё не зафиксирована финальная ручная приёмка
 - следующий основной шаг — manual acceptance для `phase-4`, затем `phase-5-polish-and-testing`
 
@@ -121,6 +121,7 @@
 - `Card of the Day` зависит от `user_id + accounting_date + timezone`
 - расчёт `accounting day` идёт не по полуночи, а с `03:00` до `02:59` следующего дня
 - при смене часового пояса доступность дневной карты может измениться
+- в новых раскладах карты изначально скрыты рубашкой и открываются по одной с сохранением состояния просмотра в самом `reading`
 - история чтений должна удаляться через TTL-логику MongoDB на основе роли пользователя
 
 ## Документы, с которых лучше начинать
