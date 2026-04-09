@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import BaseBadge from '../base/BaseBadge.vue'
 import BaseButton from '../base/BaseButton.vue'
 import BaseSurface from '../base/BaseSurface.vue'
 import EmptyStateCard from '../feedback/EmptyStateCard.vue'
@@ -69,9 +70,15 @@ function formattedDate(value) {
       </div>
 
       <div class="reading-history__chips">
-        <span v-for="card in reading.cards" :key="`${reading.id}-${card.key}`" class="reading-history__chip">
+        <BaseBadge
+          v-for="card in reading.cards"
+          :key="`${reading.id}-${card.key}`"
+          class="reading-history__chip"
+          variant="subtle"
+          size="sm"
+        >
           {{ locale === 'ru' ? card.name_ru : card.name }}
-        </span>
+        </BaseBadge>
       </div>
 
       <div v-if="isExpanded(reading.id)" class="reading-history__cards">
@@ -117,14 +124,6 @@ function formattedDate(value) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.reading-history__chip {
-  padding: 6px 10px;
-  border: 1px solid var(--ds-color-border-subtle);
-  font-family: var(--ds-font-ui);
-  font-size: var(--ds-text-caption);
-  color: var(--ds-color-text-secondary);
 }
 
 .reading-history__cards {

@@ -5,7 +5,7 @@
     "footer": "UI shell for the Nebula Tarot MVP, aligned with the phase-2 design system."
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Spreads",
     "history": "History",
     "profile": "Profile",
     "admin": "Admin",

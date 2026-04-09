@@ -1,5 +1,6 @@
 <script setup>
 import BaseSurface from '../base/BaseSurface.vue'
+import SectionHeader from '../layout/SectionHeader.vue'
 
 defineProps({
   eyebrow: {
@@ -19,11 +20,7 @@ defineProps({
 
 <template>
   <BaseSurface class="auth-card" tone="outlined" padding="lg" tag="section">
-    <div class="auth-card__head">
-      <p v-if="eyebrow" class="text-eyebrow">{{ eyebrow }}</p>
-      <h1 class="auth-card__title">{{ title }}</h1>
-      <p v-if="copy" class="auth-card__copy">{{ copy }}</p>
-    </div>
+    <SectionHeader class="auth-card__head" size="lg" title-tag="h1" :eyebrow="eyebrow" :title="title" :copy="copy" />
 
     <div class="auth-card__body">
       <slot />
@@ -42,18 +39,7 @@ defineProps({
 }
 
 .auth-card__head {
-  display: grid;
-  gap: 12px;
   margin-bottom: 32px;
-}
-
-.auth-card__title {
-  font-size: clamp(32px, 4vw, 46px);
-  color: var(--ds-color-accent-primary);
-}
-
-.auth-card__copy {
-  color: var(--ds-color-text-secondary);
 }
 
 .auth-card__body {

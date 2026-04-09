@@ -11,6 +11,7 @@ import EmptyStateCard from '../components/feedback/EmptyStateCard.vue'
 import LoadingCard from '../components/feedback/LoadingCard.vue'
 import PageContainer from '../components/layout/PageContainer.vue'
 import PageSection from '../components/layout/PageSection.vue'
+import SectionHeader from '../components/layout/SectionHeader.vue'
 import { useAuthStore } from '../stores/auth'
 import { useReadingsStore } from '../stores/readings'
 
@@ -86,11 +87,14 @@ onMounted(() => {
             />
 
             <div v-else-if="activeItem?.value === 'card-of-day'" class="dashboard-reading-panel">
-              <div class="section-head">
-                <p class="text-eyebrow">{{ t('dashboard.cardEyebrow') }}</p>
-                <h3 class="section-head__title section-head__title--small">{{ t('dashboard.cardTitle') }}</h3>
-                <p class="section-head__copy">{{ t('dashboard.cardCopy') }}</p>
-              </div>
+              <SectionHeader
+                class="dashboard-reading-panel__head"
+                size="sm"
+                title-tag="h3"
+                :eyebrow="t('dashboard.cardEyebrow')"
+                :title="t('dashboard.cardTitle')"
+                :copy="t('dashboard.cardCopy')"
+              />
 
               <p v-if="readingsStore.cardOfDayError" class="status-message status-message--error">
                 {{ readingsStore.cardOfDayError }}
@@ -118,11 +122,14 @@ onMounted(() => {
             </div>
 
             <div v-else class="dashboard-reading-panel">
-              <div class="section-head">
-                <p class="text-eyebrow">{{ t('dashboard.spreadEyebrow') }}</p>
-                <h3 class="section-head__title section-head__title--small">{{ t('dashboard.spreadTitle') }}</h3>
-                <p class="section-head__copy">{{ t('dashboard.spreadCopy') }}</p>
-              </div>
+              <SectionHeader
+                class="dashboard-reading-panel__head"
+                size="sm"
+                title-tag="h3"
+                :eyebrow="t('dashboard.spreadEyebrow')"
+                :title="t('dashboard.spreadTitle')"
+                :copy="t('dashboard.spreadCopy')"
+              />
 
               <p v-if="readingsStore.spreadError" class="status-message status-message--error">
                 {{ readingsStore.spreadError }}
@@ -159,11 +166,12 @@ onMounted(() => {
 
       <BaseSurface class="hero-panel" tone="outlined" padding="lg" tag="section">
         <div class="hero-panel__content">
-          <div class="stack-md">
-            <p class="text-eyebrow">{{ t('dashboard.today') }}</p>
-            <h2 class="hero-panel__title">{{ t('dashboard.heroTitle') }}</h2>
-            <p class="hero-panel__copy">{{ t('dashboard.heroCopy') }}</p>
-          </div>
+          <SectionHeader
+            size="lg"
+            :eyebrow="t('dashboard.today')"
+            :title="t('dashboard.heroTitle')"
+            :copy="t('dashboard.heroCopy')"
+          />
 
           <div class="cluster">
             <BaseButton :loading="readingsStore.cardOfDayStatus === 'loading'" @click="handleGenerateCardOfDay">
@@ -195,20 +203,6 @@ onMounted(() => {
   gap: 28px;
 }
 
-.hero-panel__title {
-  font-size: clamp(32px, 4vw, 52px);
-  color: var(--ds-color-accent-primary);
-}
-
-.hero-panel__copy {
-  max-width: 60ch;
-  color: var(--ds-color-text-secondary);
-}
-
-.section-head__title--small {
-  font-size: var(--ds-text-heading-2);
-}
-
 .status-message {
   font-family: var(--ds-font-ui);
   font-size: var(--ds-text-body-sm);
@@ -218,7 +212,7 @@ onMounted(() => {
   color: var(--ds-color-danger);
 }
 
-.dashboard-reading-panel > .section-head {
+.dashboard-reading-panel__head {
   margin-bottom: 24px;
 }
 
