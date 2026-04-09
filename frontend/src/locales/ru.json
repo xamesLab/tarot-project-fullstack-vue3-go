@@ -5,7 +5,7 @@
     "footer": "UI-оболочка Nebula Tarot MVP, синхронизированная с дизайн-системой phase-2."
   },
   "nav": {
-    "dashboard": "Дашборд",
+    "dashboard": "Расклады",
     "history": "История",
     "profile": "Профиль",
     "admin": "Админ",

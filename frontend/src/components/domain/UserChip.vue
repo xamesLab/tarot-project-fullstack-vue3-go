@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import BaseBadge from '../base/BaseBadge.vue'
 
 const props = defineProps({
   user: {
@@ -7,25 +7,21 @@ const props = defineProps({
     default: null,
   },
 })
-
-const initials = computed(() => {
-  const source = props.user?.username || props.user?.email || 'TD'
-
-  return source
-    .split(/[\s._-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() || '')
-    .join('')
-})
 </script>
 
 <template>
   <div class="user-chip">
-    <div class="user-chip__avatar">{{ initials }}</div>
+    <div class="user-chip__avatar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" class="user-chip__avatar-icon" focusable="false">
+        <path
+          d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
+          fill="currentColor"
+        />
+      </svg>
+    </div>
     <div class="user-chip__meta">
       <span class="user-chip__name">{{ user?.username || 'Guest' }}</span>
-      <span class="user-chip__role">{{ user?.role || 'visitor' }}</span>
+      <BaseBadge size="sm" :label="user?.role || 'visitor'" />
     </div>
   </div>
 </template>
@@ -33,28 +29,34 @@ const initials = computed(() => {
 <style scoped>
 .user-chip {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 14px;
-  border: 1px solid var(--ds-color-border-accent);
-  background: var(--ds-color-bg-surface);
+  align-items: flex-end;
+  gap: 10px;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
 }
 
 .user-chip__avatar {
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, var(--ds-color-accent-dark), var(--ds-color-accent-primary));
-  color: var(--ds-color-bg-page);
-  font-family: var(--ds-font-display);
-  font-size: 14px;
-  font-weight: 700;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ds-color-accent-dark) 50%, transparent),
+    color-mix(in srgb, var(--ds-color-accent-primary) 50%, transparent)
+  );
+  color: var(--ds-color-accent-primary);
+}
+
+.user-chip__avatar-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .user-chip__meta {
   display: grid;
-  gap: 2px;
+  gap: 3px;
 }
 
 .user-chip__name {
@@ -64,11 +66,4 @@ const initials = computed(() => {
   color: var(--ds-color-text-primary);
 }
 
-.user-chip__role {
-  font-family: var(--ds-font-ui);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ds-color-accent-primary);
-}
 </style>

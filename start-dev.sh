@@ -12,10 +12,67 @@ FRONTEND_PID_FILE="$RUNTIME_DIR/frontend.pid"
 backend_pid=""
 frontend_pid=""
 
+prepend_to_path() {
+  local bin_dir="$1"
+
+  case ":$PATH:" in
+    *":$bin_dir:"*) ;;
+    *) PATH="$bin_dir:$PATH" ;;
+  esac
+}
+
+find_nvm_node_bin_dir() {
+  local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
+  local npm_path=""
+
+  if [[ -s "$nvm_dir/nvm.sh" ]]; then
+    # shellcheck disable=SC1090
+    . "$nvm_dir/nvm.sh" >/dev/null 2>&1 || true
+
+    if command -v nvm >/dev/null 2>&1; then
+      if nvm use --silent default >/dev/null 2>&1 || nvm use --silent node >/dev/null 2>&1; then
+        npm_path="$(command -v npm || true)"
+        if [[ -n "$npm_path" ]]; then
+          dirname "$npm_path"
+          return 0
+        fi
+      fi
+    fi
+  fi
+
+  if compgen -G "$nvm_dir/versions/node/*/bin/npm" >/dev/null 2>&1; then
+    npm_path="$(printf '%s\n' "$nvm_dir"/versions/node/*/bin/npm | sort -V | tail -n 1)"
+    dirname "$npm_path"
+    return 0
+  fi
+
+  return 1
+}
+
+ensure_command_available() {
+  local command_name="$1"
+  local node_bin_dir=""
+
+  if command -v "$command_name" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  case "$command_name" in
+    node|npm|npx)
+      node_bin_dir="$(find_nvm_node_bin_dir || true)"
+      if [[ -n "$node_bin_dir" ]]; then
+        prepend_to_path "$node_bin_dir"
+      fi
+      ;;
+  esac
+
+  command -v "$command_name" >/dev/null 2>&1
+}
+
 require_command() {
   local command_name="$1"
 
-  if ! command -v "$command_name" >/dev/null 2>&1; then
+  if ! ensure_command_available "$command_name"; then
     echo "Missing required command: $command_name" >&2
     exit 1
   fi

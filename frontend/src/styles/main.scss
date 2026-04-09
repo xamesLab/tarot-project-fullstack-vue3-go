@@ -121,21 +121,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.section-head {
-  display: grid;
-  gap: var(--ds-space-3);
-}
-
-.section-head__title {
-  font-size: clamp(28px, 3vw, 42px);
-  color: var(--ds-color-accent-primary);
-}
-
-.section-head__copy {
-  max-width: 70ch;
-  color: var(--ds-color-text-secondary);
-}
-
 .cluster {
   display: flex;
   flex-wrap: wrap;
@@ -224,17 +209,8 @@
   }
 
   .stack-sm,
-  .cluster,
-  .section-head {
+  .cluster {
     gap: var(--ds-space-3);
-  }
-
-  .section-head__title {
-    font-size: clamp(24px, 8vw, 32px);
-  }
-
-  .section-head__copy {
-    max-width: none;
   }
 
   .app-splash {

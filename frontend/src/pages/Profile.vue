@@ -13,6 +13,7 @@ import BaseTabs from '../components/base/BaseTabs.vue'
 import FormField from '../components/form/FormField.vue'
 import PageContainer from '../components/layout/PageContainer.vue'
 import PageSection from '../components/layout/PageSection.vue'
+import SectionHeader from '../components/layout/SectionHeader.vue'
 import { useAuthStore } from '../stores/auth'
 
 const FALLBACK_TIMEZONES = [
@@ -263,12 +264,13 @@ onMounted(() => {
         <BaseTabs v-model="activeProfileTab" :items="profileTabs">
           <template #panel="{ activeItem }">
             <div v-if="activeItem?.value === 'account'" class="profile-panel">
-              <div class="profile-head">
-                <div>
-                  <h3 class="section-head__title section-head__title--small">{{ t('profile.accountTitle') }}</h3>
-                  <p class="text-body-muted">{{ t('profile.accountCopy') }}</p>
-                </div>
-              </div>
+              <SectionHeader
+                class="profile-head"
+                size="sm"
+                title-tag="h3"
+                :title="t('profile.accountTitle')"
+                :copy="t('profile.accountCopy')"
+              />
 
               <form class="stack-md" @submit.prevent="submitProfile">
                 <FormField :label="t('profile.email')" :hint="t('profile.emailReadonly')">
@@ -309,12 +311,13 @@ onMounted(() => {
             </div>
 
             <div v-else-if="activeItem?.value === 'preferences'" class="profile-panel">
-              <div class="profile-head">
-                <div>
-                  <h3 class="section-head__title section-head__title--small">{{ t('profile.preferencesTitle') }}</h3>
-                  <p class="text-body-muted">{{ t('profile.preferencesCopy') }}</p>
-                </div>
-              </div>
+              <SectionHeader
+                class="profile-head"
+                size="sm"
+                title-tag="h3"
+                :title="t('profile.preferencesTitle')"
+                :copy="t('profile.preferencesCopy')"
+              />
 
               <form class="stack-md" @submit.prevent="submitSettings">
                 <FormField :label="t('profile.language')">
@@ -343,12 +346,13 @@ onMounted(() => {
             </div>
 
             <div v-else class="profile-panel">
-              <div class="profile-head">
-                <div>
-                  <h3 class="section-head__title section-head__title--small">{{ t('profile.deckSettingsTitle') }}</h3>
-                  <p class="text-body-muted">{{ t('profile.deckSettingsCopy') }}</p>
-                </div>
-              </div>
+              <SectionHeader
+                class="profile-head"
+                size="sm"
+                title-tag="h3"
+                :title="t('profile.deckSettingsTitle')"
+                :copy="t('profile.deckSettingsCopy')"
+              />
 
               <div v-if="catalogState.error" class="form-message form-message--error">
                 {{ catalogState.error }}
@@ -406,16 +410,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.section-head__title--small {
-  font-size: var(--ds-text-heading-2);
-  color: var(--ds-color-accent-primary);
-}
-
 .profile-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
   margin-bottom: 24px;
 }
 
