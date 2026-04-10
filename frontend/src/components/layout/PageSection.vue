@@ -1,5 +1,9 @@
 <script setup>
+import { useSlots } from 'vue'
+
 import SectionHeader from './SectionHeader.vue'
+
+const slots = useSlots()
 
 defineProps({
   eyebrow: {
@@ -19,7 +23,11 @@ defineProps({
 
 <template>
   <section class="page-stack">
-    <SectionHeader v-if="eyebrow || title || copy" :eyebrow="eyebrow" :title="title" :copy="copy" />
+    <SectionHeader v-if="eyebrow || title || copy || slots.meta" :eyebrow="eyebrow" :title="title" :copy="copy">
+      <template v-if="slots.meta" #meta>
+        <slot name="meta" />
+      </template>
+    </SectionHeader>
     <slot />
   </section>
 </template>

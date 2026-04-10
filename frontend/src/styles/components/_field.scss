@@ -192,18 +192,27 @@
     gap: var(--ds-space-2);
   }
 
+  .form-field__label {
+    letter-spacing: 0.08em;
+  }
+
+  .form-field__hint,
+  .form-field__error {
+    line-height: 1.35;
+  }
+
   .base-input,
   .base-select {
-    min-height: 46px;
-    padding: 12px 14px;
+    min-height: 42px;
+    padding: 10px 12px;
   }
 
   .base-select {
-    padding-right: 38px;
+    padding-right: 34px;
   }
 
   .base-select-wrap::after {
-    right: 14px;
+    right: 12px;
   }
 
   .base-segmented-toggle {
