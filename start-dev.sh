@@ -163,8 +163,8 @@ fi
 mkdir -p "$RUNTIME_DIR"
 
 backend_host="127.0.0.1"
-backend_port="$(read_env_value "$BACKEND_DIR/.env" "APP_PORT" "8080")"
-frontend_url="$(read_env_value "$FRONTEND_DIR/.env" "VITE_API_URL" "http://localhost:8080/api")"
+backend_port="$(read_env_value "$BACKEND_DIR/.env" "APP_PORT" "8888")"
+frontend_url="$(read_env_value "$FRONTEND_DIR/.env" "VITE_API_URL" "http://localhost:8888/api")"
 
 echo "Starting backend on http://$backend_host:$backend_port ..."
 (

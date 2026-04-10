@@ -114,7 +114,7 @@
 В спецификации зафиксированы такие адреса для разработки:
 
 - frontend: `http://localhost:5173`
-- backend API: `http://localhost:8080/api`
+- backend API: `http://localhost:8888/api`
 
 Для локальной работы также предполагаются:
 

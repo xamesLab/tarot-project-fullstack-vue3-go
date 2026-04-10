@@ -2065,7 +2065,7 @@ import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8888/api',
   timeout: 10000
 })
 
@@ -2231,7 +2231,7 @@ const { handleSubmit, errors } = useForm({ validationSchema: schema })
 **Environment Variables (`.env`):**
 ```bash
 # Server
-PORT=8080
+PORT=8888
 GIN_MODE=debug
 
 # Database
@@ -2264,7 +2264,7 @@ go run main.go
 
 **Environment Variables (`.env`):**
 ```bash
-VITE_API_URL=http://localhost:8080/api
+VITE_API_URL=http://localhost:8888/api
 ```
 
 **Run:**
@@ -2330,7 +2330,7 @@ npm run build
 **Backend:**
 ```bash
 GIN_MODE=release
-PORT=8080
+PORT=8888
 MONGO_URI=mongodb://prod-host:27017
 MONGO_DB=tarot_daily
 JWT_SECRET=production_secret_min_32_chars
@@ -2339,7 +2339,7 @@ FRONTEND_URL=https://nebula-taro.com
 
 **Frontend:**
 ```bash
-VITE_API_URL=https://api.nebula-taro.com
+VITE_API_URL=https://test-api.xmlab.ru/api
 ```
 
 ### 12.3 Deployment Checklist

@@ -13,12 +13,12 @@ func Load() (*Config, func(), error) {
 
 	cfg := &Config{
 		AppEnv:                getEnv("APP_ENV", "dev"),
-		AppPort:               getEnv("APP_PORT", "8080"),
+		AppPort:               getEnv("APP_PORT", "8888"),
 		AIDirectEnabled:       getEnvBool("AI_DIRECT_ENABLED", true),
 		JWTSecret:             getEnv("JWT_SECRET", "dev-jwt-secret-local-only"),
 		JWTTTL:                getEnv("JWT_TTL", "24h"),
 		FrontendURL:           getEnv("FRONTEND_URL", "http://localhost:5173"),
-		BackendPublicBaseURL:  getEnv("BACKEND_PUBLIC_BASE_URL", "http://localhost:8080"),
+		BackendPublicBaseURL:  getEnv("BACKEND_PUBLIC_BASE_URL", "http://localhost:8888"),
 		MongoURI:              getEnv("MONGO_URI", ""),
 		MongoDBName:           getEnv("MONGO_DB_NAME", "tarot_daily"),
 		GatewayBaseURL:        getEnv("GATEWAY_BASE_URL", ""),
