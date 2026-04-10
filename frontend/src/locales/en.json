@@ -63,6 +63,7 @@
     "loadingCopy": "We are loading your latest readings and role-based tarot state.",
     "loadingSecondaryTitle": "Preparing your reading space",
     "loadingSecondaryCopy": "Daily card and spread history are being assembled from the backend.",
+    "meaningTitle": "Reading meaning",
     "cardEyebrow": "Card of the Day",
     "cardTitle": "Deterministic daily reading",
     "cardCopy": "You can reveal one daily card per accounting day. If it already exists, the stored reading is returned.",
@@ -73,7 +74,8 @@
     "spreadCopy": "Three-card spreads are generated with unique cards and limited by your current role policy.",
     "spreadEmptyTitle": "No spread generated",
     "spreadEmptyCopy": "Generate a spread to inspect your current path through the classic past, present, and future positions.",
-    "spreadAction": "Generate 3-card spread"
+    "spreadAction": "Generate 3-card spread",
+    "newSpreadAction": "New spread"
   },
   "profile": {
     "title": "Profile",
@@ -131,7 +133,7 @@
     "cardOfDayLabel": "Card of the Day",
     "cardOfDayReady": "Today's card is ready.",
     "spreadLabel": "Three-card spread",
-    "spreadReady": "Your latest spread is ready.",
+    "spreadReady": "Spread is ready.",
     "nextAvailableAt": "Next available at: {value}",
     "remainingToday": "{count} of {limit} spreads remaining today.",
     "accountingDateLabel": "Accounting date: {value}",

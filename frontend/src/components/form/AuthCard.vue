@@ -51,4 +51,36 @@ defineProps({
   margin-top: 28px;
   color: var(--ds-color-text-secondary);
 }
+
+@media (max-width: 720px) {
+  .auth-card.base-surface--padding-lg {
+    padding: var(--ds-space-5);
+  }
+
+  .auth-card__head {
+    margin-bottom: 20px;
+  }
+
+  .auth-card__body {
+    gap: 16px;
+  }
+
+  .auth-card__footer {
+    margin-top: 18px;
+    font-size: var(--ds-text-body-sm);
+  }
+
+  .auth-card :deep(.section-header--lg .section-header__content) {
+    gap: var(--ds-space-2);
+  }
+
+  .auth-card :deep(.section-header--lg .section-header__title) {
+    font-size: clamp(26px, 7vw, 34px);
+  }
+
+  .auth-card :deep(.section-header__copy) {
+    font-size: var(--ds-text-body-sm);
+    line-height: 1.5;
+  }
+}
 </style>

@@ -128,4 +128,12 @@ async function submit() {
   font-family: var(--ds-font-ui);
   font-size: var(--ds-text-body-sm);
 }
+
+@media (max-width: 720px) {
+  .auth-page {
+    min-height: auto;
+    place-items: start center;
+    padding-block: var(--ds-space-4);
+  }
+}
 </style>
