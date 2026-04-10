@@ -41,6 +41,10 @@ async function goToPage(page) {
   await loadPage(page)
 }
 
+async function handleRequestAI(readingId) {
+  await readingsStore.requestAIInterpretation(readingId)
+}
+
 onMounted(() => {
   loadPage(1)
 })
@@ -78,8 +82,11 @@ onMounted(() => {
       <ReadingHistory
         v-else
         :readings="readingsStore.history"
+        :ai-status-by-reading-id="readingsStore.aiStatusByReadingId"
+        :ai-error-by-reading-id="readingsStore.aiErrorByReadingId"
         :empty-title="t('history.emptyTitle')"
         :empty-copy="t('history.emptyCopy')"
+        @request-ai="handleRequestAI"
       />
 
       <div

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 import { normalizeApiError } from '../services/api'
+import * as askService from '../services/ask'
 import * as readingService from '../services/reading'
 import { getAccountingDateForTimezone } from '../utils/date'
 import { useAuthStore } from './auth'
@@ -22,6 +23,27 @@ function mergeReadingState(previousReading, nextReading) {
     ...previousReading,
     ...nextReading,
     cards: nextReading?.cards || previousReading.cards || [],
+  }
+}
+
+function buildAIStateFromRequest(request) {
+  if (!request) {
+    return null
+  }
+
+  return {
+    request_id: request.id || '',
+    provider: request.provider || '',
+    model: request.model || '',
+    prompt_version: request.prompt_version || '',
+    language: request.request_payload?.language || '',
+    status: request.status || '',
+    content: request.response_excerpt || '',
+    error_code: request.error_code || '',
+    error_message: request.error_message || '',
+    completed_at: request.completed_at || null,
+    last_requested_at: request.requested_at || null,
+    updated_at: request.completed_at || request.requested_at || null,
   }
 }
 
@@ -50,6 +72,8 @@ export const useReadingsStore = defineStore('readings', {
     spreadError: '',
     revealStatusByKey: {},
     revealErrorByKey: {},
+    aiStatusByReadingId: {},
+    aiErrorByReadingId: {},
   }),
 
   actions: {
@@ -58,6 +82,17 @@ export const useReadingsStore = defineStore('readings', {
       this.historyError = ''
       this.cardOfDayError = ''
       this.spreadError = ''
+    },
+
+    setReadingAI(readingId, ai) {
+      if (!readingId) {
+        return
+      }
+
+      this.replaceReading({
+        id: readingId,
+        ai,
+      })
     },
 
     replaceReading(updatedReading) {
@@ -228,6 +263,68 @@ export const useReadingsStore = defineStore('readings', {
           ...this.revealErrorByKey,
           [revealKey]: normalized.message,
         }
+        return { ok: false, error: normalized }
+      }
+    },
+
+    async requestAIInterpretation(readingId) {
+      if (!readingId) {
+        return { ok: false }
+      }
+
+      const reading = [
+        this.cardOfDay,
+        this.latestSpread,
+        ...this.history,
+      ].find((item) => item?.id === readingId)
+
+      if (reading?.ai?.status === 'completed' && reading.ai?.content) {
+        return { ok: true, request: null, reused: true }
+      }
+
+      if (this.aiStatusByReadingId[readingId] === 'loading') {
+        return { ok: false, loading: true }
+      }
+
+      this.aiStatusByReadingId = {
+        ...this.aiStatusByReadingId,
+        [readingId]: 'loading',
+      }
+      this.aiErrorByReadingId = {
+        ...this.aiErrorByReadingId,
+        [readingId]: '',
+      }
+
+      try {
+        const response = await askService.createAskRequest({ reading_id: readingId })
+        const request = response.request
+        this.setReadingAI(readingId, buildAIStateFromRequest(request))
+        this.aiStatusByReadingId = {
+          ...this.aiStatusByReadingId,
+          [readingId]: 'ready',
+        }
+        this.aiErrorByReadingId = {
+          ...this.aiErrorByReadingId,
+          [readingId]: '',
+        }
+        return { ok: true, request }
+      } catch (error) {
+        const normalized = normalizeApiError(error)
+        this.aiStatusByReadingId = {
+          ...this.aiStatusByReadingId,
+          [readingId]: 'error',
+        }
+        this.aiErrorByReadingId = {
+          ...this.aiErrorByReadingId,
+          [readingId]: normalized.message,
+        }
+        this.setReadingAI(readingId, {
+          ...(reading?.ai || {}),
+          status: 'failed',
+          error_code: normalized.code,
+          error_message: normalized.message,
+          updated_at: new Date().toISOString(),
+        })
         return { ok: false, error: normalized }
       }
     },

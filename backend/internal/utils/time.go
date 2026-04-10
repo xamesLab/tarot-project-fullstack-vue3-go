@@ -41,6 +41,17 @@ func GetNextResetTimeAt(now time.Time, timezone string) (time.Time, error) {
 	return getNextResetTimeForTime(now.In(loc)), nil
 }
 
+func GetCurrentResetWindowAt(now time.Time, timezone string) (time.Time, time.Time, error) {
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+
+	nextReset := getNextResetTimeForTime(now.In(loc))
+	currentWindowStart := nextReset.Add(-24 * time.Hour)
+	return currentWindowStart.UTC(), nextReset.UTC(), nil
+}
+
 func getNextResetTimeForTime(now time.Time) time.Time {
 	reset := time.Date(now.Year(), now.Month(), now.Day(), 3, 0, 0, 0, now.Location())
 	if !now.Before(reset) {

@@ -50,10 +50,12 @@ func (r *PolicyRepository) ListAll(ctx context.Context) ([]models.RolePolicy, er
 	return policies, nil
 }
 
-func (r *PolicyRepository) UpdateByRole(ctx context.Context, role string, threeCardLimit int64, historyRetentionDays int) (*models.RolePolicy, error) {
+func (r *PolicyRepository) UpdateByRole(ctx context.Context, role string, threeCardLimit int64, aiEnabled bool, aiDailyLimit int64, historyRetentionDays int) (*models.RolePolicy, error) {
 	if err := r.collection.FindOneAndUpdate(ctx, bson.M{"role": role}, bson.M{
 		"$set": bson.M{
 			"three_card_limit":       threeCardLimit,
+			"ai_enabled":             aiEnabled,
+			"ai_daily_limit":         aiDailyLimit,
 			"history_retention_days": historyRetentionDays,
 			"updated_at":             time.Now().UTC(),
 		},

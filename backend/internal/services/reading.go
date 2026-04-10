@@ -444,6 +444,7 @@ func (s *ReadingService) buildReadingResponses(ctx context.Context, readings []m
 			Cards:          responseCards,
 			DeckID:         reading.DeckID,
 			BackID:         effectiveBackID,
+			AI:             reading.AI.ToResponse(),
 		}
 		if remaining != nil && reading.Type == models.ReadingTypeThreeCard {
 			copyRemaining := *remaining

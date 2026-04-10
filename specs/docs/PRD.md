@@ -688,25 +688,32 @@ if daily_spread_count >= user_role_limit:
 
 #### 4.7.1 Current State
 
-**Implementation:** Stub/placeholder only
+**Implementation:** `v0.1.0` used a stub/placeholder; `v0.1.1` switches to direct AI integration through `OpenRouter`
 
 **Frontend:**
-- No UI elements for AI interpretation in MVP
-- Code structure prepared for future integration
+- AI interpretation is shown in the existing `Meaning` / `Значение расклада` block after the reading is revealed
+- UI keeps the existing reading screen instead of creating a separate AI page
 
 **Backend:**
-- `POST /api/ask` endpoint exists but returns mock response
-- `GET /api/ask/:request_id` returns mock status
+- `POST /api/ask` creates or reuses an AI interpretation request
+- `GET /api/ask/:request_id` returns status and completed result
 - `POST /api/gateway/callback` endpoint exists (no-op)
 - `GET /api/gateway/health` returns `{ status: "stub" }`
 
 **Database:**
-- `ask_requests` collection exists but unused
+- `ask_requests` stores AI request history and provider metadata
+- the latest successful AI result is additionally cached on the reading itself for fast reuse
 
 **Future Integration:**
 - Will be added via separate instruction
 - Frontend will enable "AI Interpretation" button when Gateway is live
 - Role limits will apply (e.g., Seeker: 0, Adept: 3/day, Master: 10/day)
+
+**Planning update for `v0.1.1`:**
+- the next version uses direct AI integration through `OpenRouter` as the primary path
+- the direct AI response is expected to populate the existing `Meaning` / `Значение расклада` block after a card of the day or a fully revealed spread is opened
+- the prompt must include the revealed cards and require only a compact interpretation capped at `100` words
+- the legacy gateway path remains as an architectural placeholder for a future fallback design
 
 ---
 

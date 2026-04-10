@@ -64,6 +64,10 @@
     "loadingSecondaryTitle": "Подготавливаем пространство чтения",
     "loadingSecondaryCopy": "Карта дня и история раскладов собираются из backend.",
     "meaningTitle": "Значение расклада",
+    "meaningLoadingLabel": "AI-интерпретация",
+    "meaningLoadingCopy": "Подготавливаем компактную интерпретацию расклада.",
+    "meaningErrorLabel": "Интерпретация недоступна",
+    "meaningRetryAction": "Повторить",
     "cardEyebrow": "Card of the Day",
     "cardTitle": "Детерминированная дневная карта",
     "cardCopy": "Карту дня можно открыть один раз за учётный день. Если она уже создана, вернётся сохранённое чтение.",
@@ -123,6 +127,8 @@
       "cardOfDay": "Карта дня",
       "threeCard": "3-карточный"
     },
+    "aiReadyBadge": "AI готово",
+    "aiWaitingCopy": "AI-интерпретация будет доступна после полного раскрытия этого чтения.",
     "emptyTitle": "История чтений пока пуста",
     "emptyCopy": "Сгенерируйте первую карту дня или расклад, и они появятся здесь в рамках вашей role policy.",
     "previousPage": "Назад",
@@ -227,6 +233,9 @@
     "policyCard": {
       "eyebrow": "Политика",
       "threeCardLimit": "Лимит 3-card spread в день",
+      "aiEnabled": "AI-интерпретации для роли",
+      "aiEnabledSwitch": "Разрешить AI для этой роли",
+      "aiDailyLimit": "Лимит AI-запросов в день",
       "historyRetention": "Хранение истории, дней",
       "copy": "Изменения будут влиять на будущие чтения пользователей с этой ролью.",
       "save": "Сохранить политику"
@@ -240,6 +249,8 @@
       "maintenanceSwitch": "Включить maintenance mode",
       "registrationEnabled": "Регистрация",
       "registrationSwitch": "Разрешить новые регистрации",
+      "aiEnabled": "AI-функция",
+      "aiSwitch": "Разрешить AI-интерпретации",
       "defaultRole": "Роль по умолчанию для новых пользователей",
       "defaultDeck": "Колода по умолчанию",
       "defaultBack": "Рубашка по умолчанию",

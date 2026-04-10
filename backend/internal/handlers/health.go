@@ -18,6 +18,7 @@ func NewHealthHandler(cfg *config.Config) *HealthHandler {
 
 func (h *HealthHandler) Register(router gin.IRoutes) {
 	router.GET("/health", h.health)
+	router.GET("/ai/health", h.aiHealth)
 	router.GET("/gateway/health", h.gatewayHealth)
 }
 
@@ -33,5 +34,28 @@ func (h *HealthHandler) gatewayHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "stub",
 		"message": "Gateway is not implemented",
+	})
+}
+
+func (h *HealthHandler) aiHealth(c *gin.Context) {
+	configured := h.config.OpenRouterKey != "" && h.config.OpenRouterModelMain != ""
+	status := "disabled"
+	message := "Direct AI integration is disabled"
+
+	switch {
+	case h.config.AIDirectEnabled && configured:
+		status = "configured"
+		message = "Direct AI integration is configured"
+	case h.config.AIDirectEnabled:
+		status = "misconfigured"
+		message = "Direct AI integration is enabled but missing required configuration"
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":   status,
+		"provider": "openrouter",
+		"enabled":  h.config.AIDirectEnabled,
+		"message":  message,
+		"model":    h.config.OpenRouterModelMain,
 	})
 }

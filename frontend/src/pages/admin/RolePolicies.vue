@@ -6,6 +6,7 @@ import AdminLayout from '../../components/admin/AdminLayout.vue'
 import BaseButton from '../../components/base/BaseButton.vue'
 import BaseInput from '../../components/base/BaseInput.vue'
 import BaseSurface from '../../components/base/BaseSurface.vue'
+import BaseSwitchToggle from '../../components/base/BaseSwitchToggle.vue'
 import FormField from '../../components/form/FormField.vue'
 import { useAdminStore } from '../../stores/admin'
 
@@ -20,6 +21,8 @@ watch(
     policies.forEach((policy) => {
       drafts[policy.role] = {
         three_card_limit: String(policy.three_card_limit ?? 0),
+        ai_enabled: policy.ai_enabled !== false,
+        ai_daily_limit: String(policy.ai_daily_limit ?? 0),
         history_retention_days: String(policy.history_retention_days ?? 0),
       }
     })
@@ -39,6 +42,8 @@ async function savePolicy(role) {
 
   await adminStore.updateRolePolicy(role, {
     three_card_limit: Number(draft.three_card_limit),
+    ai_enabled: Boolean(draft.ai_enabled),
+    ai_daily_limit: Number(draft.ai_daily_limit),
     history_retention_days: Number(draft.history_retention_days),
   })
 }
@@ -78,6 +83,21 @@ onMounted(() => {
               <BaseInput
                 :id="`policy-limit-${policy.role}`"
                 v-model="drafts[policy.role].three_card_limit"
+                type="number"
+              />
+            </FormField>
+
+            <FormField :label="t('admin.policyCard.aiEnabled')">
+              <BaseSwitchToggle
+                v-model="drafts[policy.role].ai_enabled"
+                :label="t('admin.policyCard.aiEnabledSwitch')"
+              />
+            </FormField>
+
+            <FormField :label="t('admin.policyCard.aiDailyLimit')" :for-id="`policy-ai-limit-${policy.role}`" required>
+              <BaseInput
+                :id="`policy-ai-limit-${policy.role}`"
+                v-model="drafts[policy.role].ai_daily_limit"
                 type="number"
               />
             </FormField>

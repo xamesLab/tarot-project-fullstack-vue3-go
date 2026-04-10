@@ -60,3 +60,21 @@ func TestValidateTimezone(t *testing.T) {
 		t.Fatal("expected Not/AZone to be invalid")
 	}
 }
+
+func TestGetCurrentResetWindowAt(t *testing.T) {
+	now := time.Date(2026, 3, 31, 1, 30, 0, 0, time.UTC)
+
+	start, end, err := GetCurrentResetWindowAt(now, "Europe/Moscow")
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	wantStart := time.Date(2026, 3, 31, 0, 0, 0, 0, time.UTC)
+	wantEnd := time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC)
+	if !start.Equal(wantStart) {
+		t.Fatalf("expected start %s, got %s", wantStart, start)
+	}
+	if !end.Equal(wantEnd) {
+		t.Fatalf("expected end %s, got %s", wantEnd, end)
+	}
+}

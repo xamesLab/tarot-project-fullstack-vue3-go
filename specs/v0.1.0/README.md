@@ -31,14 +31,17 @@
 
 ## Актуальный статус
 
-На `April 3, 2026`:
+На `April 10, 2026`:
 
 - `phase-0-project-setup` — done
 - `phase-1-core-backend` — done
 - `phase-2-core-frontend` — done
 - `phase-3-reading-features` — done
-- `phase-4-admin-panel` — implementation complete, including deck/card back archive flow; manual acceptance pending
-- текущий активный следующий шаг — ручная приёмка `phase-4-admin-panel`, затем `phase-5-polish-and-testing`
+- `phase-4-admin-panel` — done
+- `phase-5-polish-and-testing` — done
+- версия `v0.1.0` готова как завершённый MVP baseline
+- финальная ручная приёмка `v0.1.0` пройдена
+- следующий отдельный этап — `phase-6-deployment`, если нужен production rollout
 
 ## Принципы исполнения
 

@@ -7,6 +7,8 @@ type RolePolicy struct {
 	Role                 string        `bson:"role" json:"role"`
 	DisplayName          LocalizedText `bson:"display_name" json:"display_name"`
 	ThreeCardLimit       int64         `bson:"three_card_limit" json:"three_card_limit"`
+	AIEnabled            bool          `bson:"ai_enabled" json:"ai_enabled"`
+	AIDailyLimit         int64         `bson:"ai_daily_limit" json:"ai_daily_limit"`
 	HistoryRetentionDays int           `bson:"history_retention_days" json:"history_retention_days"`
 	CreatedAt            time.Time     `bson:"created_at" json:"created_at"`
 	UpdatedAt            time.Time     `bson:"updated_at" json:"updated_at"`

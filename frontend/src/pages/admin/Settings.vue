@@ -17,6 +17,7 @@ const adminStore = useAdminStore()
 const form = reactive({
   maintenance_mode: false,
   registration_enabled: true,
+  ai_enabled: true,
   default_role: 'seeker',
   default_deck_id: 'default',
   default_back_id: 'default',
@@ -66,6 +67,7 @@ watch(
 
     form.maintenance_mode = Boolean(settings.maintenance_mode)
     form.registration_enabled = Boolean(settings.registration_enabled)
+    form.ai_enabled = settings.ai_enabled !== false
     form.default_role = settings.default_role || 'seeker'
     form.default_deck_id = settings.default_deck_id || 'default'
     form.default_back_id = settings.default_back_id || 'default'
@@ -79,6 +81,7 @@ async function submitSettings() {
   await adminStore.updateSettings({
     maintenance_mode: form.maintenance_mode,
     registration_enabled: form.registration_enabled,
+    ai_enabled: form.ai_enabled,
     default_role: form.default_role,
     default_deck_id: form.default_deck_id,
     default_back_id: form.default_back_id,
@@ -121,6 +124,10 @@ onMounted(async () => {
 
             <FormField :label="t('admin.settingsCard.registrationEnabled')">
               <BaseSwitchToggle v-model="form.registration_enabled" :label="t('admin.settingsCard.registrationSwitch')" />
+            </FormField>
+
+            <FormField :label="t('admin.settingsCard.aiEnabled')">
+              <BaseSwitchToggle v-model="form.ai_enabled" :label="t('admin.settingsCard.aiSwitch')" />
             </FormField>
 
             <FormField :label="t('admin.settingsCard.defaultRole')" for-id="admin-default-role" required>

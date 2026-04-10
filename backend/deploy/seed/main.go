@@ -195,10 +195,10 @@ func seedRolePolicies(db *mongo.Database) error {
 
 	now := time.Now().UTC()
 	docs := []any{
-		bson.M{"_id": "seeker", "role": "seeker", "display_name": bson.M{"en": "Seeker", "ru": "Искатель"}, "three_card_limit": 3, "history_retention_days": 1, "created_at": now, "updated_at": now},
-		bson.M{"_id": "adept", "role": "adept", "display_name": bson.M{"en": "Adept", "ru": "Адепт"}, "three_card_limit": 5, "history_retention_days": 7, "created_at": now, "updated_at": now},
-		bson.M{"_id": "master", "role": "master", "display_name": bson.M{"en": "Master", "ru": "Мастер"}, "three_card_limit": 10, "history_retention_days": 15, "created_at": now, "updated_at": now},
-		bson.M{"_id": "keeper", "role": "keeper", "display_name": bson.M{"en": "Keeper", "ru": "Смотритель"}, "three_card_limit": 999999, "history_retention_days": 30, "created_at": now, "updated_at": now},
+		bson.M{"_id": "seeker", "role": "seeker", "display_name": bson.M{"en": "Seeker", "ru": "Искатель"}, "three_card_limit": 3, "ai_enabled": true, "ai_daily_limit": 3, "history_retention_days": 1, "created_at": now, "updated_at": now},
+		bson.M{"_id": "adept", "role": "adept", "display_name": bson.M{"en": "Adept", "ru": "Адепт"}, "three_card_limit": 5, "ai_enabled": true, "ai_daily_limit": 8, "history_retention_days": 7, "created_at": now, "updated_at": now},
+		bson.M{"_id": "master", "role": "master", "display_name": bson.M{"en": "Master", "ru": "Мастер"}, "three_card_limit": 10, "ai_enabled": true, "ai_daily_limit": 20, "history_retention_days": 15, "created_at": now, "updated_at": now},
+		bson.M{"_id": "keeper", "role": "keeper", "display_name": bson.M{"en": "Keeper", "ru": "Смотритель"}, "three_card_limit": 999999, "ai_enabled": true, "ai_daily_limit": 999999, "history_retention_days": 30, "created_at": now, "updated_at": now},
 	}
 
 	if err := collection.Drop(ctx); err != nil {
@@ -222,6 +222,7 @@ func seedAdminSettings(db *mongo.Database) error {
 		"_id":                  "global",
 		"maintenance_mode":     false,
 		"maintenance_message":  bson.M{"en": "Site under maintenance", "ru": "Сайт на обслуживании"},
+		"ai_enabled":           true,
 		"default_role":         "seeker",
 		"default_deck_id":      "default",
 		"default_back_id":      "default",
