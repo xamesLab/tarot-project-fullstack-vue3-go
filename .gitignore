@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 
+.dev-runtime
+
 # Frontend
 frontend/.env
 frontend/.env.*
