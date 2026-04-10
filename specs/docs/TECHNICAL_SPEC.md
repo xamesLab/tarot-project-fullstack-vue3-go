@@ -439,6 +439,20 @@ db.cards.createIndex({ "arcana": 1 })
   "back_id": "default",             // String, card back used for this reading
   "generated_at": ISODate("..."),   // Date, when reading was created
   "expires_at": ISODate("..."),     // Date, calculated based on role retention
+  "ai": {                           // Optional cached AI interpretation for reuse
+    "request_id": ObjectId("..."),
+    "provider": "openrouter",
+    "model": "provider/model-id",
+    "prompt_version": "v0.1.1-compact-100w",
+    "language": "ru",
+    "status": "completed",
+    "content": "Короткая интерпретация...",
+    "error_code": null,
+    "error_message": null,
+    "last_requested_at": ISODate("..."),
+    "completed_at": ISODate("..."),
+    "updated_at": ISODate("...")
+  },
   "metadata": {                     // Optional metadata
     "seed": "hash...",              // For card_of_day: deterministic seed
     "request_ip": "192.168.1.1"     // Optional: user IP
@@ -576,25 +590,39 @@ db.role_policies.createIndex({ "role": 1 }, { unique: true })
 
 **Note:** Only one document with `_id: "global"`
 
-#### 3.1.8 `ask_requests` (Stub for Gateway)
+#### 3.1.8 `ask_requests`
 
-**Purpose:** Future AI interpretation requests
+**Purpose:** Persist direct AI interpretation requests and keep compatibility with a future gateway/fallback architecture
 
 ```javascript
 {
   "_id": ObjectId("..."),
   "user_id": ObjectId("..."),       // References users._id
   "reading_id": ObjectId("..."),    // References daily_readings._id
+  "provider": "openrouter",         // String, current primary provider for v0.1.1
+  "model": "provider/model-id",     // String, resolved model used for generation
+  "prompt_version": "v1",           // String, prompt template version
   "status": "pending",              // String: pending | processing | completed | failed
-  "request_payload": {...},         // Object, request sent to Gateway
-  "response_data": {...},           // Object, response from Gateway
+  "request_payload": {...},         // Object, normalized request snapshot
+  "response_data": {...},           // Object, normalized provider response
+  "response_excerpt": "Short text", // String, compact AI interpretation shown in UI
+  "usage": {                        // Optional provider usage snapshot
+    "prompt_tokens": 123,
+    "completion_tokens": 45,
+    "total_tokens": 168
+  },
+  "error_code": "provider_timeout", // Nullable
+  "error_message": "Timed out",     // Nullable, safe/public form only
+  "requested_at": ISODate("..."),
   "created_at": ISODate("..."),
   "updated_at": ISODate("..."),
   "completed_at": ISODate("...")    // Nullable
 }
 ```
 
-**Note:** Unused in MVP, stub only
+**Current note:** `v0.1.0` kept this collection as a stub. `v0.1.1` promotes it to the primary persistence layer for direct AI requests through `OpenRouter`, while preserving room for a future `gateway` fallback model.
+
+**Storage note:** the finalized compact interpretation is additionally cached in `daily_readings.ai`, so reopening the same reading does not require a new provider request.
 
 ---
 
@@ -1562,13 +1590,21 @@ back_image: [file upload]
 
 ---
 
-### 4.6 Gateway Stub Endpoints
+### 4.6 AI Interpretation Endpoints
 
 #### POST `/api/ask`
 
-**Description:** Stub for AI interpretation request
+**Description:** Create or reuse an AI interpretation request for a reading. In `v0.1.1` this is expected to use direct `OpenRouter` integration as the primary provider path.
 
-**Response (501):**
+**Behavior note for `v0.1.1`:**
+- allowed only for the owner of the reading
+- request payload must be built from the reading type and revealed cards
+- prompt must require a compact interpretation only
+- intended response length is capped at `100` words
+- frontend renders the resulting text inside the existing `Meaning` / `Значение расклада` block
+- backend should reuse the cached `daily_readings.ai` value when the same reading was already interpreted successfully
+
+**Legacy `v0.1.0` stub response (501):**
 ```json
 {
   "success": false,
@@ -1579,9 +1615,20 @@ back_image: [file upload]
 
 ---
 
+#### GET `/api/ask/:request_id`
+
+**Description:** Fetch AI interpretation request status and completed result for the current user.
+
+**Planned role in `v0.1.1`:**
+- returns persisted status lifecycle
+- returns compact finalized text when ready
+- never exposes provider secrets
+
+---
+
 #### GET `/api/gateway/health`
 
-**Description:** Gateway health check
+**Description:** Legacy gateway health check kept for compatibility while direct AI becomes primary in `v0.1.1`.
 
 **Response (200):**
 ```json

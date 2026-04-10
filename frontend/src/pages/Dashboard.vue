@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BaseButton from '../components/base/BaseButton.vue'
@@ -15,11 +15,10 @@ import SectionHeader from '../components/layout/SectionHeader.vue'
 import { useAuthStore } from '../stores/auth'
 import { useReadingsStore } from '../stores/readings'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const authStore = useAuthStore()
 const readingsStore = useReadingsStore()
 const activeReadingTab = ref('card-of-day')
-const spreadPositionKeys = ['past', 'present', 'future']
 const currentSpreadLimit = computed(() => readingsStore.spreadLimit || readingsStore.latestSpread?.remaining_today || null)
 
 const greeting = computed(() => t('dashboard.greeting', { name: authStore.user?.username || 'Seeker' }))
@@ -52,68 +51,45 @@ const readingTabs = computed(() => [
   { value: 'card-of-day', label: t('dashboard.cardEyebrow') },
   { value: 'three-card', label: t('dashboard.spreadEyebrow') },
 ])
-const cardOfDayMeaningVisible = computed(() => Boolean(
+const cardOfDayMeaningReady = computed(() => Boolean(
   readingsStore.cardOfDay?.cards?.length
   && readingsStore.cardOfDay.cards.every((card) => Boolean(card?.viewed)),
 ))
-const spreadMeaningVisible = computed(() => Boolean(
+const spreadMeaningReady = computed(() => Boolean(
   readingsStore.latestSpread?.cards?.length
   && readingsStore.latestSpread.cards.every((card) => Boolean(card?.viewed)),
 ))
-const activeMeaningItems = computed(() => {
-  if (activeReadingTab.value === 'card-of-day') {
-    if (!cardOfDayMeaningVisible.value) {
-      return []
-    }
-
-    const interpretation = summarizeInterpretation(readingsStore.cardOfDay.cards[0])
-    return interpretation ? [{ label: '', text: interpretation }] : []
-  }
-
-  if (!spreadMeaningVisible.value) {
-    return []
-  }
-
-  return (readingsStore.latestSpread?.cards || [])
-    .map((card, index) => {
-      const interpretation = summarizeInterpretation(card)
-      if (!interpretation) {
-        return null
-      }
-
-      return {
-        label: t(`readings.positions.${spreadPositionKeys[index] || 'future'}`),
-        text: interpretation,
-      }
-    })
-    .filter(Boolean)
-})
-const activeMeaningVisible = computed(() => activeMeaningItems.value.length > 0)
-
-function normalizeText(value) {
-  return String(value || '')
-    .replace(/\s+/g, ' ')
-    .replace(/\s+([.,!?;:])/g, '$1')
-    .trim()
-}
-
-function getLocalizedInterpretation(card) {
-  return normalizeText(
-    locale.value === 'ru'
-      ? card?.interpretation_ru || card?.interpretation
-      : card?.interpretation || card?.interpretation_ru,
+const activeMeaningReading = computed(() => (
+  activeReadingTab.value === 'card-of-day'
+    ? readingsStore.cardOfDay
+    : readingsStore.latestSpread
+))
+const activeMeaningVisible = computed(() => (
+  activeReadingTab.value === 'card-of-day'
+    ? cardOfDayMeaningReady.value
+    : spreadMeaningReady.value
+))
+const activeMeaningLoading = computed(() => {
+  const readingId = activeMeaningReading.value?.id
+  return Boolean(
+    readingId
+    && (
+      readingsStore.aiStatusByReadingId[readingId] === 'loading'
+      || activeMeaningReading.value?.ai?.status === 'processing'
+    )
   )
-}
-
-function summarizeInterpretation(card) {
-  const interpretation = getLocalizedInterpretation(card)
-  if (!interpretation) {
+})
+const activeMeaningError = computed(() => {
+  const readingId = activeMeaningReading.value?.id
+  if (!readingId) {
     return ''
   }
 
-  const firstSentence = interpretation.match(/^.+?[.!?](?=\s|$)/)
-  return firstSentence?.[0] || interpretation
-}
+  return readingsStore.aiErrorByReadingId[readingId]
+    || activeMeaningReading.value?.ai?.error_message
+    || ''
+})
+const activeMeaningText = computed(() => activeMeaningReading.value?.ai?.content || '')
 
 async function handleGenerateCardOfDay() {
   await readingsStore.generateCardOfDay()
@@ -131,9 +107,47 @@ async function handleRevealCard(payload) {
   await readingsStore.revealCard(payload.readingId, payload.position)
 }
 
+async function handleRetryMeaning() {
+  if (!activeMeaningReading.value?.id) {
+    return
+  }
+
+  await readingsStore.requestAIInterpretation(activeMeaningReading.value.id)
+}
+
+async function maybeRequestActiveMeaning() {
+  if (!activeMeaningVisible.value || !activeMeaningReading.value?.id) {
+    return
+  }
+
+  if (activeMeaningReading.value?.ai?.content) {
+    return
+  }
+
+  if (activeMeaningLoading.value || activeMeaningError.value) {
+    return
+  }
+
+  await readingsStore.requestAIInterpretation(activeMeaningReading.value.id)
+}
+
 onMounted(() => {
   readingsStore.loadDashboard()
 })
+
+watch(
+  [
+    activeReadingTab,
+    () => activeMeaningVisible.value,
+    () => activeMeaningReading.value?.id,
+    () => activeMeaningReading.value?.ai?.status,
+    () => activeMeaningReading.value?.ai?.content,
+  ],
+  () => {
+    void maybeRequestActiveMeaning()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -225,24 +239,25 @@ onMounted(() => {
       <BaseSurface v-if="activeMeaningVisible" class="dashboard-meaning-surface" padding="md" tag="section">
         <SectionHeader size="sm" title-tag="h3" :title="t('dashboard.meaningTitle')" />
 
-        <div
-          class="dashboard-meaning"
-          :class="{ 'dashboard-meaning--single': activeMeaningItems.length === 1 }"
-        >
-          <template v-if="activeMeaningItems.length === 1">
-            <p class="dashboard-meaning__copy">{{ activeMeaningItems[0].text }}</p>
-          </template>
+        <div class="dashboard-meaning">
+          <div v-if="activeMeaningLoading" class="dashboard-meaning__state">
+            <p class="text-eyebrow">{{ t('dashboard.meaningLoadingLabel') }}</p>
+            <p class="dashboard-meaning__copy">{{ t('dashboard.meaningLoadingCopy') }}</p>
+          </div>
 
-          <template v-else>
-            <article
-              v-for="item in activeMeaningItems"
-              :key="item.label"
-              class="dashboard-meaning__item"
-            >
-              <p class="text-eyebrow">{{ item.label }}</p>
-              <p class="dashboard-meaning__copy">{{ item.text }}</p>
-            </article>
-          </template>
+          <div v-else-if="activeMeaningText" class="dashboard-meaning__state">
+            <p class="dashboard-meaning__copy">{{ activeMeaningText }}</p>
+          </div>
+
+          <div v-else-if="activeMeaningError" class="dashboard-meaning__state">
+            <p class="text-eyebrow">{{ t('dashboard.meaningErrorLabel') }}</p>
+            <p class="dashboard-meaning__copy dashboard-meaning__copy--error">{{ activeMeaningError }}</p>
+            <div class="dashboard-meaning__actions">
+              <BaseButton size="sm" variant="secondary" @click="handleRetryMeaning">
+                {{ t('dashboard.meaningRetryAction') }}
+              </BaseButton>
+            </div>
+          </div>
         </div>
       </BaseSurface>
     </div>
@@ -277,11 +292,7 @@ onMounted(() => {
   gap: var(--ds-space-4);
 }
 
-.dashboard-meaning--single {
-  gap: 0;
-}
-
-.dashboard-meaning__item {
+.dashboard-meaning__state {
   display: grid;
   gap: var(--ds-space-2);
 }
@@ -291,10 +302,14 @@ onMounted(() => {
   line-height: 1.65;
 }
 
-@media (min-width: 721px) {
-  .dashboard-meaning:not(.dashboard-meaning--single) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.dashboard-meaning__copy--error {
+  color: var(--ds-color-danger);
+}
+
+.dashboard-meaning__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-3);
 }
 
 @media (max-width: 720px) {
@@ -493,6 +508,10 @@ onMounted(() => {
   .dashboard-meaning__copy {
     font-size: var(--ds-text-body-sm);
     line-height: 1.55;
+  }
+
+  .dashboard-meaning__actions {
+    gap: var(--ds-space-2);
   }
 }
 </style>

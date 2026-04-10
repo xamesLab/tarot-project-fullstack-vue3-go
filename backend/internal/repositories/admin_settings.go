@@ -28,6 +28,7 @@ func (r *AdminSettingsRepository) EnsureDefault(ctx context.Context) error {
 			"_id":                  adminSettingsDocumentID,
 			"maintenance_mode":     false,
 			"maintenance_message":  models.LocalizedText{EN: "Site under maintenance", RU: "Сайт на обслуживании"},
+			"ai_enabled":           true,
 			"default_role":         "seeker",
 			"default_deck_id":      "default",
 			"default_back_id":      "default",
@@ -59,6 +60,9 @@ func (r *AdminSettingsRepository) Update(ctx context.Context, req models.AdminUp
 	}
 	if req.MaintenanceMessage != nil {
 		update["maintenance_message"] = req.MaintenanceMessage
+	}
+	if req.AIEnabled != nil {
+		update["ai_enabled"] = *req.AIEnabled
 	}
 	if req.DefaultRole != nil {
 		update["default_role"] = *req.DefaultRole

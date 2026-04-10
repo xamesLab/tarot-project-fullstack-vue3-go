@@ -87,6 +87,25 @@ func (r *ReadingRepository) UpdateCards(ctx context.Context, readingID, userID p
 	return nil
 }
 
+func (r *ReadingRepository) UpdateAIInterpretation(ctx context.Context, readingID, userID primitive.ObjectID, interpretation *models.AIInterpretation) error {
+	result, err := r.collection.UpdateOne(ctx, bson.M{
+		"_id":     readingID,
+		"user_id": userID,
+	}, bson.M{
+		"$set": bson.M{
+			"ai": interpretation,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	return nil
+}
+
 func (r *ReadingRepository) CountByUserTypeAndAccountingDate(ctx context.Context, userID primitive.ObjectID, readingType, accountingDate string) (int64, error) {
 	return r.collection.CountDocuments(ctx, bson.M{
 		"user_id":         userID,

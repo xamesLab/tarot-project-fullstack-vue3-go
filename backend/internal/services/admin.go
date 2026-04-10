@@ -184,11 +184,11 @@ func (s *AdminService) ListRolePolicies(ctx context.Context) ([]models.RolePolic
 }
 
 func (s *AdminService) UpdateRolePolicy(ctx context.Context, role string, req models.AdminUpdateRolePolicyRequest) (*models.RolePolicy, error) {
-	if req.ThreeCardLimit == nil || req.HistoryRetentionDays == nil {
+	if req.ThreeCardLimit == nil || req.AIEnabled == nil || req.AIDailyLimit == nil || req.HistoryRetentionDays == nil {
 		return nil, errors.Join(ErrValidationFailed, errors.New("Both policy fields are required"))
 	}
 
-	return s.policies.UpdateByRole(ctx, role, *req.ThreeCardLimit, *req.HistoryRetentionDays)
+	return s.policies.UpdateByRole(ctx, role, *req.ThreeCardLimit, *req.AIEnabled, *req.AIDailyLimit, *req.HistoryRetentionDays)
 }
 
 func (s *AdminService) GetSettings(ctx context.Context) (*models.AdminSettings, error) {

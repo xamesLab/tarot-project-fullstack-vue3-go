@@ -50,7 +50,7 @@
 - Document as you build
 - Keep it simple (MVP scope only)
 
-**Current note:** `phase-2-core-frontend` and `phase-3-reading-features` have already been completed, including manual validation for the reading flows. `phase-3` now also includes persisted per-card reveal state for active dashboard readings. `phase-4-admin-panel` is implemented as a working backend/frontend baseline, including keeper-only admin routes, user management, role policy editing, global settings, independent `deck` and `card back` catalogs, global defaults, archive/restore/delete flows for decks and card backs, and role-gated user overrides for `adept/master/keeper`. The approved project-level frontend reference lives in `specs/docs/DESIGN_SYSTEM.md`. The next step is manual acceptance for `phase-4`, then `phase-5-polish-and-testing`.
+**Current note:** `phase-2-core-frontend`, `phase-3-reading-features`, `phase-4-admin-panel`, and `phase-5-polish-and-testing` have been completed. The MVP now includes persisted per-card reveal state for active dashboard readings, keeper-only admin routes, user management, role policy editing, global settings, independent `deck` and `card back` catalogs, global defaults, archive/restore/delete flows for decks and card backs, role-gated user overrides for `adept/master/keeper`, and the responsive/frontend polish required for the `v0.1.0` baseline. Final manual acceptance for `v0.1.0` has passed. The approved project-level frontend reference lives in `specs/docs/DESIGN_SYSTEM.md`. The next product iteration is `v0.1.1`, focused on direct AI integration through `OpenRouter` without deployment scope; work has already started with `phase-0-ai-foundation`. `phase-6-deployment` remains a separate operational step.
 
 ### 1.3 Definition of Done
 

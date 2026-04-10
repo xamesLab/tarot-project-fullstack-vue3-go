@@ -41,6 +41,7 @@ func main() {
 	cardRepository := repositories.NewCardRepository(cfg.Database)
 	policyRepository := repositories.NewPolicyRepository(cfg.Database)
 	readingRepository := repositories.NewReadingRepository(cfg.Database)
+	askRequestRepository := repositories.NewAskRequestRepository(cfg.Database)
 	adminSettingsRepository := repositories.NewAdminSettingsRepository(cfg.Database)
 	deckRepository := repositories.NewDeckRepository(cfg.Database)
 	cardBackRepository := repositories.NewCardBackRepository(cfg.Database)
@@ -53,6 +54,9 @@ func main() {
 	if err := readingRepository.EnsureIndexes(context.Background()); err != nil {
 		log.Fatalf("ensure reading indexes: %v", err)
 	}
+	if err := askRequestRepository.EnsureIndexes(context.Background()); err != nil {
+		log.Fatalf("ensure ask request indexes: %v", err)
+	}
 	if err := adminSettingsRepository.EnsureDefault(context.Background()); err != nil {
 		log.Fatalf("ensure admin settings: %v", err)
 	}
@@ -60,6 +64,7 @@ func main() {
 	authService := services.NewAuthService(userRepository)
 	userService := services.NewUserService(userRepository, deckRepository, cardBackRepository)
 	readingService := services.NewReadingService(userRepository, cardRepository, deckRepository, cardBackRepository, readingRepository, policyRepository, adminSettingsRepository)
+	askService := services.NewAskService(cfg, userRepository, readingRepository, cardRepository, askRequestRepository, policyRepository, adminSettingsRepository)
 	adminService := services.NewAdminService(userRepository, cardRepository, readingRepository, policyRepository, adminSettingsRepository, deckRepository, cardBackRepository)
 	catalogService := services.NewCatalogService(deckRepository, cardBackRepository, adminSettingsRepository)
 
@@ -67,6 +72,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService, validate, cfg)
 	userHandler := handlers.NewUserHandler(userService, validate)
 	readingHandler := handlers.NewReadingHandler(readingService, validate)
+	askHandler := handlers.NewAskHandler(askService, validate)
 	adminHandler := handlers.NewAdminHandler(adminService, validate)
 	catalogHandler := handlers.NewCatalogHandler(catalogService)
 
@@ -80,6 +86,7 @@ func main() {
 	protected.Use(middleware.AuthMiddleware(cfg.JWTSecret))
 	userHandler.RegisterRoutes(protected)
 	readingHandler.RegisterRoutes(protected)
+	askHandler.RegisterRoutes(protected)
 	catalogHandler.RegisterRoutes(protected)
 
 	adminRoutes := protected.Group("/admin")

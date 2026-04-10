@@ -14,6 +14,7 @@ func Load() (*Config, func(), error) {
 	cfg := &Config{
 		AppEnv:                getEnv("APP_ENV", "dev"),
 		AppPort:               getEnv("APP_PORT", "8080"),
+		AIDirectEnabled:       getEnvBool("AI_DIRECT_ENABLED", true),
 		JWTSecret:             getEnv("JWT_SECRET", "dev-jwt-secret-local-only"),
 		JWTTTL:                getEnv("JWT_TTL", "24h"),
 		FrontendURL:           getEnv("FRONTEND_URL", "http://localhost:5173"),
@@ -24,6 +25,11 @@ func Load() (*Config, func(), error) {
 		GatewayRequestPath:    getEnv("GATEWAY_REQUEST_PATH", ""),
 		GatewayCallbackSecret: getEnv("GATEWAY_CALLBACK_HMAC_SECRET", ""),
 		GatewayCallbackAllow:  getEnv("GATEWAY_CALLBACK_ALLOWLIST", ""),
+		OpenRouterBaseURL:     getEnv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"),
+		OpenRouterKey:         getEnv("OPENROUTER_KEY", ""),
+		OpenRouterModelMain:   getEnv("OPENROUTER_MODEL_MAIN", ""),
+		OpenRouterReferer:     getEnv("OPENROUTER_HTTP_REFERER", ""),
+		OpenRouterTitle:       getEnv("OPENROUTER_APP_TITLE", ""),
 	}
 
 	if cfg.MongoURI == "" {
@@ -56,6 +62,9 @@ func Load() (*Config, func(), error) {
 	if cfg.GatewayTimeout, err = time.ParseDuration(getEnv("GATEWAY_TIMEOUT", "10s")); err != nil {
 		return nil, nil, fmt.Errorf("parse GATEWAY_TIMEOUT: %w", err)
 	}
+	if cfg.OpenRouterTimeout, err = time.ParseDuration(getEnv("OPENROUTER_TIMEOUT", "20s")); err != nil {
+		return nil, nil, fmt.Errorf("parse OPENROUTER_TIMEOUT: %w", err)
+	}
 
 	if err := cfg.connectMongo(); err != nil {
 		return nil, nil, err
@@ -69,4 +78,20 @@ func getEnv(key, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+func getEnvBool(key string, fallback bool) bool {
+	value, ok := os.LookupEnv(key)
+	if !ok || value == "" {
+		return fallback
+	}
+
+	switch value {
+	case "1", "true", "TRUE", "yes", "YES", "on", "ON":
+		return true
+	case "0", "false", "FALSE", "no", "NO", "off", "OFF":
+		return false
+	default:
+		return fallback
+	}
 }

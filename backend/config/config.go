@@ -12,6 +12,7 @@ import (
 type Config struct {
 	AppEnv                string
 	AppPort               string
+	AIDirectEnabled       bool
 	JWTSecret             string
 	JWTTTL                string
 	FrontendURL           string
@@ -30,6 +31,12 @@ type Config struct {
 	GatewayTimeout        time.Duration
 	GatewayCallbackSecret string
 	GatewayCallbackAllow  string
+	OpenRouterBaseURL     string
+	OpenRouterKey         string
+	OpenRouterModelMain   string
+	OpenRouterReferer     string
+	OpenRouterTitle       string
+	OpenRouterTimeout     time.Duration
 	MongoClient           *mongo.Client
 	Database              *mongo.Database
 }

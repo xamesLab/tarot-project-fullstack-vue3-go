@@ -6,6 +6,7 @@ type AdminSettings struct {
 	ID                  string        `bson:"_id" json:"id"`
 	MaintenanceMode     bool          `bson:"maintenance_mode" json:"maintenance_mode"`
 	MaintenanceMessage  LocalizedText `bson:"maintenance_message" json:"maintenance_message"`
+	AIEnabled           bool          `bson:"ai_enabled" json:"ai_enabled"`
 	DefaultRole         string        `bson:"default_role" json:"default_role"`
 	DefaultDeckID       string        `bson:"default_deck_id" json:"default_deck_id"`
 	DefaultBackID       string        `bson:"default_back_id" json:"default_back_id"`
@@ -24,12 +25,15 @@ type AdminUpdateUserStatusRequest struct {
 
 type AdminUpdateRolePolicyRequest struct {
 	ThreeCardLimit       *int64 `json:"three_card_limit" validate:"required,gte=0"`
+	AIEnabled            *bool  `json:"ai_enabled" validate:"required"`
+	AIDailyLimit         *int64 `json:"ai_daily_limit" validate:"required,gte=0"`
 	HistoryRetentionDays *int   `json:"history_retention_days" validate:"required,gte=0"`
 }
 
 type AdminUpdateSettingsRequest struct {
 	MaintenanceMode     *bool          `json:"maintenance_mode"`
 	MaintenanceMessage  *LocalizedText `json:"maintenance_message"`
+	AIEnabled           *bool          `json:"ai_enabled"`
 	DefaultRole         *string        `json:"default_role" validate:"omitempty,oneof=seeker adept master keeper"`
 	DefaultDeckID       *string        `json:"default_deck_id"`
 	DefaultBackID       *string        `json:"default_back_id"`

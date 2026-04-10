@@ -64,6 +64,10 @@
     "loadingSecondaryTitle": "Preparing your reading space",
     "loadingSecondaryCopy": "Daily card and spread history are being assembled from the backend.",
     "meaningTitle": "Reading meaning",
+    "meaningLoadingLabel": "AI interpretation",
+    "meaningLoadingCopy": "Preparing a compact interpretation for this reading.",
+    "meaningErrorLabel": "Interpretation unavailable",
+    "meaningRetryAction": "Retry",
     "cardEyebrow": "Card of the Day",
     "cardTitle": "Deterministic daily reading",
     "cardCopy": "You can reveal one daily card per accounting day. If it already exists, the stored reading is returned.",
@@ -123,6 +127,8 @@
       "cardOfDay": "Daily Card",
       "threeCard": "3-Card"
     },
+    "aiReadyBadge": "AI ready",
+    "aiWaitingCopy": "AI interpretation becomes available after this reading is fully revealed.",
     "emptyTitle": "No readings in history yet",
     "emptyCopy": "Generate your first daily card or spread and it will appear here according to your role policy.",
     "previousPage": "Previous",
@@ -227,6 +233,9 @@
     "policyCard": {
       "eyebrow": "Policy",
       "threeCardLimit": "Three-card limit per day",
+      "aiEnabled": "AI interpretation access",
+      "aiEnabledSwitch": "Enable AI for this role",
+      "aiDailyLimit": "AI requests per day",
       "historyRetention": "History retention, days",
       "copy": "Changes apply to future reading behavior for users with this role.",
       "save": "Save policy"
@@ -240,6 +249,8 @@
       "maintenanceSwitch": "Enable maintenance mode",
       "registrationEnabled": "Registration",
       "registrationSwitch": "Allow new registrations",
+      "aiEnabled": "AI capability",
+      "aiSwitch": "Enable AI interpretations",
       "defaultRole": "Default role for new users",
       "defaultDeck": "Default deck",
       "defaultBack": "Default card back",

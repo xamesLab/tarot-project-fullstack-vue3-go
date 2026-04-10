@@ -27,6 +27,36 @@ type ReadingMetadata struct {
 	RequestIP string `bson:"request_ip,omitempty" json:"request_ip,omitempty"`
 }
 
+type AIInterpretation struct {
+	RequestID       primitive.ObjectID `bson:"request_id,omitempty" json:"-"`
+	Provider        string             `bson:"provider,omitempty" json:"provider,omitempty"`
+	Model           string             `bson:"model,omitempty" json:"model,omitempty"`
+	PromptVersion   string             `bson:"prompt_version,omitempty" json:"prompt_version,omitempty"`
+	Language        string             `bson:"language,omitempty" json:"language,omitempty"`
+	Status          string             `bson:"status,omitempty" json:"status,omitempty"`
+	Content         string             `bson:"content,omitempty" json:"content,omitempty"`
+	ErrorCode       string             `bson:"error_code,omitempty" json:"error_code,omitempty"`
+	ErrorMessage    string             `bson:"error_message,omitempty" json:"error_message,omitempty"`
+	CompletedAt     *time.Time         `bson:"completed_at,omitempty" json:"completed_at,omitempty"`
+	LastRequestedAt *time.Time         `bson:"last_requested_at,omitempty" json:"last_requested_at,omitempty"`
+	UpdatedAt       *time.Time         `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
+}
+
+type AIInterpretationResponse struct {
+	RequestID       string     `json:"request_id,omitempty"`
+	Provider        string     `json:"provider,omitempty"`
+	Model           string     `json:"model,omitempty"`
+	PromptVersion   string     `json:"prompt_version,omitempty"`
+	Language        string     `json:"language,omitempty"`
+	Status          string     `json:"status,omitempty"`
+	Content         string     `json:"content,omitempty"`
+	ErrorCode       string     `json:"error_code,omitempty"`
+	ErrorMessage    string     `json:"error_message,omitempty"`
+	CompletedAt     *time.Time `json:"completed_at,omitempty"`
+	LastRequestedAt *time.Time `json:"last_requested_at,omitempty"`
+	UpdatedAt       *time.Time `json:"updated_at,omitempty"`
+}
+
 type Reading struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"-"`
 	UserID         primitive.ObjectID `bson:"user_id" json:"-"`
@@ -39,6 +69,7 @@ type Reading struct {
 	GeneratedAt    time.Time          `bson:"generated_at" json:"generated_at"`
 	ExpiresAt      time.Time          `bson:"expires_at" json:"expires_at"`
 	Metadata       ReadingMetadata    `bson:"metadata,omitempty" json:"metadata,omitempty"`
+	AI             *AIInterpretation  `bson:"ai,omitempty" json:"ai,omitempty"`
 }
 
 type ReadingCardResponse struct {
@@ -62,15 +93,42 @@ type RemainingToday struct {
 }
 
 type ReadingResponse struct {
-	ID              string                `json:"id"`
-	Type            string                `json:"type"`
-	AccountingDate  string                `json:"accounting_date"`
-	GeneratedAt     time.Time             `json:"generated_at"`
-	Cards           []ReadingCardResponse `json:"cards"`
-	DeckID          string                `json:"deck_id,omitempty"`
-	BackID          string                `json:"back_id,omitempty"`
-	NextAvailableAt *time.Time            `json:"next_available_at,omitempty"`
-	RemainingToday  *RemainingToday       `json:"remaining_today,omitempty"`
+	ID              string                    `json:"id"`
+	Type            string                    `json:"type"`
+	AccountingDate  string                    `json:"accounting_date"`
+	GeneratedAt     time.Time                 `json:"generated_at"`
+	Cards           []ReadingCardResponse     `json:"cards"`
+	DeckID          string                    `json:"deck_id,omitempty"`
+	BackID          string                    `json:"back_id,omitempty"`
+	AI              *AIInterpretationResponse `json:"ai,omitempty"`
+	NextAvailableAt *time.Time                `json:"next_available_at,omitempty"`
+	RemainingToday  *RemainingToday           `json:"remaining_today,omitempty"`
+}
+
+func (a *AIInterpretation) ToResponse() *AIInterpretationResponse {
+	if a == nil {
+		return nil
+	}
+
+	response := &AIInterpretationResponse{
+		Provider:        a.Provider,
+		Model:           a.Model,
+		PromptVersion:   a.PromptVersion,
+		Language:        a.Language,
+		Status:          a.Status,
+		Content:         a.Content,
+		ErrorCode:       a.ErrorCode,
+		ErrorMessage:    a.ErrorMessage,
+		CompletedAt:     a.CompletedAt,
+		LastRequestedAt: a.LastRequestedAt,
+		UpdatedAt:       a.UpdatedAt,
+	}
+
+	if !a.RequestID.IsZero() {
+		response.RequestID = a.RequestID.Hex()
+	}
+
+	return response
 }
 
 type PaginationResponse struct {
