@@ -4,7 +4,7 @@ export const TOKEN_STORAGE_KEY = 'tarot_daily_token'
 export const APP_UNAUTHORIZED_EVENT = 'tarot:unauthorized'
 export const APP_FORBIDDEN_EVENT = 'tarot:forbidden'
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8888/api'
 
 export const api = axios.create({
   baseURL,
