@@ -61,23 +61,42 @@ func TestEnsureReadingReadyForAIThreeCardSortsByPosition(t *testing.T) {
 	}
 }
 
-func TestCompactInterpretationTrimsToWordLimit(t *testing.T) {
-	value := "one two three four five six"
-	got := compactInterpretation(value, 4)
-
-	if got != "one two three four..." {
-		t.Fatalf("expected trimmed interpretation, got %q", got)
-	}
-}
-
-func TestCompactInterpretationNormalizesWhitespace(t *testing.T) {
+func TestNormalizeInterpretationNormalizesWhitespace(t *testing.T) {
 	value := "  one   two\nthree \t four  "
-	got := compactInterpretation(value, 10)
+	got := normalizeInterpretation(value)
 
 	if strings.Contains(got, "\n") || strings.Contains(got, "\t") || strings.Contains(got, "  ") {
 		t.Fatalf("expected normalized whitespace, got %q", got)
 	}
 	if got != "one two three four" {
 		t.Fatalf("unexpected normalized output %q", got)
+	}
+}
+
+func TestNormalizeInterpretationDoesNotTrimWords(t *testing.T) {
+	value := "one two three four five six"
+	got := normalizeInterpretation(value)
+
+	if got != "one two three four five six" {
+		t.Fatalf("expected full interpretation without truncation, got %q", got)
+	}
+}
+
+func TestRecommendedMaxTokensForThreeCard(t *testing.T) {
+	if got := recommendedMaxTokens(models.ReadingTypeThreeCard); got != 520 {
+		t.Fatalf("expected 520 tokens for three-card reading, got %d", got)
+	}
+}
+
+func TestShouldReuseAskRequestRejectsLengthFinishReason(t *testing.T) {
+	request := &models.AskRequest{
+		ResponseExcerpt: "partial text",
+		ResponseData: map[string]any{
+			"finish_reason": "length",
+		},
+	}
+
+	if shouldReuseAskRequest(request) {
+		t.Fatal("expected truncated request to be regenerated instead of reused")
 	}
 }

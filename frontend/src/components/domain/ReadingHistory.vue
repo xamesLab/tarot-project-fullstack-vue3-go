@@ -132,9 +132,14 @@ function shouldShowMeaning(reading) {
       <div v-if="isExpanded(reading.id) && shouldShowMeaning(reading)" class="reading-history__meaning">
         <p class="text-eyebrow">{{ t('dashboard.meaningTitle') }}</p>
 
-        <p v-if="aiStatus(reading.id) === 'loading'" class="reading-history__meaning-copy">
-          {{ t('dashboard.meaningLoadingCopy') }}
-        </p>
+        <template v-if="aiStatus(reading.id) === 'loading'">
+          <div class="reading-history__meaning-loader" aria-hidden="true">
+            <span class="reading-history__meaning-spinner"></span>
+          </div>
+          <p class="reading-history__meaning-copy">
+            {{ t('dashboard.meaningLoadingCopy') }}
+          </p>
+        </template>
 
         <template v-else-if="hasAIContent(reading)">
           <p class="reading-history__meaning-copy">{{ reading.ai.content }}</p>
@@ -209,6 +214,20 @@ function shouldShowMeaning(reading) {
   border-top: var(--ds-border-width) solid var(--ds-color-border-subtle);
 }
 
+.reading-history__meaning-loader {
+  display: flex;
+  align-items: center;
+}
+
+.reading-history__meaning-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--ds-color-accent-primary) 24%, transparent);
+  border-top-color: var(--ds-color-accent-primary);
+  animation: reading-history-spin 0.9s linear infinite;
+}
+
 .reading-history__meaning-copy {
   color: var(--ds-color-text-secondary);
   line-height: 1.6;
@@ -222,5 +241,11 @@ function shouldShowMeaning(reading) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+@keyframes reading-history-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

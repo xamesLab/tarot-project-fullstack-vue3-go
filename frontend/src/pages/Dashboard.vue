@@ -241,6 +241,9 @@ watch(
 
         <div class="dashboard-meaning">
           <div v-if="activeMeaningLoading" class="dashboard-meaning__state">
+            <div class="dashboard-meaning__loader" aria-hidden="true">
+              <span class="dashboard-meaning__spinner"></span>
+            </div>
             <p class="text-eyebrow">{{ t('dashboard.meaningLoadingLabel') }}</p>
             <p class="dashboard-meaning__copy">{{ t('dashboard.meaningLoadingCopy') }}</p>
           </div>
@@ -297,6 +300,20 @@ watch(
   gap: var(--ds-space-2);
 }
 
+.dashboard-meaning__loader {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-meaning__spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--ds-color-accent-primary) 24%, transparent);
+  border-top-color: var(--ds-color-accent-primary);
+  animation: ds-meaning-spin 0.9s linear infinite;
+}
+
 .dashboard-meaning__copy {
   color: var(--ds-color-text-secondary);
   line-height: 1.65;
@@ -310,6 +327,12 @@ watch(
   display: flex;
   align-items: center;
   gap: var(--ds-space-3);
+}
+
+@keyframes ds-meaning-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 720px) {

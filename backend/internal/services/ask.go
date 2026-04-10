@@ -9,7 +9,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -30,9 +29,10 @@ type AIProvider interface {
 }
 
 type AIProviderRequest struct {
-	Model    string
-	Language string
-	Messages []AIProviderMessage
+	Model     string
+	Language  string
+	Messages  []AIProviderMessage
+	MaxTokens int
 }
 
 type AIProviderMessage struct {
@@ -125,7 +125,7 @@ func (s *AskService) CreateOrReuseInterpretation(ctx context.Context, userID pri
 
 	if reading.AI != nil && reading.AI.Status == models.AskRequestStatusCompleted && strings.TrimSpace(reading.AI.Content) != "" {
 		existing, err := s.findExistingRequest(ctx, userID, reading)
-		if err == nil && existing != nil {
+		if err == nil && shouldReuseAskRequest(existing) {
 			response := existing.ToResponse()
 			return &response, nil
 		}
@@ -188,12 +188,12 @@ func (s *AskService) CreateOrReuseInterpretation(ctx context.Context, userID pri
 		return nil, err
 	}
 
-	result, err := s.provider.GenerateInterpretation(ctx, providerRequest)
+	result, err := s.generateInterpretationWithRetry(ctx, providerRequest)
 	if err != nil {
 		return nil, s.handleProviderFailure(ctx, userID, reading.ID, askRequest.ID, payload.Language, err, now)
 	}
 
-	content := compactInterpretation(result.Content, payload.MaxWords)
+	content := normalizeInterpretation(result.Content)
 	if content == "" {
 		providerErr := &AIProviderError{
 			Code:       "ai_provider_invalid_response",
@@ -247,6 +247,39 @@ func (s *AskService) CreateOrReuseInterpretation(ctx context.Context, userID pri
 
 	response := askRequest.ToResponse()
 	return &response, nil
+}
+
+func (s *AskService) generateInterpretationWithRetry(ctx context.Context, req AIProviderRequest) (*AIProviderResult, error) {
+	result, err := s.provider.GenerateInterpretation(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if !isIncompleteFinishReason(result.FinishReason) {
+		return result, nil
+	}
+
+	retryRequest := req
+	if retryRequest.MaxTokens < 900 {
+		retryRequest.MaxTokens += 320
+		if retryRequest.MaxTokens > 900 {
+			retryRequest.MaxTokens = 900
+		}
+	}
+
+	retryResult, retryErr := s.provider.GenerateInterpretation(ctx, retryRequest)
+	if retryErr != nil {
+		return nil, retryErr
+	}
+	if isIncompleteFinishReason(retryResult.FinishReason) {
+		return nil, &AIProviderError{
+			Code:       "ai_provider_incomplete_response",
+			Message:    "AI provider returned an incomplete response",
+			StatusCode: http.StatusBadGateway,
+			Retryable:  true,
+		}
+	}
+
+	return retryResult, nil
 }
 
 func (s *AskService) ensureAIAvailableForUser(ctx context.Context, user *models.User) error {
@@ -356,7 +389,7 @@ func (s *AskService) buildAIRequest(ctx context.Context, reading *models.Reading
 		ReadingType: reading.Type,
 		Language:    language,
 		Cards:       make([]models.AskRequestCardInput, 0, len(readyCards)),
-		MaxWords:    100,
+		MaxWords:    200,
 	}
 	lines := make([]string, 0, len(readyCards)+4)
 	lines = append(lines, fmt.Sprintf("Reading type: %s", reading.Type))
@@ -383,19 +416,20 @@ func (s *AskService) buildAIRequest(ctx context.Context, reading *models.Reading
 		lines = append(lines, fmt.Sprintf("- %s", name))
 	}
 
-	systemPrompt := "You are a tarot interpreter. Return only one compact interpretation of the revealed reading. Do not use headings, bullet lists, disclaimers, or meta commentary. Keep the answer under 100 words."
+	systemPrompt := "You are a tarot interpreter. The user's system language is English. Respond only in English. Return only one compact interpretation of the revealed reading. Do not use headings, bullet lists, disclaimers, or meta commentary. Aim for about 200 words. This is a recommendation, not a hard limit."
 	if language == "ru" {
-		systemPrompt = "Ты таро-интерпретатор. Верни только одну компактную интерпретацию раскрытого расклада. Не используй заголовки, списки, дисклеймеры и мета-комментарии. Держи ответ в пределах 100 слов."
+		systemPrompt = "Ты таро-интерпретатор. Системный язык пользователя — русский. Отвечай только на русском языке. Верни только одну компактную интерпретацию раскрытого расклада. Не используй заголовки, списки, дисклеймеры и мета-комментарии. Ориентируйся на объём около 200 слов. Это рекомендация, а не жёсткий лимит."
 	}
 
-	userPrompt := strings.Join(lines, "\n") + "\nReturn only the compact interpretation."
+	userPrompt := strings.Join(lines, "\n") + "\nUse the user's system language exactly. Return only the compact interpretation. Aim for about 200 words, but treat this as a recommendation rather than a strict limit."
 	if language == "ru" {
-		userPrompt = strings.Join(lines, "\n") + "\nВерни только компактную интерпретацию расклада."
+		userPrompt = strings.Join(lines, "\n") + "\nИспользуй ровно тот язык, который установлен у пользователя в системе. Верни только компактную интерпретацию расклада. Ориентируйся на объём около 200 слов, но считай это рекомендацией, а не строгим ограничением."
 	}
 
 	return payload, AIProviderRequest{
-		Model:    s.config.OpenRouterModelMain,
-		Language: language,
+		Model:     s.config.OpenRouterModelMain,
+		Language:  language,
+		MaxTokens: recommendedMaxTokens(reading.Type),
 		Messages: []AIProviderMessage{
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: userPrompt},
@@ -471,7 +505,10 @@ func (p *OpenRouterProvider) GenerateInterpretation(ctx context.Context, req AIP
 	payload := openRouterChatCompletionRequest{
 		Model:     req.Model,
 		Messages:  req.Messages,
-		MaxTokens: 180,
+		MaxTokens: req.MaxTokens,
+	}
+	if payload.MaxTokens <= 0 {
+		payload.MaxTokens = 512
 	}
 
 	body, err := json.Marshal(payload)
@@ -700,21 +737,42 @@ func localizedPosition(readingType string, position int, language string) string
 	return ""
 }
 
-func compactInterpretation(value string, maxWords int) string {
-	value = strings.TrimSpace(strings.Join(strings.Fields(value), " "))
-	if value == "" || maxWords <= 0 {
-		return value
+func normalizeInterpretation(value string) string {
+	return strings.TrimSpace(strings.Join(strings.Fields(value), " "))
+}
+
+func recommendedMaxTokens(readingType string) int {
+	switch readingType {
+	case models.ReadingTypeThreeCard:
+		return 520
+	case models.ReadingTypeCardOfDay:
+		return 320
+	default:
+		return 420
+	}
+}
+
+func isIncompleteFinishReason(value string) bool {
+	return strings.EqualFold(strings.TrimSpace(value), "length")
+}
+
+func shouldReuseAskRequest(request *models.AskRequest) bool {
+	if request == nil || strings.TrimSpace(request.ResponseExcerpt) == "" {
+		return false
+	}
+	if request.ResponseData == nil {
+		return true
 	}
 
-	words := strings.Fields(value)
-	if len(words) <= maxWords {
-		return value
+	rawFinishReason, ok := request.ResponseData["finish_reason"]
+	if !ok {
+		return true
 	}
 
-	trimmed := strings.Join(words[:maxWords], " ")
-	trimmed = strings.TrimRight(trimmed, ",;: ")
-	if !slices.Contains([]string{".", "!", "?"}, string(trimmed[len(trimmed)-1])) {
-		trimmed += "..."
+	finishReason, ok := rawFinishReason.(string)
+	if !ok {
+		return true
 	}
-	return trimmed
+
+	return !isIncompleteFinishReason(finishReason)
 }
