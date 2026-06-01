@@ -169,7 +169,7 @@ frontend_url="$(read_env_value "$FRONTEND_DIR/.env" "VITE_API_URL" "http://local
 echo "Starting backend on http://$backend_host:$backend_port ..."
 (
   cd "$BACKEND_DIR"
-  go run .
+  GO111MODULE=on go run .
 ) &
 backend_pid="$!"
 printf '%s\n' "$backend_pid" >"$BACKEND_PID_FILE"
