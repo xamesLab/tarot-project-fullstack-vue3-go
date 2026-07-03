@@ -1,0 +1,2 @@
+export interface NavItem { id: string; label: string; }
+export function NavBar({ items, active, onSelect, label = 'Navigation' }: { items: NavItem[]; active: string; onSelect: (item: NavItem, trigger: HTMLButtonElement) => void; label?: string }) { return <nav className="site-nav" aria-label={label}>{items.map((item) => <button type="button" key={item.id} className={`nav-item ${item.id === active ? 'active' : ''}`} onClick={(event) => onSelect(item, event.currentTarget)}>{item.label}</button>)}</nav>; }

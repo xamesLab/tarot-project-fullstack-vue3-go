@@ -1,0 +1,31 @@
+{
+  "tagline": "Cards & Fate",
+  "navigationLabel": "Main navigation",
+  "languageLabel": "Language",
+  "nav": { "daily": "Card of the Day", "spreads": "Spreads", "horoscope": "Horoscope", "learn": "Learn" },
+  "user": { "name": "Maria A.", "sign": "Scorpio · ♀ Libra" },
+  "theme": { "dark": "Switch to light theme", "light": "Switch to dark theme" },
+  "registration": {
+    "title": "Join NEBULA-TAROT",
+    "lead": "Create a profile to unlock spreads, horoscope and learning.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "birthDate": "Birth date (optional)",
+    "create": "Create account",
+    "later": "Later",
+    "existing": "Already have an account? Sign in",
+    "submitting": "Creating your profile…",
+    "welcome": "Welcome to NEBULA-TAROT",
+    "welcomeText": "Your profile is ready. New paths will open soon.",
+    "close": "Continue",
+    "errors": {
+      "name": "Enter your name",
+      "email": "Enter a valid email address",
+      "password": "Password must contain at least 8 characters"
+    }
+  },
+  "close": "Close",
+  "footer": "The cards renew each day at dawn",
+  "copyright": "© 2026 NEBULA-TAROT"
+}

@@ -1,0 +1,19 @@
+import { useState, type KeyboardEvent } from 'react';
+import { useTilt } from '@/shared/lib/useTilt';
+import './tarot-card.css';
+
+function PriestessArt() {
+  return <svg viewBox="0 0 260 450" className="card-art" aria-hidden="true"><defs><radialGradient id="priestess-bg" cx="50%" cy="30%" r="70%"><stop offset="0" stopColor="#1c1c2f"/><stop offset="1" stopColor="#0a0a14"/></radialGradient><radialGradient id="priestess-robe"><stop offset="0" stopColor="#2a2a4a"/><stop offset="1" stopColor="#0f0f1f"/></radialGradient></defs><rect width="260" height="450" fill="url(#priestess-bg)"/><g fill="#e8d5a3" opacity=".5"><circle cx="30" cy="80" r="1"/><circle cx="220" cy="60" r="1.5"/><circle cx="210" cy="180" r="1"/><circle cx="235" cy="300" r="1.5"/><circle cx="130" cy="40" r="1"/></g><circle cx="130" cy="100" r="44" fill="#c9a96e" opacity=".1" stroke="#c9a96e"/><rect x="60" y="130" width="16" height="120" rx="2" fill="#1a1a2e" stroke="#c9a96e" opacity=".8"/><rect x="184" y="130" width="16" height="120" rx="2" fill="#1a1a2e" stroke="#c9a96e" opacity=".8"/><text x="68" y="148" fill="#c9a96e" fontSize="9" textAnchor="middle">B</text><text x="192" y="148" fill="#c9a96e" fontSize="9" textAnchor="middle">J</text><ellipse cx="130" cy="320" rx="52" ry="80" fill="url(#priestess-robe)"/><circle cx="130" cy="155" r="16" fill="none" stroke="#c9a96e" opacity=".7"/><ellipse cx="130" cy="190" rx="22" ry="26" fill="#1e1830"/><g fill="none" stroke="#c9a96e" opacity=".7"><ellipse cx="121" cy="186" rx="4" ry="2.5"/><ellipse cx="139" cy="186" rx="4" ry="2.5"/></g><rect x="108" y="248" width="44" height="30" rx="3" fill="#1a1a2e" stroke="#c9a96e" opacity=".8"/><text x="130" y="266" fill="#c9a96e" fontSize="7" textAnchor="middle">TORA</text><path d="M40 390q30-20 60-5 30-15 60 0 30-15 60 5v60H40Z" fill="#0f0f1f"/></svg>;
+}
+
+function CardBack() {
+  return <svg viewBox="0 0 260 450" className="card-art" fill="none" stroke="#c9a96e" aria-hidden="true"><rect x="30" y="30" width="200" height="390" strokeWidth=".6" opacity=".5"/><rect x="46" y="46" width="168" height="358" strokeWidth=".4" opacity=".35"/><circle cx="130" cy="150" r="52" opacity=".7"/><circle cx="130" cy="150" r="40" opacity=".4"/><path d="m130 120 10 30-10 30-10-30 10-30Zm-30 30 30-10 30 10-30 10-30-10Z" opacity=".7"/><path d="M130 138a22 22 0 0 1 0 24 15 22 0 0 0 0-24Z" fill="#c9a96e" stroke="none" opacity=".55"/><circle cx="130" cy="150" r="3" fill="#e8d5a3" stroke="none"/><path d="m130 250 22 42-22 42-22-42 22-42Zm0 14 14 28-14 28-14-28 14-28Z" opacity=".6"/><g fill="#e8d5a3" stroke="none" opacity=".7"><circle cx="130" cy="66" r="1.6"/><circle cx="130" cy="384" r="1.6"/><circle cx="70" cy="225" r="1.3"/><circle cx="190" cy="225" r="1.3"/></g></svg>;
+}
+
+export function TarotCard({ roman, name, flippable, tilt, flipLabel }: { roman: string; name: string; flippable?: boolean; tilt?: boolean; flipLabel?: string }) {
+  const [flipped, setFlipped] = useState(false);
+  const tiltRef = useTilt<HTMLDivElement>(Boolean(tilt));
+  const toggle = () => { if (flippable) setFlipped((value) => !value); };
+  const onKeyDown = (event: KeyboardEvent) => { if (flippable && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); toggle(); } };
+  return <div ref={tiltRef} className={`tarot ${flipped ? 'flipped' : ''} ${tilt ? 'tiltable' : ''}`} role={flippable ? 'button' : undefined} tabIndex={flippable ? 0 : undefined} aria-label={flipLabel} aria-pressed={flippable ? flipped : undefined} onClick={toggle} onKeyDown={onKeyDown}><div className="card-side card-face"><PriestessArt/><div className="tarot-frame"/><div className="tarot-roman">{roman}</div><div className="tarot-name">{name}</div></div><div className="card-side card-back"><CardBack/><div className="tarot-frame"/><div className="tarot-brand">NEBULA-TAROT</div></div></div>;
+}

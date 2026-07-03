@@ -1,0 +1,2 @@
+export function Avatar({ initials, size = 'md', ring }: { initials: string; size?: 'sm' | 'md' | 'lg'; ring?: boolean }) { return <span className={`avatar avatar-${size} ${ring ? 'avatar-ring' : ''}`} aria-hidden="true">{initials}</span>; }
+export function UserPill({ initials, name, sign }: { initials: string; name: string; sign: string }) { return <div className="user-pill"><Avatar initials={initials} size="sm"/><div><div className="user-name">{name}</div><div className="user-sign">☽ {sign}</div></div></div>; }

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+reference/
+.npm-cache/
+*.log
+*.tsbuildinfo
+.env.local

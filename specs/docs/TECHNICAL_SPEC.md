@@ -1,9 +1,13 @@
 # Technical Specification
-## Nebula Tarot - MVP v1.0
+## Nebula Tarot — backend baseline and v0.2.0 frontend
 
-**Document Version:** 1.0  
-**Last Updated:** April 3, 2026  
+**Document Version:** 1.1
+
+**Last Updated:** July 3, 2026
+
 **Status:** Working Baseline
+
+> Version note: backend contracts and persistence sections remain valid for the full-stack `v0.1.x` baseline. The active `frontend/` was rebuilt for `v0.2.0` with React and TypeScript; the former Vue implementation now lives in `frontend-legacy/`. Until `frontend/src/api/http.ts` is implemented, the new client uses typed mock APIs and does not call the Go backend. See [`specs/v0.2.0`](../v0.2.0/README.md).
 
 ---
 
@@ -32,17 +36,17 @@
 ┌─────────────────────────────────────────────────┐
 │                   CLIENT                        │
 │  ┌──────────────────────────────────────────┐   │
-│  │          Vue 3 SPA                       │   │
-│  │  ├─ Pages (Dashboard, Profile, Admin)   │   │
-│  │  ├─ Components (Card, Spread, Modal)    │   │
-│  │  ├─ Stores (Pinia: auth, readings, app) │   │
-│  │  ├─ Services (API client)               │   │
-│  │  ├─ Router (vue-router)                 │   │
-│  │  └─ i18n (vue-i18n)                     │   │
+│  │       React + TypeScript SPA             │   │
+│  │  ├─ Pages (Home, dev-only UI Kit)       │   │
+│  │  ├─ Shared UI + feature/widgets         │   │
+│  │  ├─ Zustand preferences                 │   │
+│  │  ├─ TanStack Query server state         │   │
+│  │  ├─ React Router                        │   │
+│  │  └─ i18next                             │   │
 │  └──────────────────────────────────────────┘   │
 └─────────────────┬───────────────────────────────┘
-                  │ HTTPS
-                  │ JSON
+                  │ typed API facade
+                  │ mock now / HTTPS later
                   ↓
 ┌─────────────────────────────────────────────────┐
 │                   SERVER                        │
@@ -75,6 +79,8 @@
 ```
 
 ### 1.2 Request Flow
+
+In `v0.2.0`, Home calls `api.readings.getDaily(language)`. `frontend/src/api/index.ts` selects `mockApi` when `VITE_API_MODE=mock`; this is the current supported mode. The HTTP path shown below is the existing backend flow and the target for the future `httpApi` adapter, not the current behavior of the React client.
 
 **Typical Reading Request:**
 
@@ -168,94 +174,26 @@ backend/
     └── temp/              # Temporary uploads
 ```
 
-#### Frontend (`frontend/`)
-```
-frontend/
-├── src/
-│   ├── main.js            # Entry point
-│   ├── App.vue            # Root component
-│   ├── router/
-│   │   └── index.js       # Vue Router config
-│   ├── stores/
-│   │   ├── auth.js        # Auth state (Pinia)
-│   │   ├── readings.js    # Reading state
-│   │   ├── app.js         # App state (theme, language)
-│   │   └── admin.js       # Admin state
-│   ├── services/
-│   │   ├── api.js         # Axios instance & interceptors
-│   │   ├── auth.js        # Auth API calls
-│   │   ├── user.js        # User API calls
-│   │   ├── reading.js     # Reading API calls
-│   │   └── admin.js       # Admin API calls
-│   ├── pages/
-│   │   ├── Login.vue
-│   │   ├── Register.vue
-│   │   ├── Dashboard.vue
-│   │   ├── History.vue
-│   │   ├── Profile.vue
-│   │   ├── admin/
-│   │   │   ├── AdminDashboard.vue
-│   │   │   ├── Users.vue
-│   │   │   ├── Decks.vue
-│   │   │   ├── RolePolicies.vue
-│   │   │   └── Settings.vue
-│   │   └── dev/
-│   │       └── UIKit.vue  # Dev-only
-│   ├── components/
-│   │   ├── base/
-│   │   │   ├── BaseButton.vue
-│   │   │   ├── BaseInput.vue
-│   │   │   ├── BaseSelect.vue
-│   │   │   ├── BaseSurface.vue
-│   │   │   ├── BaseSegmentedToggle.vue
-│   │   │   ├── BaseSwitchToggle.vue
-│   │   │   ├── BaseTabs.vue
-│   │   │   └── BaseModal.vue
-│   │   ├── form/
-│   │   │   ├── FormField.vue
-│   │   │   └── AuthCard.vue
-│   │   ├── layout/
-│   │   │   ├── AppHeader.vue
-│   │   │   ├── AppFooter.vue
-│   │   │   ├── PageContainer.vue
-│   │   │   └── PageSection.vue
-│   │   ├── domain/
-│   │   │   ├── UserChip.vue
-│   │   │   ├── TarotCardPreview.vue
-│   │   │   └── ReadingCard.vue
-│   │   └── feedback/
-│   │       ├── EmptyStateCard.vue
-│   │       └── LoadingCard.vue
-│   ├── composables/
-│   │   ├── useAuth.js     # Auth composition
-│   │   ├── useLocale.js   # Locale composition
-│   │   └── useTheme.js    # Theme composition
-│   ├── locales/
-│   │   ├── en.json        # English translations
-│   │   └── ru.json        # Russian translations
-│   ├── styles/
-│   │   ├── main.scss      # Global styles entry
-│   │   ├── tokens.scss    # Design tokens
-│   │   ├── themes/
-│   │   │   ├── _light.scss
-│   │   │   └── _dark.scss
-│   │   ├── foundations/
-│   │   │   ├── _reset.scss
-│   │   │   ├── _typography.scss
-│   │   │   └── _motion.scss
-│   │   └── components/
-│   │       ├── _button.scss
-│   │       ├── _field.scss
-│   │       ├── _surface.scss
-│   │       └── _tabs.scss
-│   └── utils/
-│       ├── date.js        # Date formatting
-│       └── validators.js  # Form validation
-├── package.json
-└── vite.config.js
+#### Frontend (`frontend/`, v0.2.0)
+
+```text
+frontend/src/
+├── api/                    # DTO, facade, mock and future HTTP adapter
+├── app/                    # App, data router and providers
+├── features/               # auth, preferences, i18n, oracle chat
+├── pages/
+│   ├── home/               # public route `/`
+│   └── ui-kit/             # dev-only route `/ui-kit`
+├── shared/
+│   ├── icons/              # reusable SVG components
+│   ├── lib/                # reusable hooks
+│   ├── styles/             # tokens, fonts, animations, global CSS
+│   └── ui/                 # controlled reusable components
+├── widgets/                # page-level composition
+└── test/                   # Vitest setup and smoke tests
 ```
 
-**Design-system note:** canonical frontend visual and component architecture is defined in `specs/docs/DESIGN_SYSTEM.md`. The UI Kit page at `frontend/src/pages/dev/UIKit.vue` is the approved dev-only showcase/reference implementation for `v0.1.0`.
+The previous Vue structure is preserved in `frontend-legacy/`. Canonical `v0.2.0` visual and component rules are defined in `specs/docs/DESIGN_SYSTEM.md`; the approved showcase is `frontend/src/pages/ui-kit/UiKitPage.tsx`.
 
 ---
 
@@ -265,8 +203,8 @@ frontend/
 
 | Component | Technology | Version | Purpose |
 |-----------|-----------|---------|---------|
-| **Language** | Go | 1.22+ | Backend runtime |
-| **Framework** | Gin | 1.9+ | HTTP router |
+| **Language** | Go | 1.23 | Backend runtime |
+| **Framework** | Gin | 1.10 | HTTP router |
 | **Database** | MongoDB | 6.0+ | Primary data store |
 | **Database Driver** | mongo-go-driver | 1.13+ | MongoDB client |
 | **Authentication** | JWT | via golang-jwt/jwt | Token-based auth |
@@ -280,16 +218,15 @@ frontend/
 // go.mod
 module tarot-daily
 
-go 1.22
+go 1.23
 
 require (
-    github.com/gin-gonic/gin v1.9.1
-    github.com/golang-jwt/jwt/v5 v5.2.0
+    github.com/gin-gonic/gin v1.10.0
+    github.com/golang-jwt/jwt/v5 v5.2.1
     github.com/joho/godotenv v1.5.1
-    go.mongodb.org/mongo-driver v1.13.1
-    github.com/google/uuid v1.5.0
-    golang.org/x/crypto v0.17.0
-    github.com/go-playground/validator/v10 v10.16.0
+    go.mongodb.org/mongo-driver v1.17.4
+    golang.org/x/crypto v0.35.0
+    github.com/go-playground/validator/v10 v10.25.0
 )
 ```
 
@@ -297,37 +234,16 @@ require (
 
 | Component | Technology | Version | Purpose |
 |-----------|-----------|---------|---------|
-| **Language** | JavaScript | ES2022 | Frontend runtime |
-| **Framework** | Vue 3 | 3.4+ | UI framework |
-| **State** | Pinia | 2.1+ | State management |
-| **Router** | Vue Router | 4.2+ | Client-side routing |
-| **Build Tool** | Vite | 5.0+ | Dev server & bundler |
-| **HTTP Client** | Axios | 1.6+ | API requests |
-| **i18n** | Vue I18n | 9.8+ | Internationalization |
-| **Styles** | SCSS | - | CSS preprocessor |
-| **Date** | date-fns | 3.0+ | Date formatting |
-| **Validation** | VeeValidate | 4.12+ | Form validation |
-
-**Key Dependencies:**
-```json
-// package.json
-{
-  "dependencies": {
-    "vue": "^3.4.0",
-    "vue-router": "^4.2.5",
-    "pinia": "^2.1.7",
-    "axios": "^1.6.2",
-    "vue-i18n": "^9.8.0",
-    "date-fns": "^3.0.6",
-    "vee-validate": "^4.12.4"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.0",
-    "vite": "^5.0.0",
-    "sass": "^1.69.5"
-  }
-}
-```
+| **Language** | TypeScript | 5.7 | Strict frontend source |
+| **Framework** | React | 18.3 | Function components and hooks |
+| **Client state** | Zustand | 5.0 | Theme, language and auth stub |
+| **Server state** | TanStack Query | 5.62 | Daily reading and mutations |
+| **Router** | React Router DOM | 6.28 | Data router and lazy dev route |
+| **Build Tool** | Vite | 5.4 | Dev server and production build |
+| **i18n** | i18next + react-i18next | 24.2 / 15.4 | RU/EN namespaces |
+| **Forms** | react-hook-form + zod | 7.54 / 3.24 | Registration and validation |
+| **Styles** | Tailwind + CSS variables | 3.4 | Layout utilities and bespoke visuals |
+| **Tests** | Vitest + Testing Library | 2.1 / 16.1 | Component smoke tests |
 
 ### 2.3 Infrastructure
 
@@ -1845,48 +1761,24 @@ GET /uploads/decks/default/cards/the_fool.png
 
 ## 7. Internationalization Implementation
 
-### 7.1 Frontend (Vue I18n)
+### 7.1 Frontend (i18next)
 
-**Setup:**
-```javascript
-// src/i18n/index.js
-import { createI18n } from 'vue-i18n'
-import en from './locales/en.json'
-import ru from './locales/ru.json'
+The React client initializes `i18next` with `react-i18next`, `ru` as default/fallback language and `common`/`home` namespaces. Locale resources live under `frontend/src/features/i18n/locales/<language>/`.
 
-const i18n = createI18n({
-  legacy: false,
-  locale: localStorage.getItem('language') || navigator.language.split('-')[0] || 'en',
-  fallbackLocale: 'en',
-  messages: {
-    en,
-    ru
-  }
-})
+```tsx
+const language = usePreferencesStore((state) => state.language)
+const setLanguage = usePreferencesStore((state) => state.setLanguage)
+const { t } = useTranslation(['common', 'home'])
 
-export default i18n
+<SegmentedControl
+  value={language}
+  options={[{ value: 'ru', label: 'RU' }, { value: 'en', label: 'EN' }]}
+  onChange={setLanguage}
+  label={t('common:languageLabel')}
+/>
 ```
 
-**Usage in Components:**
-```vue
-<template>
-  <h1>{{ $t('dashboard.welcome') }}</h1>
-  <button>{{ $t('readings.generate') }}</button>
-  <p>{{ $t('readings.remainingToday', { count: 2, limit: 5 }) }}</p>
-</template>
-
-<script setup>
-import { useI18n } from 'vue-i18n'
-
-const { t, locale } = useI18n()
-
-function changeLanguage(lang) {
-  locale.value = lang
-  localStorage.setItem('language', lang)
-  // Also update user profile via API
-}
-</script>
-```
+`AppProviders` applies the stored language to i18next and `<html lang>`. The key is `nebula-tarot:lang`. The HTTP adapter must eventually send the same language as `Accept-Language`; mock fixtures currently accept it as a typed argument.
 
 ### 7.2 Backend (Localized Responses)
 
@@ -1914,19 +1806,7 @@ func GetLocalizedCard(cardKey string, lang string) CardResponse {
 
 ### 7.3 Date/Time Localization
 
-**Frontend:**
-```javascript
-import { format } from 'date-fns'
-import { enUS, ru } from 'date-fns/locale'
-
-const formatDate = (date, language) => {
-  const locale = language === 'ru' ? ru : enUS
-  return format(date, 'PPPp', { locale })
-}
-
-// English: "March 31, 2026 at 3:00 PM"
-// Russian: "31 марта 2026 г. в 15:00"
-```
+The `v0.2.0` Home uses localized mock date labels from the `home` namespace. Before HTTP integration, replace the mock label with `Intl.DateTimeFormat(language, options)` and keep `DateStrip` accepting a `Date`; no additional date library is required.
 
 ---
 
@@ -1936,91 +1816,11 @@ const formatDate = (date, language) => {
 
 ### 8.1 CSS Variables
 
-**Base Structure:**
-```scss
-// src/styles/themes/_light.scss
-:root {
-  --ds-color-bg-page: #f5f0e6;
-  --ds-color-bg-surface: #fffaf2;
-  --ds-color-text-primary: #2f241d;
-  --ds-color-text-secondary: #6e5a4e;
-  --ds-color-accent-primary: #9f5c36;
-  --ds-color-border-subtle: rgba(106, 74, 55, 0.16);
-  --ds-motion-base: 300ms ease;
-}
-
-// src/styles/themes/_dark.scss
-[data-theme="dark"] {
-  --ds-color-bg-page: #000000;
-  --ds-color-bg-page-alt: #0d0d0d;
-  --ds-color-bg-surface: #1a1a1a;
-  --ds-color-bg-elevated: #111111;
-  --ds-color-text-primary: #ffffff;
-  --ds-color-text-secondary: #c4c4c4;
-  --ds-color-text-muted: #6b6b6b;
-  --ds-color-accent-primary: #d4af37;
-  --ds-color-accent-light: #f4e5b0;
-  --ds-color-accent-dark: #9b7e1f;
-  --ds-color-border-subtle: rgba(212, 175, 55, 0.18);
-  --ds-color-border-accent: rgba(212, 175, 55, 0.45);
-  --ds-motion-base: 300ms ease;
-}
-```
+The contract is defined in `frontend/src/shared/styles/tokens.css`. Dark values are the `:root` defaults; `:root.light` overrides the same semantic tokens (`--gold`, `--ink`, `--mist`, `--line` and related variants). Components consume variables and never branch on theme in render code.
 
 ### 8.2 Theme Toggle
 
-**Implementation:**
-```javascript
-// src/composables/useTheme.js
-import { ref, watch } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-
-export function useTheme() {
-  const authStore = useAuthStore()
-  
-  const theme = ref(
-    localStorage.getItem('theme') || 
-    authStore.user?.theme || 
-    'light'
-  )
-  
-  const setTheme = (newTheme) => {
-    theme.value = newTheme
-    document.documentElement.setAttribute('data-theme', newTheme)
-    localStorage.setItem('theme', newTheme)
-    
-    // Update user profile if logged in
-    if (authStore.isAuthenticated) {
-      authStore.updateSettings({ theme: newTheme })
-    }
-  }
-  
-  // Apply theme on mount
-  setTheme(theme.value)
-  
-  return {
-    theme,
-    setTheme,
-    toggleTheme: () => setTheme(theme.value === 'light' ? 'dark' : 'light')
-  }
-}
-```
-
-**Usage in Component:**
-```vue
-<template>
-  <button @click="toggleTheme">
-    <IconSun v-if="theme === 'light'" />
-    <IconMoon v-else />
-  </button>
-</template>
-
-<script setup>
-import { useTheme } from '@/composables/useTheme'
-
-const { theme, toggleTheme } = useTheme()
-</script>
-```
+`usePreferencesStore` owns `theme: 'dark' | 'light'` and persists it under `nebula-tarot:theme`. `AppProviders` toggles the `.light` class and `data-theme` on `document.documentElement`. Dark is the default when no valid stored value exists.
 
 ---
 
@@ -2057,76 +1857,7 @@ const { theme, toggleTheme } = useTheme()
 
 ### 9.3 Frontend Error Handling
 
-**Axios Interceptor:**
-```javascript
-// src/services/api.js
-import axios from 'axios'
-import { useAuthStore } from '@/stores/auth'
-import router from '@/router'
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8888/api',
-  timeout: 10000
-})
-
-// Request interceptor: add auth token
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('auth_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-// Response interceptor: handle errors
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      const authStore = useAuthStore()
-      authStore.logout()
-      router.push('/login')
-    }
-    
-    return Promise.reject(error)
-  }
-)
-
-export default api
-```
-
-**Component-Level Error Handling:**
-```javascript
-// In component
-import { ref } from 'vue'
-import api from '@/services/api'
-
-const error = ref(null)
-const loading = ref(false)
-
-async function generateReading() {
-  error.value = null
-  loading.value = true
-  
-  try {
-    const response = await api.post('/reading/generate/card-of-day', {
-      timezone: 'Europe/Amsterdam'
-    })
-    // Handle success
-  } catch (err) {
-    if (err.response?.data?.error === 'card_of_day_already_generated') {
-      error.value = 'You already received your Card of the Day today'
-    } else if (err.response?.data?.error === 'daily_limit_reached') {
-      error.value = 'Daily limit reached. Try again tomorrow!'
-    } else {
-      error.value = 'Something went wrong. Please try again.'
-    }
-  } finally {
-    loading.value = false
-  }
-}
-```
+The typed API facade is the only data entry point. TanStack Query exposes loading/error state to Home; localized UI copy is selected through i18next. The shared `request<T>` wrapper throws `ApiError(status, message)` for non-2xx HTTP responses. Once auth is migrated, 401 handling belongs in the HTTP adapter/provider layer rather than individual components.
 
 ---
 
@@ -2192,25 +1923,7 @@ func passwordValidator(fl validator.FieldLevel) bool {
 }
 ```
 
-**Frontend Validation (VeeValidate):**
-```vue
-<script setup>
-import { useForm, useField } from 'vee-validate'
-import * as yup from 'yup'
-
-const schema = yup.object({
-  email: yup.string().required().email(),
-  username: yup.string().required().min(3).max(20).matches(/^[a-zA-Z0-9]+$/),
-  password: yup.string()
-    .required()
-    .min(8)
-    .matches(/[a-zA-Z]/, 'Must contain a letter')
-    .matches(/[0-9]/, 'Must contain a number')
-})
-
-const { handleSubmit, errors } = useForm({ validationSchema: schema })
-</script>
-```
+**Frontend Validation:** `react-hook-form` with `zodResolver`. `v0.2.0` validates name, email and an eight-character minimum password; birth date is optional. Messages come from the active locale. The current form submits to a mock and does not replace stricter backend validation.
 
 ### 10.4 Rate Limiting
 
@@ -2225,7 +1938,7 @@ const { handleSubmit, errors } = useForm({ validationSchema: schema })
 ### 11.1 Backend Setup
 
 **Requirements:**
-- Go 1.22+
+- Go 1.23+
 - MongoDB 6.0+ (self-hosted, SSH tunnel)
 
 **Environment Variables (`.env`):**
@@ -2259,13 +1972,17 @@ go run main.go
 ### 11.2 Frontend Setup
 
 **Requirements:**
-- Node.js 18 LTS or 20
+- Node.js 20 LTS
 - npm 9+
 
-**Environment Variables (`.env`):**
+**Environment Variables:**
 ```bash
-VITE_API_URL=http://localhost:8888/api
+VITE_API_MODE=mock
+# Future HTTP mode only:
+# VITE_API_URL=http://localhost:8888/api
 ```
+
+Development and production env files currently select `mock`. `VITE_API_MODE=http` is not usable until `frontend/src/api/http.ts` is implemented.
 
 **Run:**
 ```bash

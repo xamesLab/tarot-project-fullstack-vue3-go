@@ -1,0 +1,14 @@
+{
+  "date": "May 28, 2026 · Wednesday · Waning Moon",
+  "cardOfDay": "Card of the Day",
+  "flipHint": "Tap to flip the card",
+  "expand": "Expand interpretation",
+  "collapse": "Collapse interpretation",
+  "messageTitle": "Message of the Day",
+  "chatTitle": "Ask the Oracle",
+  "chatPlaceholder": "Ask the cards a question…",
+  "send": "Send question",
+  "loading": "The cards are revealing their message…",
+  "error": "The cards are silent today. Please try again.",
+  "oracleGreeting": "I am listening. Ask, and the Priestess will answer from the silence."
+}

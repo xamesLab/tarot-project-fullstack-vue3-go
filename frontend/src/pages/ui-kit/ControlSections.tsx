@@ -1,0 +1,12 @@
+import { useState } from 'react';
+import { Avatar, UserPill } from '@/shared/ui/Avatar';
+import { Checkbox, RadioCard, SegmentedControl, Toggle } from '@/shared/ui/Controls';
+import { NavBar, type NavItem } from '@/shared/ui/NavBar';
+import { Divider, Ornament, SectionLabel } from '@/shared/ui/Ornament';
+import { DemoRow, UiKitSection } from './UiKitSection';
+
+export function ControlSections() {
+  const [notifications, setNotifications] = useState(true); const [sound, setSound] = useState(false); const [checked, setChecked] = useState(true); const [segment, setSegment] = useState<'direct' | 'reversed'>('direct'); const [spread, setSpread] = useState('three'); const [nav, setNav] = useState('daily');
+  const navItems: NavItem[] = [{ id: 'daily', label: 'Карта дня' }, { id: 'spreads', label: 'Расклады' }, { id: 'horoscope', label: 'Гороскоп' }, { id: 'learn', label: 'Обучение' }];
+  return <><UiKitSection id="switchers" number="06" title="Switchers"><DemoRow><label className="control-label"><Toggle checked={notifications} onChange={setNotifications} label="Notifications"/>Уведомления</label><label className="control-label"><Toggle checked={sound} onChange={setSound} label="Sound"/>Звук</label><Checkbox checked={checked} onChange={setChecked}>Согласие с картами</Checkbox></DemoRow><DemoRow><SegmentedControl value={segment} options={[{ value: 'direct', label: 'Прямое' }, { value: 'reversed', label: 'Перевёрнутое' }]} onChange={setSegment} label="Card position"/></DemoRow><div className="radio-row" role="radiogroup"><RadioCard checked={spread === 'one'} onClick={() => setSpread('one')}>Одна карта</RadioCard><RadioCard checked={spread === 'three'} onClick={() => setSpread('three')}>Три карты</RadioCard><RadioCard checked={spread === 'cross'} onClick={() => setSpread('cross')}>Кельтский крест</RadioCard></div></UiKitSection><UiKitSection id="avatars" number="07" title="Avatars & User Pill"><DemoRow><Avatar initials="МА" size="sm"/><Avatar initials="МА" ring/><Avatar initials="МА" size="lg"/><UserPill initials="МА" name="Мария А." sign="Скорпион · ♀ Весы"/></DemoRow></UiKitSection><UiKitSection id="navigation" number="08" title="Navigation"><div className="nav-demo"><NavBar items={navItems} active={nav} onSelect={(item) => setNav(item.id)}/></div></UiKitSection><UiKitSection id="ornaments" number="09" title="Ornaments & Dividers"><div className="ornament-demo"><Ornament/><SectionLabel>Карта дня</SectionLabel><Divider>Между мирами</Divider><Divider dashed/></div></UiKitSection></>;
+}

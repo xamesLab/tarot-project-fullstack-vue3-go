@@ -1,9 +1,13 @@
 # Implementation Roadmap
-## Nebula Tarot - MVP v1.0
+## Nebula Tarot — v0.1.x history and v0.2.0 transition
 
-**Document Version:** 1.0  
-**Last Updated:** April 3, 2026  
+**Document Version:** 1.1
+
+**Last Updated:** July 3, 2026
+
 **Status:** Working Baseline
+
+> Version note: phases below are retained as the historical roadmap that produced the `v0.1.x` Vue client, now located in `frontend-legacy/`. The active React client is tracked in [`specs/v0.2.0`](../v0.2.0/README.md) and `frontend/IMPLEMENTATION_PLAN.md`; old Vue task paths must not be used for new implementation work.
 
 ---
 
@@ -50,9 +54,17 @@
 - Document as you build
 - Keep it simple (MVP scope only)
 
-**Current note:** `phase-2-core-frontend`, `phase-3-reading-features`, `phase-4-admin-panel`, and `phase-5-polish-and-testing` have been completed. The MVP now includes persisted per-card reveal state for active dashboard readings, keeper-only admin routes, user management, role policy editing, global settings, independent `deck` and `card back` catalogs, global defaults, archive/restore/delete flows for decks and card backs, role-gated user overrides for `adept/master/keeper`, and the responsive/frontend polish required for the `v0.1.0` baseline. Final manual acceptance for `v0.1.0` has passed. The approved project-level frontend reference lives in `specs/docs/DESIGN_SYSTEM.md`. The next product iteration is `v0.1.1`, focused on direct AI integration through `OpenRouter` without deployment scope; work has already started with `phase-0-ai-foundation`. `phase-6-deployment` remains a separate operational step.
+**Current note:** `v0.1.0` and the direct AI work of `v0.1.1` remain the completed full-stack baseline in `backend/` + `frontend-legacy/`. For `v0.2.0`, a new React/TypeScript frontend was created in `frontend/` with public Home, dev-only UI Kit, shared design system, RU/EN, dark/light themes, registration modal, oracle chat and typed mock APIs. Backend integration and migration of authenticated/admin flows are the next roadmap stage.
 
-### 1.3 Definition of Done
+### 1.3 v0.2.0 Transition Priorities
+
+1. Treat `frontend/` as the only target for new UI work and `frontend-legacy/` as a migration reference.
+2. Preserve the `NebulaTarotApi` boundary while implementing `frontend/src/api/http.ts`.
+3. Migrate auth/session before protected routes.
+4. Migrate readings/history, profile/catalog and admin as separate vertical slices.
+5. Keep `/ui-kit` synchronized with every new shared visual primitive.
+
+### 1.4 Definition of Done
 
 **Feature Complete:**
 - ✅ Code written and reviewed

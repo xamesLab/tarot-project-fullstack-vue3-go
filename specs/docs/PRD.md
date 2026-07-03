@@ -1,9 +1,13 @@
 # Product Requirements Document (PRD)
-## Nebula Tarot - MVP v1.0
+## Nebula Tarot — product baseline with v0.2.0 frontend overlay
 
-**Document Version:** 1.0  
-**Last Updated:** April 3, 2026  
+**Document Version:** 1.1
+
+**Last Updated:** July 3, 2026
+
 **Status:** Working Baseline
+
+> Version note: sections describing authenticated readings, history, catalogs and administration remain the product contract implemented by the `v0.1.x` Go + Vue stack. For `v0.2.0`, the active client moved to `frontend/` (React + TypeScript), while the previous Vue client moved to `frontend-legacy/`. The new client currently implements the public Card of the Day experience through mock APIs; see [`specs/v0.2.0`](../v0.2.0/README.md).
 
 ---
 
@@ -66,7 +70,19 @@
 
 **Approved Frontend Reference:**
 - MVP frontend implementation should follow the project design system in `specs/docs/DESIGN_SYSTEM.md`
-- `frontend/src/pages/dev/UIKit.vue` is the approved visual reference implementation for `v0.1.0`
+- `frontend/src/pages/ui-kit/UiKitPage.tsx` and `/ui-kit` are the approved visual/component reference for `v0.2.0`
+- the former `v0.1.x` reference is preserved at `frontend-legacy/src/pages/dev/UIKit.vue`
+
+### 1.5 v0.2.0 Frontend Scope
+
+`v0.2.0` introduces a public, low-friction entry point before the authenticated product journey:
+
+- Home is available without authentication and presents a localized Card of the Day ritual.
+- Card flip, interpretation spheres, Message of the Day and oracle chat are the primary engagement loop.
+- Spreads, Horoscope and Learn are visible as gated navigation and open a registration modal.
+- Registration and oracle calls use a typed mock API; they do not create a backend session.
+- Theme and language preferences persist locally.
+- Real auth, profile, history, catalogs and admin remain available only in the legacy client until migrated.
 
 ---
 
@@ -1005,10 +1021,10 @@ BUT if they changed at 2:00 AM (UTC+2):
 **MVP:** English (EN), Russian (RU)
 
 **Language Selection:**
-- Auto-detected from browser on first visit
-- User can change in profile settings
-- Preference saved to user profile + localStorage
-- Synced across devices (if logged in)
+- `v0.2.0` defaults to Russian and falls back to Russian
+- User switches language in the global header
+- Preference is saved to `localStorage` as `nebula-tarot:lang`
+- Profile synchronization remains a post-HTTP-integration requirement
 
 ### 7.2 Translated Content
 
@@ -1033,64 +1049,7 @@ BUT if they changed at 2:00 AM (UTC+2):
 
 ### 7.3 Implementation
 
-**Frontend (Vue i18n):**
-```javascript
-// locales/en.json
-{
-  "nav": {
-    "dashboard": "Dashboard",
-    "history": "History",
-    "profile": "Profile",
-    "admin": "Admin"
-  },
-  "auth": {
-    "login": "Log In",
-    "register": "Sign Up",
-    "logout": "Log Out",
-    "email": "Email",
-    "password": "Password"
-  },
-  "readings": {
-    "cardOfDay": "Card of the Day",
-    "threeCard": "Three-Card Spread",
-    "generate": "Generate Spread",
-    "remainingToday": "Spreads remaining today: {count}/{limit}"
-  },
-  "errors": {
-    "invalidCredentials": "Email or password incorrect",
-    "emailTaken": "This email is already registered",
-    "limitReached": "You've reached your daily limit"
-  }
-}
-
-// locales/ru.json
-{
-  "nav": {
-    "dashboard": "Главная",
-    "history": "История",
-    "profile": "Профиль",
-    "admin": "Админ"
-  },
-  "auth": {
-    "login": "Войти",
-    "register": "Регистрация",
-    "logout": "Выйти",
-    "email": "Email",
-    "password": "Пароль"
-  },
-  "readings": {
-    "cardOfDay": "Карта дня",
-    "threeCard": "Расклад 3 карты",
-    "generate": "Создать расклад",
-    "remainingToday": "Осталось раскладов сегодня: {count}/{limit}"
-  },
-  "errors": {
-    "invalidCredentials": "Неверный email или пароль",
-    "emailTaken": "Этот email уже зарегистрирован",
-    "limitReached": "Вы достигли дневного лимита"
-  }
-}
-```
+**Frontend (i18next + react-i18next):** locale resources live in `frontend/src/features/i18n/locales/{ru,en}/`. `common` owns header, footer and registration copy; `home` owns Card of the Day and oracle copy. Reading content is returned by the selected typed API implementation for the requested language rather than hardcoded in components.
 
 **Backend (MongoDB):**
 ```javascript
