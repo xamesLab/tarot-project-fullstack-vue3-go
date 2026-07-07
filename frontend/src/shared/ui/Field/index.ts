@@ -1,1 +1,1 @@
-export { Field, TextareaField } from './Field';
+export { Field, SelectField, TextareaField } from './Field';

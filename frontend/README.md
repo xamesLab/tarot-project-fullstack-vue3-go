@@ -1,6 +1,6 @@
 # NEBULA-TAROT
 
-Frontend v1 for the NEBULA-TAROT card-of-the-day experience. The application recreates the supplied Home and UI Library prototypes with React, TypeScript, a shared design system, mock APIs, RU/EN localization and dark/light themes.
+Frontend v1 for the NEBULA-TAROT card-of-the-day experience. The application uses a hybrid API: mock reading/oracle content and real Go API authentication with JWT session restoration.
 
 ## Setup
 
@@ -25,7 +25,7 @@ Open `/` for Home and `/ui-kit` for the development-only component showcase.
 
 ## Configuration
 
-`VITE_API_MODE=mock|http` selects the API implementation. Both development and production use `mock` until the backend exists; the HTTP adapter intentionally throws a clear not-implemented error.
+`VITE_API_MODE=mock|http` selects the reading/oracle transport. `VITE_AUTH_API_MODE=mock|http` independently selects authentication; development uses HTTP auth with `VITE_API_URL=http://localhost:8888/api`. JWT is stored as `tarot_daily_token`, and `/api/me` restores the session after reload.
 
 Theme and language are persisted in localStorage as `nebula-tarot:theme` and `nebula-tarot:lang`. Add design values to both theme blocks in `src/shared/styles/tokens.css`. Add locale strings under `src/features/i18n/locales/<lang>/`; localized reading content belongs to mock/API fixtures.
 

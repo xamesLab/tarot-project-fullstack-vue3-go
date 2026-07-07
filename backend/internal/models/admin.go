@@ -34,7 +34,7 @@ type AdminUpdateSettingsRequest struct {
 	MaintenanceMode     *bool          `json:"maintenance_mode"`
 	MaintenanceMessage  *LocalizedText `json:"maintenance_message"`
 	AIEnabled           *bool          `json:"ai_enabled"`
-	DefaultRole         *string        `json:"default_role" validate:"omitempty,oneof=seeker adept master keeper"`
+	DefaultRole         *string        `json:"default_role" validate:"omitempty,oneof=seeker adept master"`
 	DefaultDeckID       *string        `json:"default_deck_id"`
 	DefaultBackID       *string        `json:"default_back_id"`
 	RegistrationEnabled *bool          `json:"registration_enabled"`

@@ -3,27 +3,49 @@
   "navigationLabel": "Main navigation",
   "languageLabel": "Language",
   "nav": { "daily": "Card of the Day", "spreads": "Spreads", "horoscope": "Horoscope", "learn": "Learn" },
-  "user": { "name": "Maria A.", "sign": "Scorpio · ♀ Libra" },
+  "user": { "guest": "Guest", "signIn": "Sign in", "loading": "Checking session…" },
+  "roles": { "seeker": "Seeker", "adept": "Adept", "master": "Master", "keeper": "Keeper" },
   "theme": { "dark": "Switch to light theme", "light": "Switch to dark theme" },
-  "registration": {
-    "title": "Join NEBULA-TAROT",
-    "lead": "Create a profile to unlock spreads, horoscope and learning.",
-    "name": "Name",
-    "email": "Email",
-    "password": "Password",
-    "birthDate": "Birth date (optional)",
-    "create": "Create account",
-    "later": "Later",
-    "existing": "Already have an account? Sign in",
-    "submitting": "Creating your profile…",
-    "welcome": "Welcome to NEBULA-TAROT",
-    "welcomeText": "Your profile is ready. New paths will open soon.",
-    "close": "Continue",
+  "auth": {
+    "login": {
+      "title": "Sign in to NEBULA-TAROT",
+      "lead": "Return to your profile and your saved path.",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "switch": "No account? Create a profile"
+    },
+    "register": {
+      "title": "Join NEBULA-TAROT",
+      "lead": "Create a profile to unlock spreads, horoscope and learning.",
+      "submit": "Create account",
+      "submitting": "Creating your profile…",
+      "switch": "Already have an account? Sign in",
+      "welcome": "Welcome to NEBULA-TAROT",
+      "welcomeText": "Your profile is ready. New paths will open soon."
+    },
+    "fields": {
+      "email": "Email",
+      "username": "Username (optional)",
+      "password": "Password",
+      "timezone": "Timezone"
+    },
     "errors": {
-      "name": "Enter your name",
+      "required": "This field is required",
       "email": "Enter a valid email address",
-      "password": "Password must contain at least 8 characters"
-    }
+      "username": "Use 3–20 Latin letters, digits, or . _ -",
+      "password": "Use at least 8 characters with a letter and a number",
+      "timezone": "Select a timezone",
+      "emailTaken": "This email is already registered",
+      "usernameTaken": "This username is unavailable",
+      "invalidCredentials": "Email or password is incorrect",
+      "accountDisabled": "This account has been suspended",
+      "registrationDisabled": "Registration is currently closed",
+      "network": "Could not reach the server. Check your connection.",
+      "server": "The server is temporarily unavailable. Try again later."
+    },
+    "later": "Later",
+    "continue": "Continue",
+    "logout": "Sign out"
   },
   "close": "Close",
   "footer": "The cards renew each day at dawn",

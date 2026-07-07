@@ -61,9 +61,9 @@ func main() {
 		log.Fatalf("ensure admin settings: %v", err)
 	}
 
-	authService := services.NewAuthService(userRepository)
+	authService := services.NewAuthService(userRepository, adminSettingsRepository)
 	userService := services.NewUserService(userRepository, deckRepository, cardBackRepository)
-	readingService := services.NewReadingService(userRepository, cardRepository, deckRepository, cardBackRepository, readingRepository, policyRepository, adminSettingsRepository)
+	readingService := services.NewReadingService(userRepository, cardRepository, deckRepository, cardBackRepository, readingRepository, policyRepository, adminSettingsRepository, cfg.JWTSecret)
 	askService := services.NewAskService(cfg, userRepository, readingRepository, cardRepository, askRequestRepository, policyRepository, adminSettingsRepository)
 	adminService := services.NewAdminService(userRepository, cardRepository, readingRepository, policyRepository, adminSettingsRepository, deckRepository, cardBackRepository)
 	catalogService := services.NewCatalogService(deckRepository, cardBackRepository, adminSettingsRepository)
@@ -81,6 +81,7 @@ func main() {
 
 	authRoutes := api.Group("/auth")
 	authHandler.RegisterRoutes(authRoutes)
+	readingHandler.RegisterPublicRoutes(api)
 
 	protected := api.Group("/")
 	protected.Use(middleware.AuthMiddleware(cfg.JWTSecret))

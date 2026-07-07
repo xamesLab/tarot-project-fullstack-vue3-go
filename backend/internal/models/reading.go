@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -13,6 +15,25 @@ const (
 
 type GenerateReadingRequest struct {
 	Timezone string `json:"timezone" validate:"omitempty,timezone"`
+}
+
+type GenerateGuestCardOfDayRequest struct {
+	GuestID  string `json:"guest_id" validate:"required,uuid4"`
+	Timezone string `json:"timezone" validate:"required,timezone"`
+}
+
+type ResolveCardOfDayRequest struct {
+	Timezone   string `json:"timezone" validate:"omitempty,timezone"`
+	ClaimToken string `json:"claim_token"`
+}
+
+type GuestCardClaims struct {
+	Purpose        string `json:"purpose"`
+	GuestID        string `json:"guest_id"`
+	CardKey        string `json:"card_key"`
+	AccountingDate string `json:"accounting_date"`
+	Timezone       string `json:"timezone"`
+	jwt.RegisteredClaims
 }
 
 type ReadingCard struct {
@@ -74,6 +95,9 @@ type Reading struct {
 
 type ReadingCardResponse struct {
 	Key              string `json:"key"`
+	Arcana           string `json:"arcana"`
+	Type             string `json:"type"`
+	TypeRU           string `json:"type_ru"`
 	Name             string `json:"name"`
 	NameRU           string `json:"name_ru"`
 	Interpretation   string `json:"interpretation"`
@@ -93,7 +117,7 @@ type RemainingToday struct {
 }
 
 type ReadingResponse struct {
-	ID              string                    `json:"id"`
+	ID              string                    `json:"id,omitempty"`
 	Type            string                    `json:"type"`
 	AccountingDate  string                    `json:"accounting_date"`
 	GeneratedAt     time.Time                 `json:"generated_at"`
@@ -103,6 +127,11 @@ type ReadingResponse struct {
 	AI              *AIInterpretationResponse `json:"ai,omitempty"`
 	NextAvailableAt *time.Time                `json:"next_available_at,omitempty"`
 	RemainingToday  *RemainingToday           `json:"remaining_today,omitempty"`
+}
+
+type GuestCardOfDayResult struct {
+	Reading    ReadingResponse `json:"reading"`
+	ClaimToken string          `json:"claim_token"`
 }
 
 func (a *AIInterpretation) ToResponse() *AIInterpretationResponse {

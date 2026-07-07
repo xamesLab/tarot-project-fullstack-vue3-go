@@ -7,7 +7,7 @@
 
 **Status:** Working Baseline
 
-> Version note: backend contracts and persistence sections remain valid for the full-stack `v0.1.x` baseline. The active `frontend/` was rebuilt for `v0.2.0` with React and TypeScript; the former Vue implementation now lives in `frontend-legacy/`. Until `frontend/src/api/http.ts` is implemented, the new client uses typed mock APIs and does not call the Go backend. See [`specs/v0.2.0`](../v0.2.0/README.md).
+> Version note: the React client uses hybrid transport: authentication calls the Go API, while readings and oracle remain on typed mocks. The former Vue implementation remains in `frontend-legacy/`. See [`specs/v0.2.0`](../v0.2.0/README.md).
 
 ---
 
@@ -80,7 +80,7 @@
 
 ### 1.2 Request Flow
 
-In `v0.2.0`, Home calls `api.readings.getDaily(language)`. `frontend/src/api/index.ts` selects `mockApi` when `VITE_API_MODE=mock`; this is the current supported mode. The HTTP path shown below is the existing backend flow and the target for the future `httpApi` adapter, not the current behavior of the React client.
+In `v0.2.0`, Home calls mock readings through `api.readings`, while `api.auth` uses HTTP for register, login and `/me`. Other backend flows below remain migration targets.
 
 **Typical Reading Request:**
 
@@ -495,10 +495,10 @@ db.role_policies.createIndex({ "role": 1 }, { unique: true })
     "en": "Site under maintenance",
     "ru": "Сайт на обслуживании"
   },
-  "default_role": "seeker",         // String, role for new users
+  "default_role": "seeker",         // Public registration: seeker | adept | master
   "default_deck_id": "default",     // String, global fallback deck
   "default_back_id": "default",     // String, global fallback card back
-  "registration_enabled": true,     // Boolean, allow new registrations
+  "registration_enabled": true,     // Enforced by POST /api/auth/register
   "created_at": ISODate("..."),
   "updated_at": ISODate("...")
 }
@@ -1857,7 +1857,7 @@ The contract is defined in `frontend/src/shared/styles/tokens.css`. Dark values 
 
 ### 9.3 Frontend Error Handling
 
-The typed API facade is the only data entry point. TanStack Query exposes loading/error state to Home; localized UI copy is selected through i18next. The shared `request<T>` wrapper throws `ApiError(status, message)` for non-2xx HTTP responses. Once auth is migrated, 401 handling belongs in the HTTP adapter/provider layer rather than individual components.
+The typed API facade is the only data entry point. The shared request wrapper attaches the JWT, parses `ApiError(status, code, message, details)` and clears invalid sessions through a centralized unauthorized event. Network and 5xx errors do not discard the stored token.
 
 ---
 
@@ -1978,11 +1978,13 @@ go run main.go
 **Environment Variables:**
 ```bash
 VITE_API_MODE=mock
+VITE_AUTH_API_MODE=http
+VITE_API_URL=http://localhost:8888/api
 # Future HTTP mode only:
 # VITE_API_URL=http://localhost:8888/api
 ```
 
-Development and production env files currently select `mock`. `VITE_API_MODE=http` is not usable until `frontend/src/api/http.ts` is implemented.
+Development uses mock content with HTTP auth. Production keeps the same split and may override `VITE_API_URL`; full HTTP readings/oracle remain unimplemented.
 
 **Run:**
 ```bash

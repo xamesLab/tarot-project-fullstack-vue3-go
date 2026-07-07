@@ -37,7 +37,6 @@ const roleOptions = computed(() => [
   { value: 'seeker', label: t('roles.seeker') },
   { value: 'adept', label: t('roles.adept') },
   { value: 'master', label: t('roles.master') },
-  { value: 'keeper', label: t('roles.keeper') },
 ])
 
 const deckOptions = computed(() =>
@@ -68,7 +67,7 @@ watch(
     form.maintenance_mode = Boolean(settings.maintenance_mode)
     form.registration_enabled = Boolean(settings.registration_enabled)
     form.ai_enabled = settings.ai_enabled !== false
-    form.default_role = settings.default_role || 'seeker'
+    form.default_role = ['seeker', 'adept', 'master'].includes(settings.default_role) ? settings.default_role : 'seeker'
     form.default_deck_id = settings.default_deck_id || 'default'
     form.default_back_id = settings.default_back_id || 'default'
     form.maintenance_message_en = settings.maintenance_message?.en || ''

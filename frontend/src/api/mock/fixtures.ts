@@ -3,7 +3,7 @@ import type { DailyReadingDto, Language } from '@/api/types';
 const readings: Record<Language, DailyReadingDto> = {
   ru: {
     date: '2026-05-28',
-    card: { id: 'high-priestess', arcana: 'major', roman: 'II', name: 'Верховная Жрица', illustrationLabel: 'The High Priestess', subtitle: 'Старший Аркан · Прямое положение' },
+    card: { id: 'high-priestess', arcana: 'major', roman: 'II', name: 'Верховная Жрица', illustrationLabel: 'The High Priestess', subtitle: 'Старший Аркан · Прямое положение', imageUrl: '/uploads/decks/69cf9efd10bc21067881cb28/cards/the_high_priestess.png', backImageUrl: '/uploads/card-backs/69ce946ff8dcd235c8915531/back.png' },
     keywords: ['Интуиция', 'Тайное знание', 'Внутренний голос', 'Цикличность'],
     brief: 'Сегодня вселенная приглашает вас замолчать и прислушаться. Ответы, которые вы ищете, живут не снаружи — они ждут в глубине вашего собственного существа.',
     spheres: [
@@ -16,7 +16,7 @@ const readings: Record<Language, DailyReadingDto> = {
   },
   en: {
     date: '2026-05-28',
-    card: { id: 'high-priestess', arcana: 'major', roman: 'II', name: 'The High Priestess', illustrationLabel: 'The High Priestess', subtitle: 'Major Arcana · Upright' },
+    card: { id: 'high-priestess', arcana: 'major', roman: 'II', name: 'The High Priestess', illustrationLabel: 'The High Priestess', subtitle: 'Major Arcana · Upright', imageUrl: '/uploads/decks/69cf9efd10bc21067881cb28/cards/the_high_priestess.png', backImageUrl: '/uploads/card-backs/69ce946ff8dcd235c8915531/back.png' },
     keywords: ['Intuition', 'Secret Knowledge', 'Inner Voice', 'Cycles'],
     brief: 'Today the universe invites you to fall silent and listen. The answers you seek do not live outside — they wait in the depths of your own being.',
     spheres: [

@@ -99,3 +99,28 @@ func TestUniqueCardKeys(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildReadingCardResponseIncludesCatalogClassification(t *testing.T) {
+	tests := []struct {
+		name   string
+		card   models.Card
+		arcana string
+		typeEN string
+		typeRU string
+	}{
+		{name: "major", card: models.Card{Key: "the_high_priestess", Arcana: "major", Type: models.LocalizedText{EN: "II", RU: "II"}}, arcana: "major", typeEN: "II", typeRU: "II"},
+		{name: "minor", card: models.Card{Key: "ace_of_wands", Arcana: "minor", Type: models.LocalizedText{EN: "Wands", RU: "Жезлы"}}, arcana: "minor", typeEN: "Wands", typeRU: "Жезлы"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			response := buildReadingCardResponse(test.card, models.ReadingCard{Position: 2, Reversed: true, Viewed: true}, "/face.png", "/back.png")
+			if response.Arcana != test.arcana || response.Type != test.typeEN || response.TypeRU != test.typeRU {
+				t.Fatalf("unexpected classification: %#v", response)
+			}
+			if response.Position != 2 || !response.Reversed || !response.Viewed {
+				t.Fatalf("reading state was not preserved: %#v", response)
+			}
+		})
+	}
+}

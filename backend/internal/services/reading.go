@@ -56,6 +56,7 @@ type ReadingService struct {
 	readings  *repositories.ReadingRepository
 	policies  *repositories.PolicyRepository
 	settings  *repositories.AdminSettingsRepository
+	jwtSecret string
 	now       func() time.Time
 }
 
@@ -67,6 +68,7 @@ func NewReadingService(
 	readings *repositories.ReadingRepository,
 	policies *repositories.PolicyRepository,
 	settings *repositories.AdminSettingsRepository,
+	jwtSecret string,
 ) *ReadingService {
 	return &ReadingService{
 		users:     users,
@@ -76,8 +78,142 @@ func NewReadingService(
 		readings:  readings,
 		policies:  policies,
 		settings:  settings,
+		jwtSecret: jwtSecret,
 		now:       time.Now,
 	}
+}
+
+func (s *ReadingService) GenerateGuestCardOfDay(ctx context.Context, req models.GenerateGuestCardOfDayRequest) (*models.GuestCardOfDayResult, error) {
+	timezone := strings.TrimSpace(req.Timezone)
+	now := s.now()
+	accountingDate, err := utils.GetAccountingDateAt(now, timezone)
+	if err != nil {
+		return nil, wrapValidation("Invalid timezone")
+	}
+	nextResetAt, err := utils.GetNextResetTimeAt(now, timezone)
+	if err != nil {
+		return nil, wrapValidation("Invalid timezone")
+	}
+
+	keys, err := s.cards.ListAllKeys(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if len(keys) == 0 {
+		return nil, wrapValidation("No tarot cards are available")
+	}
+
+	deckID, err := s.resolveEffectiveDeckID(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+	backID, err := s.resolveEffectiveBackID(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+	seed := buildDeterministicSeed("guest:"+req.GuestID, accountingDate, timezone)
+	cardKey := selectDeterministicCardKey(keys, seed)
+	reading := &models.Reading{
+		Type:           models.ReadingTypeCardOfDay,
+		AccountingDate: accountingDate,
+		Timezone:       timezone,
+		Cards:          []models.ReadingCard{{Key: cardKey, Position: 0, Reversed: false, Viewed: false}},
+		DeckID:         deckID,
+		BackID:         backID,
+		GeneratedAt:    now.UTC(),
+	}
+	response, err := s.buildReadingResponse(ctx, reading, nil)
+	if err != nil {
+		return nil, err
+	}
+	response.ID = ""
+	response.NextAvailableAt = &nextResetAt
+	claimToken, err := utils.GenerateGuestCardToken(req.GuestID, cardKey, accountingDate, timezone, s.jwtSecret, now, nextResetAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.GuestCardOfDayResult{Reading: *response, ClaimToken: claimToken}, nil
+}
+
+func (s *ReadingService) ResolveCardOfDay(ctx context.Context, userID primitive.ObjectID, req models.ResolveCardOfDayRequest, requestIP string) (*models.ReadingResponse, string, error) {
+	claimToken := strings.TrimSpace(req.ClaimToken)
+	if claimToken == "" {
+		reading, err := s.GenerateCardOfDay(ctx, userID, models.GenerateReadingRequest{Timezone: req.Timezone}, requestIP)
+		if err != nil {
+			var alreadyExists *CardOfDayAlreadyGeneratedError
+			if errors.As(err, &alreadyExists) {
+				return &alreadyExists.Existing, "existing", nil
+			}
+			return nil, "", err
+		}
+		return reading, "generated", nil
+	}
+
+	claims, err := utils.VerifyGuestCardToken(claimToken, s.jwtSecret)
+	if err != nil {
+		return nil, "", fmt.Errorf("%w: token verification failed", ErrInvalidGuestClaim)
+	}
+	user, policy, timezone, accountingDate, nextResetAt, err := s.resolveReadingContext(ctx, userID, claims.Timezone)
+	if err != nil {
+		return nil, "", err
+	}
+	if timezone != claims.Timezone || accountingDate != claims.AccountingDate {
+		return nil, "", fmt.Errorf("%w: claim is outside its accounting day", ErrInvalidGuestClaim)
+	}
+
+	existing, err := s.readings.FindByUserTypeAndAccountingDate(ctx, userID, models.ReadingTypeCardOfDay, accountingDate)
+	if err == nil {
+		response, buildErr := s.buildReadingResponse(ctx, existing, nil)
+		if buildErr != nil {
+			return nil, "", buildErr
+		}
+		response.NextAvailableAt = &nextResetAt
+		return response, "existing", nil
+	}
+	if !errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, "", err
+	}
+	if _, err := s.cards.FindByKey(ctx, claims.CardKey); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, "", fmt.Errorf("%w: card no longer exists", ErrInvalidGuestClaim)
+		}
+		return nil, "", err
+	}
+
+	deckID, err := s.resolveEffectiveDeckID(ctx, user.SelectedDeckID)
+	if err != nil {
+		return nil, "", err
+	}
+	backID, err := s.resolveEffectiveBackID(ctx, user.SelectedBackID)
+	if err != nil {
+		return nil, "", err
+	}
+	now := s.now().UTC()
+	reading := &models.Reading{
+		UserID:         user.ID,
+		Type:           models.ReadingTypeCardOfDay,
+		AccountingDate: accountingDate,
+		Timezone:       timezone,
+		Cards:          []models.ReadingCard{{Key: claims.CardKey, Position: 0, Reversed: false, Viewed: false}},
+		DeckID:         deckID,
+		BackID:         backID,
+		GeneratedAt:    now,
+		ExpiresAt:      now.AddDate(0, 0, policy.HistoryRetentionDays),
+		Metadata: models.ReadingMetadata{
+			Seed:      buildDeterministicSeed("guest:"+claims.GuestID, accountingDate, timezone),
+			RequestIP: requestIP,
+		},
+	}
+	if err := s.readings.Create(ctx, reading); err != nil {
+		return nil, "", err
+	}
+	response, err := s.buildReadingResponse(ctx, reading, nil)
+	if err != nil {
+		return nil, "", err
+	}
+	response.NextAvailableAt = &nextResetAt
+	return response, "guest_claimed", nil
 }
 
 func (s *ReadingService) GenerateCardOfDay(ctx context.Context, userID primitive.ObjectID, req models.GenerateReadingRequest, requestIP string) (*models.ReadingResponse, error) {
@@ -416,20 +552,12 @@ func (s *ReadingService) buildReadingResponses(ctx context.Context, readings []m
 				return nil, fmt.Errorf("card %s not found in catalog", readingCard.Key)
 			}
 
-			responseCards = append(responseCards, models.ReadingCardResponse{
-				Key:              card.Key,
-				Name:             card.Names.EN,
-				NameRU:           card.Names.RU,
-				Interpretation:   card.Interpretations.EN,
-				InterpretationRU: card.Interpretations.RU,
-				Tags:             card.Tags.EN,
-				TagsRU:           card.Tags.RU,
-				ImageURL:         buildCardImageURL(reading.DeckID, card.Key),
-				BackImageURL:     backImageURLs[effectiveBackID],
-				Position:         readingCard.Position,
-				Reversed:         readingCard.Reversed,
-				Viewed:           readingCard.Viewed,
-			})
+			responseCards = append(responseCards, buildReadingCardResponse(
+				card,
+				readingCard,
+				buildCardImageURL(reading.DeckID, card.Key),
+				backImageURLs[effectiveBackID],
+			))
 		}
 
 		sort.Slice(responseCards, func(i, j int) bool {
@@ -455,6 +583,26 @@ func (s *ReadingService) buildReadingResponses(ctx context.Context, readings []m
 	}
 
 	return responses, nil
+}
+
+func buildReadingCardResponse(card models.Card, readingCard models.ReadingCard, imageURL, backImageURL string) models.ReadingCardResponse {
+	return models.ReadingCardResponse{
+		Key:              card.Key,
+		Arcana:           card.Arcana,
+		Type:             card.Type.EN,
+		TypeRU:           card.Type.RU,
+		Name:             card.Names.EN,
+		NameRU:           card.Names.RU,
+		Interpretation:   card.Interpretations.EN,
+		InterpretationRU: card.Interpretations.RU,
+		Tags:             card.Tags.EN,
+		TagsRU:           card.Tags.RU,
+		ImageURL:         imageURL,
+		BackImageURL:     backImageURL,
+		Position:         readingCard.Position,
+		Reversed:         readingCard.Reversed,
+		Viewed:           readingCard.Viewed,
+	}
 }
 
 func resolveTimezone(requestedTimezone, fallback string) string {

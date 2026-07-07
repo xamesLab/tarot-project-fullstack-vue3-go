@@ -1,6 +1,11 @@
 {
   "date": "May 28, 2026 · Wednesday · Waning Moon",
   "cardOfDay": "Card of the Day",
+  "guestCardSuffix": "(guest card)",
+  "guestCardTooltip": "sign in to see your personal card",
+  "arcana": { "major": "Major Arcana", "minor": "Minor Arcana" },
+  "orientation": { "upright": "Upright", "reversed": "Reversed" },
+  "revealDescription": "Flip the card to reveal its meaning",
   "flipHint": "Tap to flip the card",
   "expand": "Expand interpretation",
   "collapse": "Collapse interpretation",

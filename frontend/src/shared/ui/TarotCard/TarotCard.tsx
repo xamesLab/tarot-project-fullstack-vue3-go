@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from 'react';
+import { useEffect, useState, type KeyboardEvent } from 'react';
 import { useTilt } from '@/shared/lib/useTilt';
 import './tarot-card.css';
 
@@ -10,10 +10,54 @@ function CardBack() {
   return <svg viewBox="0 0 260 450" className="card-art" fill="none" stroke="#c9a96e" aria-hidden="true"><rect x="30" y="30" width="200" height="390" strokeWidth=".6" opacity=".5"/><rect x="46" y="46" width="168" height="358" strokeWidth=".4" opacity=".35"/><circle cx="130" cy="150" r="52" opacity=".7"/><circle cx="130" cy="150" r="40" opacity=".4"/><path d="m130 120 10 30-10 30-10-30 10-30Zm-30 30 30-10 30 10-30 10-30-10Z" opacity=".7"/><path d="M130 138a22 22 0 0 1 0 24 15 22 0 0 0 0-24Z" fill="#c9a96e" stroke="none" opacity=".55"/><circle cx="130" cy="150" r="3" fill="#e8d5a3" stroke="none"/><path d="m130 250 22 42-22 42-22-42 22-42Zm0 14 14 28-14 28-14-28 14-28Z" opacity=".6"/><g fill="#e8d5a3" stroke="none" opacity=".7"><circle cx="130" cy="66" r="1.6"/><circle cx="130" cy="384" r="1.6"/><circle cx="70" cy="225" r="1.3"/><circle cx="190" cy="225" r="1.3"/></g></svg>;
 }
 
-export function TarotCard({ roman, name, flippable, tilt, flipLabel }: { roman: string; name: string; flippable?: boolean; tilt?: boolean; flipLabel?: string }) {
+function CardFace({ roman, name, imageUrl, imageAlt }: { roman: string; name: string; imageUrl?: string; imageAlt?: string }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  useEffect(() => setImageFailed(false), [imageUrl]);
+
+  if (imageUrl && !imageFailed) {
+    return <img className="card-image" src={imageUrl} alt={imageAlt || name} draggable={false} onError={() => setImageFailed(true)}/>;
+  }
+
+  return <><PriestessArt/><div className="tarot-frame"/><div className="tarot-roman">{roman}</div><div className="tarot-name">{name}</div></>;
+}
+
+function CardBackVisual({ imageUrl }: { imageUrl?: string }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  useEffect(() => setImageFailed(false), [imageUrl]);
+
+  if (imageUrl && !imageFailed) {
+    return <img className="card-image" src={imageUrl} alt="" draggable={false} onError={() => setImageFailed(true)}/>;
+  }
+
+  return <><CardBack/><div className="tarot-frame"/><div className="tarot-brand">NEBULA-TAROT</div></>;
+}
+
+interface TarotCardProps {
+  roman: string;
+  name: string;
+  faceImageUrl?: string;
+  faceImageAlt?: string;
+  backImageUrl?: string;
+  flippable?: boolean;
+  tilt?: boolean;
+  flipLabel?: string;
+  onFlipChange?: (flipped: boolean) => void;
+}
+
+export function TarotCard({ roman, name, faceImageUrl, faceImageAlt, backImageUrl, flippable, tilt, flipLabel, onFlipChange }: TarotCardProps) {
   const [flipped, setFlipped] = useState(false);
   const tiltRef = useTilt<HTMLDivElement>(Boolean(tilt));
-  const toggle = () => { if (flippable) setFlipped((value) => !value); };
+  const toggle = () => {
+    if (!flippable) return;
+    const nextFlipped = !flipped;
+    setFlipped(nextFlipped);
+    onFlipChange?.(nextFlipped);
+  };
   const onKeyDown = (event: KeyboardEvent) => { if (flippable && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); toggle(); } };
-  return <div ref={tiltRef} className={`tarot ${flipped ? 'flipped' : ''} ${tilt ? 'tiltable' : ''}`} role={flippable ? 'button' : undefined} tabIndex={flippable ? 0 : undefined} aria-label={flipLabel} aria-pressed={flippable ? flipped : undefined} onClick={toggle} onKeyDown={onKeyDown}><div className="card-side card-face"><PriestessArt/><div className="tarot-frame"/><div className="tarot-roman">{roman}</div><div className="tarot-name">{name}</div></div><div className="card-side card-back"><CardBack/><div className="tarot-frame"/><div className="tarot-brand">NEBULA-TAROT</div></div></div>;
+  return <div ref={tiltRef} className={`tarot ${flipped ? 'flipped' : ''} ${tilt ? 'tiltable' : ''}`} role={flippable ? 'button' : undefined} tabIndex={flippable ? 0 : undefined} aria-label={flipLabel} aria-pressed={flippable ? flipped : undefined} onClick={toggle} onKeyDown={onKeyDown}>
+    {flippable ? <>
+      <div className="card-side card-back" data-card-side="back"><CardBackVisual imageUrl={backImageUrl}/></div>
+      <div className="card-side card-face card-face-flip" data-card-side="face"><CardFace roman={roman} name={name} imageUrl={faceImageUrl} imageAlt={faceImageAlt}/></div>
+    </> : <div className="card-side card-face" data-card-side="face"><CardFace roman={roman} name={name} imageUrl={faceImageUrl} imageAlt={faceImageAlt}/></div>}
+  </div>;
 }

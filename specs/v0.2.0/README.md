@@ -2,7 +2,7 @@
 
 `v0.2.0` — новая frontend-итерация проекта. Она заменяет визуальную и архитектурную основу клиента, но пока не заменяет backend-connected возможности `v0.1.x`. Старый Vue frontend перенесён в `frontend-legacy/`, новый React frontend расположен в `frontend/`.
 
-**Статус:** implemented frontend baseline, mock API mode
+**Статус:** hybrid frontend baseline: HTTP auth + mock content
 
 **Дата фиксации документа:** 3 июля 2026
 
@@ -35,9 +35,9 @@ Route `/` стал публичной ритуальной страницей к
 
 ### Регистрационный flow
 
-Все четыре пункта верхней навигации пока считаются gated actions и открывают единый registration modal. Форма содержит name, email, password и необязательную birth date, валидируется через `react-hook-form + zod`, отправляется в mock API и показывает success state.
+Card of the Day остаётся публичной. Guest pill открывает login, а Spreads, Horoscope и Learn для гостя открывают registration. Единый modal переключается между режимами без закрытия.
 
-Это UX-заглушка, а не реальная регистрация: JWT, backend session и восстановление пользователя после reload в `v0.2.0` не подключены.
+Регистрация использует `email`, необязательный `username`, `password` и обязательный IANA timezone. Login/registration подключены к Go API, JWT сохраняется в `localStorage`, а профиль восстанавливается через `/api/me`. В шапке отображаются Guest или реальные username/role и доступен logout.
 
 ### UI Kit как runtime-контракт
 
@@ -66,7 +66,7 @@ Route `/ui-kit` демонстрирует реальные компоненты
 
 ```text
 frontend/src/
-├── api/           # DTO, public API facade, mock и будущий HTTP adapter
+├── api/           # DTO, hybrid facade, mock content и HTTP auth
 ├── app/           # App, router и providers
 ├── features/      # auth, preferences, i18n, oracle chat
 ├── pages/         # Home и dev-only UI Kit
@@ -91,9 +91,11 @@ frontend/src/
 api.readings.getDaily(language)
 api.oracle.ask(question, language)
 api.auth.register(payload)
+api.auth.login(payload)
+api.auth.getCurrentUser()
 ```
 
-`VITE_API_MODE=mock|http` выбирает реализацию в одном месте. В текущей версии development и production используют `mock`; HTTP adapter оставлен явной заглушкой и не должен считаться интегрированным.
+Transport выбирается по доменам: `VITE_API_MODE=mock` оставляет readings/oracle на fixtures, а `VITE_AUTH_API_MODE=http` подключает auth к backend. Это позволяет мигрировать API вертикальными slices, не ломая Home.
 
 ### Обновлённый toolchain
 
@@ -114,7 +116,7 @@ api.auth.register(payload)
 - Home и dev-only UI Kit
 - shared component library и design tokens
 - dark/light, RU/EN и persistence настроек
-- typed mock readings, oracle и registration APIs
+- typed mock readings/oracle и HTTP login/registration/session APIs
 - loading/error behavior для daily reading
 - keyboard-accessible card flip и modal focus management
 - typecheck, lint, unit smoke test и production build scripts
@@ -122,7 +124,7 @@ api.auth.register(payload)
 ### Не входит в v0.2.0
 
 - реальная связь нового frontend с Go API
-- JWT auth, login, profile и session bootstrap
+- profile/settings screen и остальные protected routes
 - настоящие Spreads, Horoscope и Learn routes
 - history, deck/card-back selection и admin panel
 - реальный LLM oracle streaming
@@ -155,7 +157,7 @@ npm run build
 - карта переворачивается мышью и клавиатурой
 - interpretation раскрывается и сворачивается
 - oracle chat добавляет вопрос и локализованный mock response
-- gated nav открывает форму регистрации; validation и success state работают
+- guest pill открывает login, gated nav — registration; validation, session restore и logout работают
 - `/ui-kit` доступен в development и отсутствует как route в production
 - typecheck, lint, tests и build завершаются успешно
 

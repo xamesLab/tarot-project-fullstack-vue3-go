@@ -9,21 +9,41 @@ import (
 	"time"
 
 	"tarot-daily/internal/models"
-	"tarot-daily/internal/repositories"
 	"tarot-daily/internal/utils"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type AuthService struct {
-	users *repositories.UserRepository
+	users    authUserRepository
+	settings authSettingsRepository
 }
 
-func NewAuthService(users *repositories.UserRepository) *AuthService {
-	return &AuthService{users: users}
+type authUserRepository interface {
+	Create(context.Context, *models.User) error
+	FindByEmail(context.Context, string) (*models.User, error)
+	FindByUsername(context.Context, string) (*models.User, error)
+	UpdateLastLogin(context.Context, primitive.ObjectID, time.Time) error
+}
+
+type authSettingsRepository interface {
+	Get(context.Context) (*models.AdminSettings, error)
+}
+
+func NewAuthService(users authUserRepository, settings authSettingsRepository) *AuthService {
+	return &AuthService{users: users, settings: settings}
 }
 
 func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, jwtSecret, jwtTTL string) (*models.User, string, error) {
+	settings, err := s.settings.Get(ctx)
+	if err != nil {
+		return nil, "", err
+	}
+	if !settings.RegistrationEnabled {
+		return nil, "", ErrRegistrationDisabled
+	}
+
 	email := strings.TrimSpace(strings.ToLower(req.Email))
 	username, err := s.resolveRegistrationUsername(ctx, strings.TrimSpace(req.Username), email)
 	if err != nil {
@@ -31,7 +51,7 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 	}
 
 	if _, err := s.users.FindByEmail(ctx, email); err == nil {
-		return nil, "", wrapValidation("Email is already registered")
+		return nil, "", newValidationError("email", "already_registered", "Email is already registered")
 	} else if !errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, "", err
 	}
@@ -46,7 +66,7 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 		Email:          email,
 		Username:       username,
 		PasswordHash:   passwordHash,
-		Role:           "seeker",
+		Role:           publicDefaultRole(settings.DefaultRole),
 		Status:         "active",
 		Timezone:       req.Timezone,
 		Language:       "ru",
@@ -63,7 +83,13 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 			if strings.Contains(strings.ToLower(err.Error()), "username") {
 				message = "Username unavailable"
 			}
-			return nil, "", wrapValidation(message)
+			field := "email"
+			reason := "already_registered"
+			if message == "Username unavailable" {
+				field = "username"
+				reason = "unavailable"
+			}
+			return nil, "", newValidationError(field, reason, message)
 		}
 		return nil, "", err
 	}
@@ -123,7 +149,7 @@ func (s *AuthService) resolveRegistrationUsername(ctx context.Context, rawUserna
 	}
 
 	if _, err := s.users.FindByUsername(ctx, username); err == nil {
-		return "", wrapValidation("Username unavailable")
+		return "", newValidationError("username", "unavailable", "Username unavailable")
 	} else if !errors.Is(err, mongo.ErrNoDocuments) {
 		return "", err
 	}
@@ -153,7 +179,16 @@ func (s *AuthService) ensureUniqueUsername(ctx context.Context, base string) (st
 		}
 	}
 
-	return "", wrapValidation("Username unavailable")
+	return "", newValidationError("username", "unavailable", "Username unavailable")
+}
+
+func publicDefaultRole(role string) string {
+	switch strings.TrimSpace(role) {
+	case "seeker", "adept", "master":
+		return strings.TrimSpace(role)
+	default:
+		return "seeker"
+	}
 }
 
 func buildUsernameFromEmail(email string) string {

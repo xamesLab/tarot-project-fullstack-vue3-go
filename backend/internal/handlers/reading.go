@@ -26,10 +26,68 @@ func NewReadingHandler(readingService *services.ReadingService, validate *valida
 
 func (h *ReadingHandler) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/reading/generate/card-of-day", h.generateCardOfDay)
+	router.POST("/reading/card-of-day/resolve", h.resolveCardOfDay)
 	router.POST("/reading/generate/three-card", h.generateThreeCardSpread)
 	router.POST("/reading/generate/spread-a", h.generateThreeCardSpread)
 	router.POST("/reading/:readingId/cards/:position/reveal", h.revealCard)
 	router.GET("/reading/history", h.getHistory)
+}
+
+func (h *ReadingHandler) RegisterPublicRoutes(router *gin.RouterGroup) {
+	router.POST("/reading/guest/card-of-day", h.generateGuestCardOfDay)
+}
+
+func (h *ReadingHandler) generateGuestCardOfDay(c *gin.Context) {
+	var req models.GenerateGuestCardOfDayRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
+		return
+	}
+	if err := h.validate.Struct(req); err != nil {
+		respondValidationError(c, err)
+		return
+	}
+
+	result, err := h.readingService.GenerateGuestCardOfDay(c.Request.Context(), req)
+	if err != nil {
+		respondServiceError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success":     true,
+		"source":      "guest",
+		"reading":     result.Reading,
+		"claim_token": result.ClaimToken,
+	})
+}
+
+func (h *ReadingHandler) resolveCardOfDay(c *gin.Context) {
+	userID, ok := parseUserID(c)
+	if !ok {
+		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
+		return
+	}
+
+	var req models.ResolveCardOfDayRequest
+	if err := c.ShouldBindJSON(&req); err != nil && !errors.Is(err, http.ErrBodyNotAllowed) {
+		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
+		return
+	}
+	if err := h.validate.Struct(req); err != nil {
+		respondValidationError(c, err)
+		return
+	}
+
+	reading, source, err := h.readingService.ResolveCardOfDay(c.Request.Context(), userID, req, c.ClientIP())
+	if err != nil {
+		respondServiceError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"source":  source,
+		"reading": reading,
+	})
 }
 
 func (h *ReadingHandler) generateCardOfDay(c *gin.Context) {

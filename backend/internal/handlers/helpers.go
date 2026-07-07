@@ -20,22 +20,53 @@ func respondError(c *gin.Context, status int, code, message string) {
 	})
 }
 
+func respondErrorWithDetails(c *gin.Context, status int, code, message string, details gin.H) {
+	c.JSON(status, gin.H{
+		"success": false,
+		"error":   code,
+		"message": message,
+		"details": details,
+	})
+}
+
 func respondValidationError(c *gin.Context, err error) {
 	var validationErrs validator.ValidationErrors
 	if errors.As(err, &validationErrs) {
 		for _, item := range validationErrs {
+			field := strings.ToLower(item.Field())
 			switch item.Tag() {
+			case "required":
+				respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "This field is required", gin.H{"field": field, "reason": "required"})
+				return
+			case "email":
+				respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Please enter a valid email address", gin.H{"field": field, "reason": "invalid"})
+				return
+			case "min", "max":
+				if field == "username" {
+					respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Username must contain between 3 and 20 characters", gin.H{"field": field, "reason": "invalid_format"})
+					return
+				}
+				if field == "password" {
+					respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Password must be at least 8 characters with letter and number", gin.H{"field": field, "reason": "invalid_format"})
+					return
+				}
 			case "password":
-				respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Password must be at least 8 characters with letter and number")
+				respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Password must be at least 8 characters with letter and number", gin.H{"field": field, "reason": "invalid_format"})
 				return
 			case "timezone":
-				respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Please select a valid timezone")
+				respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Please select a valid timezone", gin.H{"field": field, "reason": "invalid"})
 				return
 			case "username":
-				respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Username may contain only letters, numbers, dots, underscores, and hyphens")
+				respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Username may contain only letters, numbers, dots, underscores, and hyphens", gin.H{"field": field, "reason": "invalid_format"})
 				return
 			}
 		}
+	}
+
+	var fieldError *services.ValidationError
+	if errors.As(err, &fieldError) {
+		respondErrorWithDetails(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), fieldError.Message, gin.H{"field": fieldError.Field, "reason": fieldError.Reason})
+		return
 	}
 
 	message := err.Error()
@@ -50,12 +81,16 @@ func respondValidationError(c *gin.Context, err error) {
 
 func respondServiceError(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, services.ErrRegistrationDisabled):
+		respondError(c, http.StatusForbidden, services.ErrRegistrationDisabled.Error(), "Registration is currently disabled")
 	case errors.Is(err, services.ErrInvalidCredentials):
 		respondError(c, http.StatusUnauthorized, services.ErrInvalidCredentials.Error(), "Email or password incorrect")
 	case errors.Is(err, services.ErrAccountDisabled):
 		respondError(c, http.StatusForbidden, services.ErrAccountDisabled.Error(), "Your account has been suspended")
 	case errors.Is(err, services.ErrForbidden):
 		respondError(c, http.StatusForbidden, services.ErrForbidden.Error(), "Forbidden")
+	case errors.Is(err, services.ErrInvalidGuestClaim):
+		respondError(c, http.StatusBadRequest, services.ErrInvalidGuestClaim.Error(), "Guest card claim is invalid or expired")
 	case errors.Is(err, services.ErrValidationFailed):
 		respondValidationError(c, err)
 	case errors.Is(err, mongo.ErrNoDocuments):

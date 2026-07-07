@@ -29,6 +29,7 @@ export function Constellation({ variant = 1, ...props }: IconProps & { variant?:
 export function CloseIcon(props: IconProps) { return <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" {...props}><path d="m1 1 12 12M13 1 1 13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>; }
 export function ChevronIcon(props: IconProps) { return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
 export function SendIcon(props: IconProps) { return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><path d="M4 12h16m-7-7 7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
+export function LogoutIcon(props: IconProps) { return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><path d="M13 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l4-4-4-4m4 4H5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
 
 export function SphereIcon({ type, ...props }: IconProps & { type: 'love' | 'career' | 'health' | 'spirit' }) {
   const art = {

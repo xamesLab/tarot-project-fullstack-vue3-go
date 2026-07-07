@@ -1,12 +1,11 @@
 import { create } from 'zustand';
-import type { Language } from '@/api/types';
-
-type Theme = 'dark' | 'light';
+import type { Language, Theme } from '@/api/types';
 
 interface PreferencesState {
   theme: Theme;
   language: Language;
   toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
   setLanguage: (language: Language) => void;
 }
 
@@ -21,6 +20,10 @@ export const usePreferencesStore = create<PreferencesState>((set) => ({
     localStorage.setItem('nebula-tarot:theme', theme);
     return { theme };
   }),
+  setTheme: (theme) => {
+    localStorage.setItem('nebula-tarot:theme', theme);
+    set({ theme });
+  },
   setLanguage: (language) => {
     localStorage.setItem('nebula-tarot:lang', language);
     set({ language });
