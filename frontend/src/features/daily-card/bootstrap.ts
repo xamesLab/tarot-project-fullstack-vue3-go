@@ -2,11 +2,12 @@ import { api } from '@/api';
 import { ApiError } from '@/api/client';
 import type { BackendReadingDto, DailyCardApi, UserDto } from '@/api/types';
 
-export const GUEST_DAILY_CARD_STORAGE_KEY = 'nebula-tarot:guest-card-of-day:v2';
+export const GUEST_DAILY_CARD_STORAGE_KEY = 'nebula-tarot:guest-card-of-day:v3';
 const LEGACY_GUEST_DAILY_CARD_STORAGE_KEY = 'nebula-tarot:guest-card-of-day:v1';
+const PREVIOUS_GUEST_DAILY_CARD_STORAGE_KEY = 'nebula-tarot:guest-card-of-day:v2';
 
 interface GuestDailyCardCache {
-  version: 2;
+  version: 3;
   guestId: string;
   timezone: string;
   accountingDate: string;
@@ -17,6 +18,7 @@ interface GuestDailyCardCache {
 export interface DailyCardBootstrapResult {
   source: 'guest-cache' | 'guest-api' | 'existing' | 'guest_claimed' | 'generated';
   reading: BackendReadingDto;
+  claimToken?: string;
 }
 
 interface BootstrapDependencies {
@@ -49,12 +51,13 @@ export function getAccountingDate(date: Date, timezone: string): string {
 
 function readCache(storage: Storage): GuestDailyCardCache | null {
   storage.removeItem(LEGACY_GUEST_DAILY_CARD_STORAGE_KEY);
+  storage.removeItem(PREVIOUS_GUEST_DAILY_CARD_STORAGE_KEY);
   const raw = storage.getItem(GUEST_DAILY_CARD_STORAGE_KEY);
   if (!raw) return null;
   try {
     const value = JSON.parse(raw) as Partial<GuestDailyCardCache>;
     const card = value.reading?.cards?.[0];
-    if (value.version !== 2 || !value.guestId || !value.timezone || !value.accountingDate || !value.claimToken || !card?.arcana || !card.type || !card.type_ru) {
+    if (value.version !== 3 || !value.guestId || !value.timezone || !value.accountingDate || !value.claimToken || !card?.arcana || !card.type || !card.type_ru) {
       throw new Error('Invalid guest daily card cache');
     }
     return value as GuestDailyCardCache;
@@ -83,13 +86,13 @@ export async function bootstrapDailyCard(user: UserDto | null, dependencies: Boo
   }
 
   if (!user) {
-    if (cache) return { source: 'guest-cache', reading: cache.reading };
+    if (cache) return { source: 'guest-cache', reading: cache.reading, claimToken: cache.claimToken };
 
     const timezone = dependencies.browserTimezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC';
     const guestId = dependencies.createGuestId?.() ?? crypto.randomUUID();
     const response = await dailyCardApi.generateGuest({ guest_id: guestId, timezone });
     const nextCache: GuestDailyCardCache = {
-      version: 2,
+      version: 3,
       guestId,
       timezone,
       accountingDate: response.reading.accounting_date,
@@ -97,7 +100,7 @@ export async function bootstrapDailyCard(user: UserDto | null, dependencies: Boo
       reading: response.reading,
     };
     storage.setItem(GUEST_DAILY_CARD_STORAGE_KEY, JSON.stringify(nextCache));
-    return { source: 'guest-api', reading: response.reading };
+    return { source: 'guest-api', reading: response.reading, claimToken: response.claim_token };
   }
 
   if (cache) {

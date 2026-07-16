@@ -42,6 +42,7 @@ func main() {
 	policyRepository := repositories.NewPolicyRepository(cfg.Database)
 	readingRepository := repositories.NewReadingRepository(cfg.Database)
 	askRequestRepository := repositories.NewAskRequestRepository(cfg.Database)
+	aiInterpretationCacheRepository := repositories.NewAIInterpretationCacheRepository(cfg.Database)
 	adminSettingsRepository := repositories.NewAdminSettingsRepository(cfg.Database)
 	deckRepository := repositories.NewDeckRepository(cfg.Database)
 	cardBackRepository := repositories.NewCardBackRepository(cfg.Database)
@@ -57,6 +58,9 @@ func main() {
 	if err := askRequestRepository.EnsureIndexes(context.Background()); err != nil {
 		log.Fatalf("ensure ask request indexes: %v", err)
 	}
+	if err := aiInterpretationCacheRepository.EnsureIndexes(context.Background()); err != nil {
+		log.Fatalf("ensure ai interpretation cache indexes: %v", err)
+	}
 	if err := adminSettingsRepository.EnsureDefault(context.Background()); err != nil {
 		log.Fatalf("ensure admin settings: %v", err)
 	}
@@ -64,7 +68,7 @@ func main() {
 	authService := services.NewAuthService(userRepository, adminSettingsRepository)
 	userService := services.NewUserService(userRepository, deckRepository, cardBackRepository)
 	readingService := services.NewReadingService(userRepository, cardRepository, deckRepository, cardBackRepository, readingRepository, policyRepository, adminSettingsRepository, cfg.JWTSecret)
-	askService := services.NewAskService(cfg, userRepository, readingRepository, cardRepository, askRequestRepository, policyRepository, adminSettingsRepository)
+	askService := services.NewAskService(cfg, userRepository, readingRepository, cardRepository, askRequestRepository, aiInterpretationCacheRepository, policyRepository, adminSettingsRepository)
 	adminService := services.NewAdminService(userRepository, cardRepository, readingRepository, policyRepository, adminSettingsRepository, deckRepository, cardBackRepository)
 	catalogService := services.NewCatalogService(deckRepository, cardBackRepository, adminSettingsRepository)
 
@@ -82,6 +86,7 @@ func main() {
 	authRoutes := api.Group("/auth")
 	authHandler.RegisterRoutes(authRoutes)
 	readingHandler.RegisterPublicRoutes(api)
+	askHandler.RegisterPublicRoutes(api)
 
 	protected := api.Group("/")
 	protected.Use(middleware.AuthMiddleware(cfg.JWTSecret))

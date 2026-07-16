@@ -26,6 +26,65 @@ func NewAskHandler(askService *services.AskService, validate *validator.Validate
 func (h *AskHandler) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/ask", h.createOrReuseAsk)
 	router.GET("/ask/:requestId", h.getAsk)
+	router.POST("/reading/card-of-day/interpretation", h.createUserCardOfDayInterpretation)
+}
+
+func (h *AskHandler) RegisterPublicRoutes(router *gin.RouterGroup) {
+	router.POST("/reading/guest/card-of-day/interpretation", h.createGuestCardOfDayInterpretation)
+}
+
+func (h *AskHandler) createGuestCardOfDayInterpretation(c *gin.Context) {
+	var req models.GuestCardOfDayInterpretationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
+		return
+	}
+	if err := h.validate.Struct(req); err != nil {
+		respondValidationError(c, err)
+		return
+	}
+
+	result, err := h.askService.GenerateGuestCardOfDayInterpretation(c.Request.Context(), req)
+	if err != nil {
+		h.respondAskError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":        true,
+		"source":         result.Source,
+		"interpretation": result.Interpretation,
+	})
+}
+
+func (h *AskHandler) createUserCardOfDayInterpretation(c *gin.Context) {
+	userID, ok := parseUserID(c)
+	if !ok {
+		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
+		return
+	}
+
+	var req models.UserCardOfDayInterpretationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
+		return
+	}
+	if err := h.validate.Struct(req); err != nil {
+		respondValidationError(c, err)
+		return
+	}
+
+	result, err := h.askService.GenerateUserCardOfDayInterpretation(c.Request.Context(), userID, req)
+	if err != nil {
+		h.respondAskError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":        true,
+		"source":         result.Source,
+		"interpretation": result.Interpretation,
+	})
 }
 
 func (h *AskHandler) createOrReuseAsk(c *gin.Context) {

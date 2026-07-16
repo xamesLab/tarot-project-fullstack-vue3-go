@@ -22,16 +22,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .light .app-shell::before { opacity: .5; }
 .page-wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 0 40px; }
 
-.stars { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.background-parallax { --parallax-x: 0; --parallax-y: 0; --parallax-scroll: 0; --parallax-far-x: 0px; --parallax-far-y: 0px; --parallax-mid-x: 0px; --parallax-mid-y: 0px; --parallax-near-x: 0px; --parallax-near-y: 0px; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.parallax-layer { position: absolute; inset: -28px; pointer-events: none; will-change: transform; }
+.parallax-layer-far { transform: translate3d(var(--parallax-far-x), var(--parallax-far-y), 0); }
+.parallax-layer-mid { transform: translate3d(var(--parallax-mid-x), var(--parallax-mid-y), 0); }
+.parallax-layer-near { transform: translate3d(var(--parallax-near-x), var(--parallax-near-y), 0); }
+.stars { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.stars-mid { opacity: .75; }
+.stars-near { opacity: .78; }
 .star { position: absolute; border-radius: 50%; background: var(--gold-light); animation: twinkle var(--dur, 4s) ease-in-out infinite var(--delay, 0s); }
-.orb { position: fixed; z-index: 0; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+.star-near { box-shadow: 0 0 10px rgba(201,169,110,.18); }
+.orb { position: absolute; z-index: 0; border-radius: 50%; filter: blur(120px); pointer-events: none; }
 .orb1 { width: 600px; height: 600px; top: -220px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, rgba(201,169,110,.13), transparent 70%); }
 .orb2 { width: 420px; height: 420px; right: -120px; bottom: 6%; background: radial-gradient(circle, rgba(120,95,175,.11), transparent 70%); }
 .orb3 { width: 360px; height: 360px; top: 44%; left: -140px; background: radial-gradient(circle, rgba(80,105,180,.09), transparent 70%); }
 .light .orb1 { background: radial-gradient(circle, rgba(160,127,58,.16), transparent 70%); }
 .light .orb2 { background: radial-gradient(circle, rgba(120,95,175,.14), transparent 70%); }
 .light .orb3 { background: radial-gradient(circle, rgba(80,105,180,.12), transparent 70%); }
-.bg-constellation { position: fixed; z-index: 0; color: var(--gold); opacity: .85; pointer-events: none; }
+.bg-constellation { position: absolute; z-index: 0; color: var(--gold); opacity: .85; pointer-events: none; }
 .bgc1 { top: 12%; left: 3%; width: 180px; }
 .bgc2 { top: 58%; right: 2.5%; width: 200px; }
 .light .bg-constellation { opacity: 1; filter: brightness(.58) saturate(1.7); }

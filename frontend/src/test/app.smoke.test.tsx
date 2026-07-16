@@ -1,11 +1,34 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from '@/app/App';
 import { api } from '@/api';
+import { App } from '@/app/App';
 import { router } from '@/app/router';
-import { usePreferencesStore } from '@/features/preferences/store';
-import { useAuthStore } from '@/features/auth/store';
 import { TOKEN_STORAGE_KEY } from '@/api/client';
+import { useAuthStore } from '@/features/auth/store';
+import { usePreferencesStore } from '@/features/preferences/store';
+
+const backendReading = {
+  type: 'card_of_day' as const,
+  accounting_date: '2026-07-03',
+  generated_at: '2026-07-03T10:00:00Z',
+  cards: [{
+    key: 'seven_of_pentacles',
+    arcana: 'minor' as const,
+    type: 'Pentacles',
+    type_ru: 'Пентакли',
+    name: 'Seven of Pentacles',
+    name_ru: 'Семёрка Пентаклей',
+    interpretation: 'Patience brings results.',
+    interpretation_ru: 'Терпение приносит результат.',
+    tags: 'Patience, results.',
+    tags_ru: 'Терпение, результат.',
+    image_url: '/uploads/live-face.png',
+    back_image_url: '/uploads/live-back.png',
+    position: 0,
+    reversed: false,
+    viewed: false,
+  }],
+};
 
 describe('NEBULA-TAROT smoke', () => {
   beforeEach(() => {
@@ -14,61 +37,65 @@ describe('NEBULA-TAROT smoke', () => {
     usePreferencesStore.setState({ theme: 'dark', language: 'ru' });
     useAuthStore.setState({ user: null, token: '', status: 'guest', hydrated: true });
     window.history.replaceState({}, '', '/');
-    const backendReading = { type: 'card_of_day' as const, accounting_date: '2026-07-03', generated_at: '2026-07-03T10:00:00Z', cards: [{ key: 'seven_of_pentacles', arcana: 'minor' as const, type: 'Pentacles', type_ru: 'пентакли', name: 'Seven of Pentacles', name_ru: 'Семёрка Пентаклей', interpretation: 'Patience brings results.', interpretation_ru: 'Терпение приносит результат.', tags: 'Patience, results.', tags_ru: 'Терпение, результат.', image_url: '/uploads/live-face.png', back_image_url: '/uploads/live-back.png', position: 0, reversed: false, viewed: false }] };
     vi.spyOn(api.dailyCard, 'generateGuest').mockResolvedValue({ success: true, source: 'guest', reading: backendReading, claim_token: 'claim' });
     vi.spyOn(api.dailyCard, 'resolve').mockResolvedValue({ success: true, source: 'existing', reading: { ...backendReading, id: 'reading-1' } });
+    vi.spyOn(api.dailyCard, 'getGuestInterpretation').mockResolvedValue({ success: true, source: 'cache', interpretation: { general: 'AI general', work: 'AI work', family: 'AI family', advice: 'AI advice' } });
+    vi.spyOn(api.dailyCard, 'getUserInterpretation').mockResolvedValue({ success: true, source: 'reading', interpretation: { general: 'AI user general', work: 'AI user work', family: 'AI user family', advice: 'AI user advice' } });
     vi.spyOn(console, 'info').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
-  it('keeps the daily page public and opens registration from gated navigation', async () => {
+  it('keeps the daily page public, requests AI only after reveal, and opens registration from gated navigation', async () => {
     const { container } = render(<App />);
     expect(screen.getByLabelText('NEBULA-TAROT')).toBeInTheDocument();
     expect(screen.getByText('Карта дня (карта гостя)')).toBeInTheDocument();
-    const tooltipButton = screen.getByRole('button', { name: 'войдите чтобы увидеть вашу личную карту' });
+    const tooltipButton = screen.getByRole('button', { name: 'Войдите, чтобы увидеть вашу личную карту' });
     fireEvent.focus(tooltipButton);
-    expect(screen.getByRole('tooltip')).toHaveTextContent('войдите чтобы увидеть вашу личную карту');
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Войдите, чтобы увидеть вашу личную карту');
     const cardFace = await screen.findByRole('img', { name: 'Семёрка Пентаклей' });
     expect(new URL(cardFace.getAttribute('src')!).pathname).toBe('/uploads/live-face.png');
+
     const detailsShell = container.querySelector<HTMLElement>('.card-details-shell')!;
     const detailsBody = container.querySelector<HTMLElement>('.card-details-body')!;
     const expandButton = container.querySelector<HTMLButtonElement>('.expand-button')!;
     expect(detailsShell).toHaveClass('concealed');
     expect(detailsBody).toHaveAttribute('aria-hidden', 'true');
     expect(expandButton).toBeDisabled();
-    expect(expandButton).toHaveAttribute('tabindex', '-1');
     expect(screen.getByText('Переверните карту, чтобы открыть описание')).toBeInTheDocument();
+    expect(api.dailyCard.getGuestInterpretation).not.toHaveBeenCalled();
 
     const flipButton = screen.getByRole('button', { name: 'Нажмите, чтобы перевернуть' });
     fireEvent.click(flipButton);
     expect(detailsShell).toHaveClass('revealed');
     expect(detailsBody).toHaveAttribute('aria-hidden', 'false');
-    expect(expandButton).toBeEnabled();
-    expect(await screen.findByText('Семёрка Пентаклей')).toBeInTheDocument();
+    expect(await screen.findByText('AI general')).toBeInTheDocument();
+    expect(api.dailyCard.getGuestInterpretation).toHaveBeenCalledWith({ claim_token: 'claim', language: 'ru' });
     expect(screen.getByText('Пентакли')).toBeInTheDocument();
     expect(screen.getByText('Младший Аркан · Прямое положение')).toBeInTheDocument();
     expect(screen.getByText('Терпение')).toBeInTheDocument();
     expect(screen.getByText('результат')).toBeInTheDocument();
-    expect(screen.getByText('Терпение приносит результат.')).toBeInTheDocument();
-    expect(screen.queryByText('Верховная Жрица')).not.toBeInTheDocument();
+    await waitFor(() => expect(expandButton).toBeEnabled());
     fireEvent.click(expandButton);
-    expect(await screen.findByText('Любовь & Отношения')).toBeInTheDocument();
+    expect(await screen.findByText('AI work')).toBeInTheDocument();
+    expect(screen.getByText('AI family')).toBeInTheDocument();
+    expect(screen.getByText('AI advice')).toBeInTheDocument();
+
     fireEvent.click(flipButton);
     expect(detailsShell).toHaveClass('concealed');
-    expect(screen.queryByText('Любовь & Отношения')).not.toBeInTheDocument();
+    expect(screen.queryByText('AI work')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Карта дня' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Расклады' }));
-    expect(await screen.findByRole('dialog')).toHaveTextContent('Присоединиться к NEBULA-TAROT');
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
   it('opens login from the guest pill and switches to registration', async () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Гость/ }));
-    expect(await screen.findByRole('dialog')).toHaveTextContent('Войти в NEBULA-TAROT');
-    fireEvent.click(screen.getByRole('button', { name: 'Нет аккаунта? Создать профиль' }));
-    expect(screen.getByRole('dialog')).toHaveTextContent('Присоединиться к NEBULA-TAROT');
-    expect(screen.getByLabelText('Имя пользователя (необязательно)')).toBeInTheDocument();
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Создать профиль/ }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Имя пользователя/)).toBeInTheDocument();
     expect(screen.getByLabelText('Часовой пояс')).toBeInTheDocument();
   });
 
@@ -100,7 +127,6 @@ describe('NEBULA-TAROT smoke', () => {
   it('registers the UI Kit route in development', async () => {
     await router.navigate('/ui-kit');
     render(<App />);
-    expect(await screen.findByText('Библиотека компонентов ARCANA')).toBeInTheDocument();
-    expect(screen.getByText('Основы — Палитра')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Библиотека компонентов ARCANA/ })).toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -20,6 +21,32 @@ func TestSelectDeterministicCardKeyStable(t *testing.T) {
 
 	if first != second {
 		t.Fatalf("expected deterministic selection, got %s and %s", first, second)
+	}
+}
+
+func TestGuestCardOfDayPoolKeysStable(t *testing.T) {
+	expected := []string{
+		"the_fool",
+		"the_magician",
+		"the_high_priestess",
+		"the_empress",
+		"strength",
+		"the_hermit",
+		"justice",
+		"temperance",
+		"the_star",
+		"the_sun",
+	}
+	if !reflect.DeepEqual(guestCardOfDayPoolKeys, expected) {
+		t.Fatalf("unexpected guest card pool: %#v", guestCardOfDayPoolKeys)
+	}
+	for _, key := range expected {
+		if !isGuestCardOfDayPoolKey(key) {
+			t.Fatalf("expected %s to be allowed for guest card of day", key)
+		}
+	}
+	if isGuestCardOfDayPoolKey("the_tower") {
+		t.Fatal("expected cards outside the guest pool to be rejected")
 	}
 }
 

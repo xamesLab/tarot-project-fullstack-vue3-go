@@ -20,9 +20,11 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/sync/singleflight"
 )
 
 const askPromptVersion = "v0.1.1-compact-100w"
+const guestCardOfDayCacheScope = "guest_card_of_day"
 
 type AIProvider interface {
 	GenerateInterpretation(ctx context.Context, req AIProviderRequest) (*AIProviderResult, error)
@@ -62,15 +64,17 @@ func (e *AIProviderError) Error() string {
 }
 
 type AskService struct {
-	config   *config.Config
-	users    *repositories.UserRepository
-	readings *repositories.ReadingRepository
-	cards    *repositories.CardRepository
-	requests *repositories.AskRequestRepository
-	policies *repositories.PolicyRepository
-	settings *repositories.AdminSettingsRepository
-	provider AIProvider
-	now      func() time.Time
+	config            *config.Config
+	users             *repositories.UserRepository
+	readings          *repositories.ReadingRepository
+	cards             *repositories.CardRepository
+	requests          *repositories.AskRequestRepository
+	cache             *repositories.AIInterpretationCacheRepository
+	policies          *repositories.PolicyRepository
+	settings          *repositories.AdminSettingsRepository
+	provider          AIProvider
+	guestAIGeneration singleflight.Group
+	now               func() time.Time
 }
 
 func NewAskService(
@@ -79,6 +83,7 @@ func NewAskService(
 	readings *repositories.ReadingRepository,
 	cards *repositories.CardRepository,
 	requests *repositories.AskRequestRepository,
+	cache *repositories.AIInterpretationCacheRepository,
 	policies *repositories.PolicyRepository,
 	settings *repositories.AdminSettingsRepository,
 ) *AskService {
@@ -88,6 +93,7 @@ func NewAskService(
 		readings: readings,
 		cards:    cards,
 		requests: requests,
+		cache:    cache,
 		policies: policies,
 		settings: settings,
 		provider: NewOpenRouterProvider(cfg),
@@ -103,6 +109,230 @@ type AIDailyLimitReachedError struct {
 
 func (e *AIDailyLimitReachedError) Error() string {
 	return ErrAIDailyLimitReached.Error()
+}
+
+func (s *AskService) GenerateGuestCardOfDayInterpretation(ctx context.Context, req models.GuestCardOfDayInterpretationRequest) (*models.CardOfDayInterpretationResult, error) {
+	if err := s.ensureAIProviderConfigured(); err != nil {
+		return nil, err
+	}
+
+	claims, err := utils.VerifyGuestCardToken(strings.TrimSpace(req.ClaimToken), s.config.JWTSecret)
+	if err != nil {
+		return nil, fmt.Errorf("%w: token verification failed", ErrInvalidGuestClaim)
+	}
+	if !isGuestCardOfDayPoolKey(claims.CardKey) {
+		return nil, fmt.Errorf("%w: card is outside guest pool", ErrInvalidGuestClaim)
+	}
+
+	language := normalizeLanguage(req.Language)
+	cached, err := s.findCachedGuestCardOfDayInterpretation(ctx, claims.CardKey, language)
+	if err == nil {
+		return cached, nil
+	}
+	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, err
+	}
+
+	groupKey := guestCardOfDayCacheKey(claims.CardKey, language)
+	value, err, _ := s.guestAIGeneration.Do(groupKey, func() (any, error) {
+		cached, err := s.findCachedGuestCardOfDayInterpretation(ctx, claims.CardKey, language)
+		if err == nil {
+			return cached, nil
+		}
+		if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, err
+		}
+
+		card, err := s.cards.FindByKey(ctx, claims.CardKey)
+		if err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				return nil, fmt.Errorf("%w: card no longer exists", ErrInvalidGuestClaim)
+			}
+			return nil, err
+		}
+
+		_, providerRequest := buildCardOfDayAIRequest(*card, CardOfDayPromptContext{
+			Language:       language,
+			Timezone:       claims.Timezone,
+			AccountingDate: claims.AccountingDate,
+			IsGuest:        true,
+		}, s.config.OpenRouterModelMain)
+
+		result, err := s.generateInterpretationWithRetry(ctx, providerRequest)
+		if err != nil {
+			return nil, err
+		}
+		interpretation, err := parseCardOfDayInterpretation(result.Content)
+		if err != nil {
+			return nil, err
+		}
+
+		completedAt := s.now().UTC()
+		entry := &models.AIInterpretationCache{
+			Scope:          guestCardOfDayCacheScope,
+			CardKey:        claims.CardKey,
+			Language:       language,
+			PromptVersion:  cardOfDayPromptVersion,
+			Provider:       models.AskProviderOpenRouter,
+			Model:          s.config.OpenRouterModelMain,
+			Status:         models.AIInterpretationCacheStatusCompleted,
+			Interpretation: interpretation,
+			Usage:          result.Usage,
+			ResponseData: map[string]any{
+				"provider_request_id": result.ProviderRequestID,
+				"finish_reason":       result.FinishReason,
+			},
+			CreatedAt:   completedAt,
+			UpdatedAt:   completedAt,
+			CompletedAt: &completedAt,
+		}
+		if err := s.cache.UpsertCompleted(ctx, entry); err != nil {
+			return nil, err
+		}
+
+		return &models.CardOfDayInterpretationResult{
+			Source:         "generated",
+			Interpretation: interpretation,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	response, ok := value.(*models.CardOfDayInterpretationResult)
+	if !ok {
+		return nil, fmt.Errorf("unexpected guest interpretation result")
+	}
+	return response, nil
+}
+
+func (s *AskService) GenerateUserCardOfDayInterpretation(ctx context.Context, userID primitive.ObjectID, req models.UserCardOfDayInterpretationRequest) (*models.CardOfDayInterpretationResult, error) {
+	if err := s.ensureAIProviderConfigured(); err != nil {
+		return nil, err
+	}
+
+	readingID, err := primitive.ObjectIDFromHex(strings.TrimSpace(req.ReadingID))
+	if err != nil {
+		return nil, wrapValidation("Invalid reading id")
+	}
+
+	reading, err := s.readings.FindByIDAndUser(ctx, readingID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if reading.Type != models.ReadingTypeCardOfDay || len(reading.Cards) == 0 {
+		return nil, wrapValidation("AI interpretation is supported only for Card of the Day")
+	}
+
+	if reading.AI != nil &&
+		reading.AI.Status == models.AskRequestStatusCompleted &&
+		reading.AI.PromptVersion == cardOfDayPromptVersion &&
+		strings.TrimSpace(reading.AI.Content) != "" {
+		interpretation, err := parseCardOfDayInterpretation(reading.AI.Content)
+		if err == nil {
+			return &models.CardOfDayInterpretationResult{
+				Source:         "reading",
+				Interpretation: interpretation,
+			}, nil
+		}
+	}
+
+	user, err := s.users.FindByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.ensureAIAvailableForUser(ctx, user); err != nil {
+		return nil, err
+	}
+
+	cardKey := reading.Cards[0].Key
+	card, err := s.cards.FindByKey(ctx, cardKey)
+	if err != nil {
+		return nil, err
+	}
+
+	language := normalizeLanguage(req.Language)
+	payload, providerRequest := buildCardOfDayAIRequest(*card, CardOfDayPromptContext{
+		Language:       language,
+		Timezone:       reading.Timezone,
+		AccountingDate: reading.AccountingDate,
+		IsGuest:        false,
+		Username:       user.Username,
+	}, s.config.OpenRouterModelMain)
+
+	now := s.now().UTC()
+	askRequest := &models.AskRequest{
+		UserID:         userID,
+		ReadingID:      reading.ID,
+		Provider:       models.AskProviderOpenRouter,
+		Model:          s.config.OpenRouterModelMain,
+		PromptVersion:  cardOfDayPromptVersion,
+		Status:         models.AskRequestStatusPending,
+		RequestPayload: payload,
+		RequestedAt:    now,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}
+	if err := s.requests.Create(ctx, askRequest); err != nil {
+		return nil, err
+	}
+	if err := s.requests.UpdateStatus(ctx, askRequest.ID, models.AskRequestStatusProcessing, nil, "", "", "", nil, nil); err != nil {
+		return nil, err
+	}
+	if err := s.readings.UpdateAIInterpretation(ctx, reading.ID, userID, &models.AIInterpretation{
+		RequestID:       askRequest.ID,
+		Provider:        models.AskProviderOpenRouter,
+		Model:           s.config.OpenRouterModelMain,
+		PromptVersion:   cardOfDayPromptVersion,
+		Language:        language,
+		Status:          models.AskRequestStatusProcessing,
+		LastRequestedAt: &now,
+		UpdatedAt:       &now,
+	}); err != nil {
+		return nil, err
+	}
+
+	result, err := s.generateInterpretationWithRetry(ctx, providerRequest)
+	if err != nil {
+		return nil, s.handleCardOfDayProviderFailure(ctx, userID, reading.ID, askRequest.ID, language, err, now)
+	}
+
+	interpretation, err := parseCardOfDayInterpretation(result.Content)
+	if err != nil {
+		return nil, s.handleCardOfDayProviderFailure(ctx, userID, reading.ID, askRequest.ID, language, err, now)
+	}
+	content, err := encodeCardOfDayInterpretation(interpretation)
+	if err != nil {
+		return nil, err
+	}
+
+	completedAt := s.now().UTC()
+	responseData := map[string]any{
+		"provider_request_id": result.ProviderRequestID,
+		"finish_reason":       result.FinishReason,
+	}
+	if err := s.requests.UpdateStatus(ctx, askRequest.ID, models.AskRequestStatusCompleted, &completedAt, content, "", "", result.Usage, responseData); err != nil {
+		return nil, err
+	}
+	if err := s.readings.UpdateAIInterpretation(ctx, reading.ID, userID, &models.AIInterpretation{
+		RequestID:       askRequest.ID,
+		Provider:        models.AskProviderOpenRouter,
+		Model:           s.config.OpenRouterModelMain,
+		PromptVersion:   cardOfDayPromptVersion,
+		Language:        language,
+		Status:          models.AskRequestStatusCompleted,
+		Content:         content,
+		CompletedAt:     &completedAt,
+		LastRequestedAt: &now,
+		UpdatedAt:       &completedAt,
+	}); err != nil {
+		return nil, err
+	}
+
+	return &models.CardOfDayInterpretationResult{
+		Source:         "generated",
+		Interpretation: interpretation,
+	}, nil
 }
 
 func (s *AskService) CreateOrReuseInterpretation(ctx context.Context, userID primitive.ObjectID, req models.CreateAskRequest) (*models.AskRequestResponse, error) {
@@ -479,6 +709,66 @@ func (s *AskService) handleProviderFailure(ctx context.Context, userID, readingI
 	}
 
 	return providerErr
+}
+
+func (s *AskService) handleCardOfDayProviderFailure(ctx context.Context, userID, readingID, requestID primitive.ObjectID, language string, sourceErr error, requestedAt time.Time) error {
+	var providerErr *AIProviderError
+	if !errors.As(sourceErr, &providerErr) {
+		providerErr = &AIProviderError{
+			Code:       "ai_provider_failed",
+			Message:    "AI provider request failed",
+			StatusCode: http.StatusBadGateway,
+		}
+	}
+
+	completedAt := s.now().UTC()
+	if err := s.requests.UpdateStatus(ctx, requestID, models.AskRequestStatusFailed, &completedAt, "", providerErr.Code, providerErr.Message, nil, nil); err != nil {
+		return err
+	}
+
+	if err := s.readings.UpdateAIInterpretation(ctx, readingID, userID, &models.AIInterpretation{
+		RequestID:       requestID,
+		Provider:        models.AskProviderOpenRouter,
+		Model:           s.config.OpenRouterModelMain,
+		PromptVersion:   cardOfDayPromptVersion,
+		Language:        language,
+		Status:          models.AskRequestStatusFailed,
+		ErrorCode:       providerErr.Code,
+		ErrorMessage:    providerErr.Message,
+		CompletedAt:     &completedAt,
+		LastRequestedAt: &requestedAt,
+		UpdatedAt:       &completedAt,
+	}); err != nil {
+		return err
+	}
+
+	return providerErr
+}
+
+func (s *AskService) findCachedGuestCardOfDayInterpretation(ctx context.Context, cardKey, language string) (*models.CardOfDayInterpretationResult, error) {
+	entry, err := s.cache.FindCompleted(ctx, guestCardOfDayCacheScope, cardKey, language, cardOfDayPromptVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.CardOfDayInterpretationResult{
+		Source:         "cache",
+		Interpretation: entry.Interpretation,
+	}, nil
+}
+
+func (s *AskService) ensureAIProviderConfigured() error {
+	if !s.config.AIDirectEnabled {
+		return ErrAIUnavailable
+	}
+	if strings.TrimSpace(s.config.OpenRouterKey) == "" || strings.TrimSpace(s.config.OpenRouterModelMain) == "" {
+		return ErrAIUnavailable
+	}
+	return nil
+}
+
+func guestCardOfDayCacheKey(cardKey, language string) string {
+	return strings.Join([]string{guestCardOfDayCacheScope, cardKey, language, cardOfDayPromptVersion}, ":")
 }
 
 type OpenRouterProvider struct {

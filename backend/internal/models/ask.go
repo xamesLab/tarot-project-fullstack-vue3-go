@@ -13,6 +13,8 @@ const (
 	AskRequestStatusFailed     = "failed"
 
 	AskProviderOpenRouter = "openrouter"
+
+	AIInterpretationCacheStatusCompleted = "completed"
 )
 
 type AskRequestCardInput struct {
@@ -55,6 +57,45 @@ type AskRequest struct {
 
 type CreateAskRequest struct {
 	ReadingID string `json:"reading_id" validate:"required"`
+}
+
+type CardOfDayInterpretation struct {
+	General string `bson:"general" json:"general"`
+	Work    string `bson:"work" json:"work"`
+	Family  string `bson:"family" json:"family"`
+	Advice  string `bson:"advice" json:"advice"`
+}
+
+type GuestCardOfDayInterpretationRequest struct {
+	ClaimToken string `json:"claim_token" validate:"required"`
+	Language   string `json:"language" validate:"required,oneof=ru en"`
+}
+
+type UserCardOfDayInterpretationRequest struct {
+	ReadingID string `json:"reading_id" validate:"required"`
+	Language  string `json:"language" validate:"required,oneof=ru en"`
+}
+
+type CardOfDayInterpretationResult struct {
+	Source         string                  `json:"source"`
+	Interpretation CardOfDayInterpretation `json:"interpretation"`
+}
+
+type AIInterpretationCache struct {
+	ID             primitive.ObjectID      `bson:"_id,omitempty" json:"-"`
+	Scope          string                  `bson:"scope" json:"scope"`
+	CardKey        string                  `bson:"card_key" json:"card_key"`
+	Language       string                  `bson:"language" json:"language"`
+	PromptVersion  string                  `bson:"prompt_version" json:"prompt_version"`
+	Provider       string                  `bson:"provider" json:"provider"`
+	Model          string                  `bson:"model" json:"model"`
+	Status         string                  `bson:"status" json:"status"`
+	Interpretation CardOfDayInterpretation `bson:"interpretation" json:"interpretation"`
+	Usage          *AskUsage               `bson:"usage,omitempty" json:"usage,omitempty"`
+	ResponseData   map[string]any          `bson:"response_data,omitempty" json:"response_data,omitempty"`
+	CreatedAt      time.Time               `bson:"created_at" json:"created_at"`
+	UpdatedAt      time.Time               `bson:"updated_at" json:"updated_at"`
+	CompletedAt    *time.Time              `bson:"completed_at,omitempty" json:"completed_at,omitempty"`
 }
 
 type AskRequestResponse struct {

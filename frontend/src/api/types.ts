@@ -33,6 +33,19 @@ export interface OracleReplyDto {
   text: string;
 }
 
+export interface CardOfDayInterpretationDto {
+  general: string;
+  work: string;
+  family: string;
+  advice: string;
+}
+
+export interface CardOfDayInterpretationResponse {
+  success: true;
+  source: 'cache' | 'generated' | 'reading';
+  interpretation: CardOfDayInterpretationDto;
+}
+
 export interface RegisterPayload {
   email: string;
   username?: string;
@@ -121,6 +134,8 @@ export interface ResolveCardOfDayResponse {
 export interface DailyCardApi {
   generateGuest: (payload: { guest_id: string; timezone: string }) => Promise<GuestCardOfDayResponse>;
   resolve: (payload: { timezone?: string; claim_token?: string }) => Promise<ResolveCardOfDayResponse>;
+  getGuestInterpretation: (payload: { claim_token: string; language: Language }) => Promise<CardOfDayInterpretationResponse>;
+  getUserInterpretation: (payload: { reading_id: string; language: Language }) => Promise<CardOfDayInterpretationResponse>;
 }
 
 export interface NebulaTarotApi {

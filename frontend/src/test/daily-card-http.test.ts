@@ -29,4 +29,26 @@ describe('daily card HTTP adapter', () => {
     expect(new Headers(request.headers).get('Authorization')).toBe('Bearer jwt');
     expect(JSON.parse(request.body as string)).toEqual({ timezone: 'UTC', claim_token: 'claim' });
   });
+
+  it('requests a public guest AI interpretation without JWT', async () => {
+    localStorage.setItem(TOKEN_STORAGE_KEY, 'jwt');
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ success: true, source: 'cache', interpretation: { general: 'G', work: 'W', family: 'F', advice: 'A' } }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    await httpDailyCardApi.getGuestInterpretation({ claim_token: 'claim', language: 'ru' });
+
+    expect(fetchMock).toHaveBeenCalledWith('http://localhost:8888/api/reading/guest/card-of-day/interpretation', expect.objectContaining({ method: 'POST' }));
+    const request = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(request.body as string)).toEqual({ claim_token: 'claim', language: 'ru' });
+    expect(new Headers(request.headers).has('Authorization')).toBe(false);
+  });
+
+  it('sends the JWT when requesting a user AI interpretation', async () => {
+    localStorage.setItem(TOKEN_STORAGE_KEY, 'jwt');
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ success: true, source: 'generated', interpretation: { general: 'G', work: 'W', family: 'F', advice: 'A' } }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    await httpDailyCardApi.getUserInterpretation({ reading_id: 'reading-1', language: 'en' });
+
+    expect(fetchMock).toHaveBeenCalledWith('http://localhost:8888/api/reading/card-of-day/interpretation', expect.objectContaining({ method: 'POST' }));
+    const request = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(new Headers(request.headers).get('Authorization')).toBe('Bearer jwt');
+    expect(JSON.parse(request.body as string)).toEqual({ reading_id: 'reading-1', language: 'en' });
+  });
 });

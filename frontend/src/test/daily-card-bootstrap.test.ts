@@ -13,7 +13,7 @@ const reading = (date = '2026-07-03'): BackendReadingDto => ({
 const user: UserDto = { id: 'user-1', username: 'alice', email: 'alice@example.com', role: 'seeker', status: 'active', timezone: 'UTC', language: 'ru', theme: 'dark' };
 
 function apiMock(): DailyCardApi {
-  return { generateGuest: vi.fn(), resolve: vi.fn() };
+  return { generateGuest: vi.fn(), resolve: vi.fn(), getGuestInterpretation: vi.fn(), getUserInterpretation: vi.fn() };
 }
 
 describe('daily card bootstrap', () => {
@@ -25,7 +25,9 @@ describe('daily card bootstrap', () => {
     const dependencies = { dailyCardApi, now: new Date('2026-07-03T12:00:00Z'), browserTimezone: 'UTC', createGuestId: () => '0f12c9cc-1ef2-4e78-a0cd-3a30e7fa4b1a' };
 
     expect((await bootstrapDailyCard(null, dependencies)).source).toBe('guest-api');
-    expect((await bootstrapDailyCard(null, dependencies)).source).toBe('guest-cache');
+    const cached = await bootstrapDailyCard(null, dependencies);
+    expect(cached.source).toBe('guest-cache');
+    expect(cached.claimToken).toBe('claim');
     expect(dailyCardApi.generateGuest).toHaveBeenCalledTimes(1);
     expect(localStorage.getItem(GUEST_DAILY_CARD_STORAGE_KEY)).toContain('the_high_priestess');
   });
@@ -37,7 +39,7 @@ describe('daily card bootstrap', () => {
 
     await bootstrapDailyCard(null, { dailyCardApi, now: new Date('2026-07-03T12:00:00Z'), browserTimezone: 'UTC' });
     expect(localStorage.getItem('nebula-tarot:guest-card-of-day:v1')).toBeNull();
-    expect(localStorage.getItem(GUEST_DAILY_CARD_STORAGE_KEY)).toContain('"version":2');
+    expect(localStorage.getItem(GUEST_DAILY_CARD_STORAGE_KEY)).toContain('"version":3');
   });
 
   it('replaces a stale guest card after the accounting day changes', async () => {

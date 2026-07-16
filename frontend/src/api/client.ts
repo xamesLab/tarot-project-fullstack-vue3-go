@@ -34,12 +34,13 @@ export class ApiError extends Error {
   }
 }
 
-export async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function request<T>(path: string, init?: RequestInit, options: { auth?: boolean } = {}): Promise<T> {
   const baseUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
   const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  const useAuth = options.auth !== false;
   const headers = new Headers(init?.headers);
   if (init?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
-  if (token && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${token}`);
+  if (useAuth && token && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${token}`);
 
   const response = await fetch(`${baseUrl}${path}`, {
     ...init,
@@ -47,7 +48,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   const payload = await response.json().catch(() => ({})) as T & ErrorPayload;
   if (!response.ok) {
-    if ((response.status === 401 || response.status === 403) && token) {
+    if ((response.status === 401 || response.status === 403) && useAuth && token) {
       window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
     }
     throw new ApiError(

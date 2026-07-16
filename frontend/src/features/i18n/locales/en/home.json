@@ -14,6 +14,8 @@
   "chatPlaceholder": "Ask the cards a question…",
   "send": "Send question",
   "loading": "The cards are revealing their message…",
+  "oracleThinking": "the oracle is reading your card",
   "error": "The cards are silent today. Please try again.",
+  "interpretation": { "work": "Work", "family": "Family", "advice": "Advice" },
   "oracleGreeting": "I am listening. Ask, and the Priestess will answer from the silence."
 }

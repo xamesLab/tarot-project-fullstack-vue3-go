@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { useAuthStore } from '@/features/auth/store';
 import { bootstrapDailyCard, getAccountingDate } from './bootstrap';
 
@@ -14,14 +13,6 @@ export function useDailyCardBootstrap() {
     enabled: hydrated,
     staleTime: Infinity,
   });
-
-  useEffect(() => {
-    if (query.data) console.info('[daily-card]', query.data);
-  }, [query.data]);
-
-  useEffect(() => {
-    if (query.error) console.error('[daily-card]', query.error);
-  }, [query.error]);
 
   return query;
 }

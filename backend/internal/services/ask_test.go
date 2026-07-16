@@ -100,3 +100,66 @@ func TestShouldReuseAskRequestRejectsLengthFinishReason(t *testing.T) {
 		t.Fatal("expected truncated request to be regenerated instead of reused")
 	}
 }
+
+func TestBuildCardOfDayAIRequestUsesTemplateData(t *testing.T) {
+	card := models.Card{
+		Key:    "the_star",
+		Arcana: "major",
+		Type:   models.LocalizedText{EN: "XVII", RU: "XVII"},
+		Names:  models.LocalizedText{EN: "The Star", RU: "Звезда"},
+		Interpretations: models.LocalizedText{
+			EN: "Hope and renewal.",
+			RU: "Надежда и обновление.",
+		},
+		Tags: models.LocalizedText{EN: "Hope, renewal.", RU: "Надежда, обновление."},
+	}
+
+	payload, request := buildCardOfDayAIRequest(card, CardOfDayPromptContext{
+		Language:       "ru",
+		Timezone:       "Europe/Moscow",
+		AccountingDate: "2026-07-07",
+		IsGuest:        false,
+		Username:       "alice",
+	}, "model-main")
+
+	if payload.ReadingType != models.ReadingTypeCardOfDay || payload.Language != "ru" || payload.Cards[0].Key != "the_star" {
+		t.Fatalf("unexpected payload: %#v", payload)
+	}
+	if request.Model != "model-main" || request.MaxTokens == 0 || len(request.Messages) != 2 {
+		t.Fatalf("unexpected provider request: %#v", request)
+	}
+	userPrompt := request.Messages[1].Content
+	for _, expected := range []string{"Звезда", "alice", "2026-07-07", "Europe/Moscow", "\"general\""} {
+		if !strings.Contains(userPrompt, expected) {
+			t.Fatalf("expected prompt to contain %q, got %q", expected, userPrompt)
+		}
+	}
+}
+
+func TestParseCardOfDayInterpretationValidatesJSON(t *testing.T) {
+	interpretation, err := parseCardOfDayInterpretation(`{"general":" One  two ","work":"Work","family":"Family","advice":"Advice"}`)
+	if err != nil {
+		t.Fatalf("expected valid json, got %v", err)
+	}
+	if interpretation.General != "One two" || interpretation.Work != "Work" {
+		t.Fatalf("unexpected interpretation: %#v", interpretation)
+	}
+
+	if _, err := parseCardOfDayInterpretation(`{"general":"Only one field"}`); err == nil {
+		t.Fatal("expected missing fields to be rejected")
+	}
+	if _, err := parseCardOfDayInterpretation("not json"); err == nil {
+		t.Fatal("expected invalid json to be rejected")
+	}
+}
+
+func TestGuestCardOfDayCacheKeyChangesByLanguageAndPromptVersion(t *testing.T) {
+	ruKey := guestCardOfDayCacheKey("the_star", "ru")
+	enKey := guestCardOfDayCacheKey("the_star", "en")
+	if ruKey == enKey {
+		t.Fatal("expected language to be part of cache key")
+	}
+	if !strings.Contains(ruKey, cardOfDayPromptVersion) {
+		t.Fatalf("expected prompt version in cache key, got %s", ruKey)
+	}
+}

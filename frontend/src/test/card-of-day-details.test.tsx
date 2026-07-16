@@ -1,25 +1,37 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import { describe, expect, it } from 'vitest';
-import type { BackendReadingCardDto, DailyReadingDto } from '@/api/types';
+import type { BackendReadingCardDto, CardOfDayInterpretationDto } from '@/api/types';
 import { i18n } from '@/features/i18n/i18n';
 import { CardOfDayDetails } from '@/widgets/CardOfDayDetails/CardOfDayDetails';
 
 const backendCard: BackendReadingCardDto = {
-  key: 'ace_of_wands', arcana: 'minor', type: 'Wands', type_ru: 'жезлы', name: 'Ace of Wands', name_ru: 'Туз Жезлов', interpretation: 'A new spark.', interpretation_ru: 'Новый импульс.', tags: 'Inspiration, action.', tags_ru: 'Вдохновение, действие.', image_url: '/face.png', back_image_url: '/back.png', position: 0, reversed: true, viewed: false,
+  key: 'ace_of_wands',
+  arcana: 'minor',
+  type: 'Wands',
+  type_ru: 'Жезлы',
+  name: 'Ace of Wands',
+  name_ru: 'Туз Жезлов',
+  interpretation: 'A new spark.',
+  interpretation_ru: 'Новый импульс.',
+  tags: 'Inspiration, action.',
+  tags_ru: 'Вдохновение, действие.',
+  image_url: '/face.png',
+  back_image_url: '/back.png',
+  position: 0,
+  reversed: true,
+  viewed: false,
 };
 
-const reading: DailyReadingDto = {
-  date: '2026-07-05',
-  card: { id: 'mock', arcana: 'major', roman: 'II', name: 'Мок', illustrationLabel: 'Mock', subtitle: 'Mock', imageUrl: '', backImageUrl: '' },
-  keywords: ['mock'],
-  brief: 'mock',
-  spheres: [{ id: 'love', title: 'Любовь', text: 'Скрытый mock-текст' }],
-  message: { paragraph: 'Mock message', closing: 'Mock closing', emphasis: 'Mock emphasis' },
+const interpretation: CardOfDayInterpretationDto = {
+  general: 'Карта зовёт к началу.',
+  work: 'В работе выберите первый ясный шаг.',
+  family: 'В отношениях говорите прямо.',
+  advice: 'Действуйте спокойно.',
 };
 
-function view(revealed: boolean) {
-  return <I18nextProvider i18n={i18n}><CardOfDayDetails backendCard={backendCard} reading={reading} language="ru" revealed={revealed}/></I18nextProvider>;
+function view(revealed: boolean, value: CardOfDayInterpretationDto | undefined = interpretation) {
+  return <I18nextProvider i18n={i18n}><CardOfDayDetails backendCard={backendCard} interpretation={value} language="ru" revealed={revealed}/></I18nextProvider>;
 }
 
 describe('CardOfDayDetails', () => {
@@ -42,12 +54,24 @@ describe('CardOfDayDetails', () => {
     expect(expandButton).toBeEnabled();
     expect(screen.getByText('Жезлы')).toHaveClass('card-number-minor');
     expect(screen.getByText('Младший Аркан · Перевёрнутое положение')).toBeInTheDocument();
+    expect(screen.getByText('Карта зовёт к началу.')).toBeInTheDocument();
     fireEvent.click(expandButton);
-    expect(screen.getByText('Скрытый mock-текст')).toBeInTheDocument();
+    expect(screen.getByText('В работе выберите первый ясный шаг.')).toBeInTheDocument();
+    expect(screen.getByText('В отношениях говорите прямо.')).toBeInTheDocument();
+    expect(screen.getByText('Действуйте спокойно.')).toBeInTheDocument();
 
     rerender(view(false));
-    expect(screen.queryByText('Скрытый mock-текст')).not.toBeInTheDocument();
+    expect(screen.queryByText('В работе выберите первый ясный шаг.')).not.toBeInTheDocument();
     rerender(view(true));
-    expect(screen.queryByText('Скрытый mock-текст')).not.toBeInTheDocument();
+    expect(screen.queryByText('В работе выберите первый ясный шаг.')).not.toBeInTheDocument();
+  });
+
+  it('shows a compact loading state until AI interpretation arrives', async () => {
+    await i18n.changeLanguage('ru');
+    render(<I18nextProvider i18n={i18n}><CardOfDayDetails backendCard={backendCard} language="ru" revealed interpretationLoading/></I18nextProvider>);
+
+    expect(screen.getByText('Карты открывают послание…')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('оракул думает над вашей картой');
+    expect(screen.getByRole('button', { name: /Развернуть толкование/i })).toBeDisabled();
   });
 });

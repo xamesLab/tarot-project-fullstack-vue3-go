@@ -48,6 +48,19 @@ type ReadingHistoryResult struct {
 	RetentionInfo models.RetentionInfoResponse
 }
 
+var guestCardOfDayPoolKeys = []string{
+	"the_fool",
+	"the_magician",
+	"the_high_priestess",
+	"the_empress",
+	"strength",
+	"the_hermit",
+	"justice",
+	"temperance",
+	"the_star",
+	"the_sun",
+}
+
 type ReadingService struct {
 	users     *repositories.UserRepository
 	cards     *repositories.CardRepository
@@ -95,7 +108,7 @@ func (s *ReadingService) GenerateGuestCardOfDay(ctx context.Context, req models.
 		return nil, wrapValidation("Invalid timezone")
 	}
 
-	keys, err := s.cards.ListAllKeys(ctx)
+	keys, err := s.availableGuestCardKeys(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -285,6 +298,37 @@ func (s *ReadingService) GenerateCardOfDay(ctx context.Context, userID primitive
 	}
 	response.NextAvailableAt = &nextResetAt
 	return response, nil
+}
+
+func (s *ReadingService) availableGuestCardKeys(ctx context.Context) ([]string, error) {
+	cards, err := s.cards.FindByKeys(ctx, guestCardOfDayPoolKeys)
+	if err != nil {
+		return nil, err
+	}
+
+	available := make(map[string]struct{}, len(cards))
+	for _, card := range cards {
+		available[card.Key] = struct{}{}
+	}
+
+	keys := make([]string, 0, len(guestCardOfDayPoolKeys))
+	for _, key := range guestCardOfDayPoolKeys {
+		if _, ok := available[key]; !ok {
+			return nil, wrapValidation("Guest card pool is not available")
+		}
+		keys = append(keys, key)
+	}
+
+	return keys, nil
+}
+
+func isGuestCardOfDayPoolKey(cardKey string) bool {
+	for _, key := range guestCardOfDayPoolKeys {
+		if key == cardKey {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *ReadingService) GenerateThreeCardSpread(ctx context.Context, userID primitive.ObjectID, req models.GenerateReadingRequest, requestIP string) (*models.ReadingResponse, error) {

@@ -16,6 +16,8 @@ export const httpApi: NebulaTarotApi = {
 };
 
 export const httpDailyCardApi: DailyCardApi = {
-  generateGuest: (payload) => request('/reading/guest/card-of-day', { method: 'POST', body: JSON.stringify(payload) }),
+  generateGuest: (payload) => request('/reading/guest/card-of-day', { method: 'POST', body: JSON.stringify(payload) }, { auth: false }),
   resolve: (payload) => request('/reading/card-of-day/resolve', { method: 'POST', body: JSON.stringify(payload) }),
+  getGuestInterpretation: (payload) => request('/reading/guest/card-of-day/interpretation', { method: 'POST', body: JSON.stringify(payload) }, { auth: false }),
+  getUserInterpretation: (payload) => request('/reading/card-of-day/interpretation', { method: 'POST', body: JSON.stringify(payload) }),
 };
