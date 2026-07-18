@@ -1,10 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { api } from '@/api';
 import { AuthModal, type AuthModalMode } from '@/features/auth/AuthModal';
 import { useAuthStore } from '@/features/auth/store';
 import { useDailyCardBootstrap } from '@/features/daily-card/useDailyCardBootstrap';
+import { useDailyCardInterpretation } from '@/features/daily-card/useDailyCardInterpretation';
 import { usePreferencesStore } from '@/features/preferences/store';
 import { Tooltip } from '@/shared/ui/Content';
 import { Ornament, SectionLabel } from '@/shared/ui/Ornament';
@@ -29,31 +28,14 @@ export function HomePage() {
   const isGuest = hydrated && authStatus === 'guest';
   const detailsRevealed = Boolean(backendCard && revealedCardKey === backendCard.key);
 
-  const interpretationQuery = useQuery({
-    queryKey: [
-      'daily-card-interpretation',
-      isGuest ? 'guest' : user?.id ?? 'user',
-      dailyCardQuery.data?.reading.id ?? '',
-      backendCard?.key ?? '',
-      dailyCardQuery.data?.claimToken ?? '',
-      language,
-    ],
-    queryFn: () => {
-      if (!backendCard) throw new Error('Daily card is not ready');
-      if (isGuest) {
-        if (!dailyCardQuery.data?.claimToken) throw new Error('Guest claim token is missing');
-        return api.dailyCard.getGuestInterpretation({ claim_token: dailyCardQuery.data.claimToken, language });
-      }
-
-      const readingId = dailyCardQuery.data?.reading.id;
-      if (!readingId) throw new Error('Reading id is missing');
-      return api.dailyCard.getUserInterpretation({ reading_id: readingId, language });
-    },
-    enabled: detailsRevealed && Boolean(backendCard) && (
-      isGuest ? Boolean(dailyCardQuery.data?.claimToken) : authStatus === 'authenticated' && Boolean(dailyCardQuery.data?.reading.id)
-    ),
-    staleTime: Infinity,
-    retry: 1,
+  const interpretationQuery = useDailyCardInterpretation({
+    card: backendCard,
+    dailyCard: dailyCardQuery.data,
+    language,
+    isGuest,
+    isAuthenticated: authStatus === 'authenticated',
+    isRevealed: detailsRevealed,
+    userId: user?.id,
   });
 
   return (

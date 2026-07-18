@@ -268,13 +268,8 @@ func (h *AdminHandler) getDeck(c *gin.Context) {
 }
 
 func (h *AdminHandler) updateDeck(c *gin.Context) {
-	var req models.AdminUpdateDeckRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.AdminUpdateDeckRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -349,9 +344,8 @@ func (h *AdminHandler) deleteCardBack(c *gin.Context) {
 }
 
 func (h *AdminHandler) updateUserRole(c *gin.Context) {
-	actorID, ok := parseUserID(c)
+	actorID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
@@ -361,13 +355,8 @@ func (h *AdminHandler) updateUserRole(c *gin.Context) {
 		return
 	}
 
-	var req models.AdminUpdateUserRoleRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.AdminUpdateUserRoleRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -384,9 +373,8 @@ func (h *AdminHandler) updateUserRole(c *gin.Context) {
 }
 
 func (h *AdminHandler) updateUserStatus(c *gin.Context) {
-	actorID, ok := parseUserID(c)
+	actorID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
@@ -396,13 +384,8 @@ func (h *AdminHandler) updateUserStatus(c *gin.Context) {
 		return
 	}
 
-	var req models.AdminUpdateUserStatusRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.AdminUpdateUserStatusRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -438,13 +421,8 @@ func (h *AdminHandler) updateRolePolicy(c *gin.Context) {
 		return
 	}
 
-	var req models.AdminUpdateRolePolicyRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.AdminUpdateRolePolicyRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -474,13 +452,8 @@ func (h *AdminHandler) getSettings(c *gin.Context) {
 }
 
 func (h *AdminHandler) updateSettings(c *gin.Context) {
-	var req models.AdminUpdateSettingsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.AdminUpdateSettingsRequest](c, h.validate)
+	if !ok {
 		return
 	}
 

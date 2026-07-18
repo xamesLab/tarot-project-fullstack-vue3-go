@@ -9,6 +9,7 @@ import { Button } from '@/shared/ui/Button';
 import { Field, SelectField } from '@/shared/ui/Field';
 import { Modal } from '@/shared/ui/Modal';
 import { Ornament } from '@/shared/ui/Ornament';
+import { getBrowserTimezone } from '@/shared/lib/timezone';
 import { useAuthStore } from './store';
 
 export type AuthModalMode = 'login' | 'register';
@@ -26,7 +27,7 @@ export function AuthModal({ open, initialMode, onClose }: { open: boolean; initi
   const [apiError, setApiError] = useState('');
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
   const closeTimerRef = useRef<number>();
-  const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const defaultTimezone = getBrowserTimezone();
 
   const loginSchema = useMemo(() => z.object({
     email: z.string().trim().min(1, t('auth.errors.required')).email(t('auth.errors.email')),

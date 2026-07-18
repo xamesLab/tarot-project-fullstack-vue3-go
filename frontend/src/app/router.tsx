@@ -5,7 +5,7 @@ import { HomePage } from '@/pages/home/HomePage';
 
 const UiKitPage = import.meta.env.DEV ? lazy(() => import('@/pages/ui-kit/UiKitPage')) : null;
 
-const routes = [
+export const routes = [
   { path: '/', element: <HomePage /> },
   ...(UiKitPage
     ? [

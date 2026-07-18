@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { api } from '@/api';
 import { ApiError, TOKEN_STORAGE_KEY } from '@/api/client';
-import type { LoginPayload, RegisterPayload, UserDto } from '@/api/types';
+import type { AuthResponse, LoginPayload, RegisterPayload, UserDto } from '@/api/types';
 import { usePreferencesStore } from '@/features/preferences/store';
 
 export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'guest' | 'error';
@@ -31,16 +31,11 @@ function persistToken(token: string) {
   else localStorage.removeItem(TOKEN_STORAGE_KEY);
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
-  token: storedToken,
-  status: storedToken ? 'idle' : 'guest',
-  hydrated: false,
-
-  async login(payload) {
+export const useAuthStore = create<AuthState>((set, get) => {
+  const authenticate = async (request: () => Promise<AuthResponse>): Promise<UserDto> => {
     set({ status: 'loading' });
     try {
-      const response = await api.auth.login(payload);
+      const response = await request();
       persistToken(response.token);
       syncPreferences(response.user);
       set({ user: response.user, token: response.token, status: 'authenticated', hydrated: true });
@@ -49,52 +44,49 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ status: 'error' });
       throw error;
     }
-  },
+  };
 
-  async register(payload) {
-    set({ status: 'loading' });
-    try {
-      const response = await api.auth.register(payload);
-      persistToken(response.token);
-      syncPreferences(response.user);
-      set({ user: response.user, token: response.token, status: 'authenticated', hydrated: true });
-      return response.user;
-    } catch (error) {
-      set({ status: 'error' });
-      throw error;
-    }
-  },
+  return {
+    user: null,
+    token: storedToken,
+    status: storedToken ? 'idle' : 'guest',
+    hydrated: false,
 
-  async hydrateSession() {
-    if (get().hydrated) return get().user;
-    if (hydrationPromise) return hydrationPromise;
-    if (!get().token) {
-      set({ hydrated: true, status: 'guest' });
-      return null;
-    }
+    login: (payload) => authenticate(() => api.auth.login(payload)),
 
-    set({ status: 'loading' });
-    hydrationPromise = api.auth.getCurrentUser()
-      .then((response) => {
-        syncPreferences(response.user);
-        set({ user: response.user, status: 'authenticated', hydrated: true });
-        return response.user;
-      })
-      .catch((error: unknown) => {
-        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
-          persistToken('');
-          set({ user: null, token: '', status: 'guest', hydrated: true });
-        } else {
-          set({ user: null, status: 'error', hydrated: true });
-        }
+    register: (payload) => authenticate(() => api.auth.register(payload)),
+
+    async hydrateSession() {
+      if (get().hydrated) return get().user;
+      if (hydrationPromise) return hydrationPromise;
+      if (!get().token) {
+        set({ hydrated: true, status: 'guest' });
         return null;
-      })
-      .finally(() => { hydrationPromise = null; });
-    return hydrationPromise;
-  },
+      }
 
-  logout() {
-    persistToken('');
-    set({ user: null, token: '', status: 'guest', hydrated: true });
-  },
-}));
+      set({ status: 'loading' });
+      hydrationPromise = api.auth.getCurrentUser()
+        .then((response) => {
+          syncPreferences(response.user);
+          set({ user: response.user, status: 'authenticated', hydrated: true });
+          return response.user;
+        })
+        .catch((error: unknown) => {
+          if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+            persistToken('');
+            set({ user: null, token: '', status: 'guest', hydrated: true });
+          } else {
+            set({ user: null, status: 'error', hydrated: true });
+          }
+          return null;
+        })
+        .finally(() => { hydrationPromise = null; });
+      return hydrationPromise;
+    },
+
+    logout() {
+      persistToken('');
+      set({ user: null, token: '', status: 'guest', hydrated: true });
+    },
+  };
+});

@@ -34,3 +34,7 @@ func (e *ValidationError) Unwrap() error {
 func newValidationError(field, reason, message string) error {
 	return &ValidationError{Field: field, Reason: reason, Message: message}
 }
+
+func wrapValidation(message string) error {
+	return errors.Join(ErrValidationFailed, errors.New(message))
+}

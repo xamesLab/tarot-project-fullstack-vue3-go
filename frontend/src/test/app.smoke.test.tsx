@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { createMemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '@/api';
 import { App } from '@/app/App';
-import { router } from '@/app/router';
+import { routes } from '@/app/router';
 import { TOKEN_STORAGE_KEY } from '@/api/client';
 import { useAuthStore } from '@/features/auth/store';
 import { usePreferencesStore } from '@/features/preferences/store';
@@ -125,8 +126,11 @@ describe('NEBULA-TAROT smoke', () => {
   });
 
   it('registers the UI Kit route in development', async () => {
-    await router.navigate('/ui-kit');
-    render(<App />);
+    const router = createMemoryRouter(routes, {
+      initialEntries: ['/ui-kit'],
+      future: { v7_relativeSplatPath: true },
+    });
+    render(<App router={router} />);
     expect(await screen.findByRole('heading', { name: /Библиотека компонентов ARCANA/ })).toBeInTheDocument();
   });
 });

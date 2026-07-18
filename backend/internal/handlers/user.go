@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserHandler struct {
@@ -27,9 +26,8 @@ func (h *UserHandler) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 func (h *UserHandler) getMe(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
@@ -46,20 +44,13 @@ func (h *UserHandler) getMe(c *gin.Context) {
 }
 
 func (h *UserHandler) updateProfile(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
-	var req models.UpdateProfileRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.UpdateProfileRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -76,20 +67,13 @@ func (h *UserHandler) updateProfile(c *gin.Context) {
 }
 
 func (h *UserHandler) updateSettings(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
-	var req models.UpdateSettingsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.UpdateSettingsRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -103,13 +87,4 @@ func (h *UserHandler) updateSettings(c *gin.Context) {
 		"success": true,
 		"user":    user.ToResponse(true),
 	})
-}
-
-func parseUserID(c *gin.Context) (primitive.ObjectID, bool) {
-	raw := c.GetString("user_id")
-	id, err := primitive.ObjectIDFromHex(raw)
-	if err != nil {
-		return primitive.NilObjectID, false
-	}
-	return id, true
 }

@@ -9,8 +9,39 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+func bindAndValidateJSON[T any](c *gin.Context, validate *validator.Validate) (T, bool) {
+	return bindJSON[T](c, validate, false)
+}
+
+func bindOptionalAndValidateJSON[T any](c *gin.Context, validate *validator.Validate) (T, bool) {
+	return bindJSON[T](c, validate, true)
+}
+
+func bindJSON[T any](c *gin.Context, validate *validator.Validate, allowBodyNotAllowed bool) (T, bool) {
+	var req T
+	if err := c.ShouldBindJSON(&req); err != nil && !(allowBodyNotAllowed && errors.Is(err, http.ErrBodyNotAllowed)) {
+		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
+		return req, false
+	}
+	if err := validate.Struct(req); err != nil {
+		respondValidationError(c, err)
+		return req, false
+	}
+	return req, true
+}
+
+func requireUserID(c *gin.Context) (primitive.ObjectID, bool) {
+	id, err := primitive.ObjectIDFromHex(c.GetString("user_id"))
+	if err != nil {
+		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
+		return primitive.NilObjectID, false
+	}
+	return id, true
+}
 
 func respondError(c *gin.Context, status int, code, message string) {
 	c.JSON(status, gin.H{

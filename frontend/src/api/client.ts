@@ -60,3 +60,11 @@ export async function request<T>(path: string, init?: RequestInit, options: { au
   }
   return payload;
 }
+
+export function post<TResponse, TPayload>(
+  path: string,
+  payload: TPayload,
+  options?: { auth?: boolean },
+): Promise<TResponse> {
+  return request(path, { method: 'POST', body: JSON.stringify(payload) }, options);
+}

@@ -1,6 +1,7 @@
 import { api } from '@/api';
 import { ApiError } from '@/api/client';
 import type { BackendReadingDto, DailyCardApi, UserDto } from '@/api/types';
+import { getBrowserTimezone } from '@/shared/lib/timezone';
 
 export const GUEST_DAILY_CARD_STORAGE_KEY = 'nebula-tarot:guest-card-of-day:v3';
 const LEGACY_GUEST_DAILY_CARD_STORAGE_KEY = 'nebula-tarot:guest-card-of-day:v1';
@@ -88,7 +89,7 @@ export async function bootstrapDailyCard(user: UserDto | null, dependencies: Boo
   if (!user) {
     if (cache) return { source: 'guest-cache', reading: cache.reading, claimToken: cache.claimToken };
 
-    const timezone = dependencies.browserTimezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC';
+    const timezone = dependencies.browserTimezone ?? getBrowserTimezone();
     const guestId = dependencies.createGuestId?.() ?? crypto.randomUUID();
     const response = await dailyCardApi.generateGuest({ guest_id: guestId, timezone });
     const nextCache: GuestDailyCardCache = {

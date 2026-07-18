@@ -34,13 +34,8 @@ func (h *AskHandler) RegisterPublicRoutes(router *gin.RouterGroup) {
 }
 
 func (h *AskHandler) createGuestCardOfDayInterpretation(c *gin.Context) {
-	var req models.GuestCardOfDayInterpretationRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.GuestCardOfDayInterpretationRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -58,19 +53,13 @@ func (h *AskHandler) createGuestCardOfDayInterpretation(c *gin.Context) {
 }
 
 func (h *AskHandler) createUserCardOfDayInterpretation(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
-	var req models.UserCardOfDayInterpretationRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.UserCardOfDayInterpretationRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -88,20 +77,13 @@ func (h *AskHandler) createUserCardOfDayInterpretation(c *gin.Context) {
 }
 
 func (h *AskHandler) createOrReuseAsk(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
-	var req models.CreateAskRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.CreateAskRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -118,9 +100,8 @@ func (h *AskHandler) createOrReuseAsk(c *gin.Context) {
 }
 
 func (h *AskHandler) getAsk(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 

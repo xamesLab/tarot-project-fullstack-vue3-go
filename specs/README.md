@@ -4,6 +4,7 @@
 
 ## Актуальные документы
 
+- [Карта проекта для AI-агента](./docs/AI_PROJECT_MAP.md) — где искать код, как проходят основные потоки и как безопасно работать с проектом
 - [v0.2.0](./v0.2.0/README.md) — новый React frontend, нововведения, scope, ограничения и критерии приёмки
 - [PRD](./docs/PRD.md) — продуктовый baseline и дополнение для `v0.2.0`
 - [Technical Specification](./docs/TECHNICAL_SPEC.md) — backend-контракты и актуальная frontend-архитектура

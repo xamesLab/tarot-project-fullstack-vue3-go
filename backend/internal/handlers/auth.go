@@ -31,14 +31,8 @@ func (h *AuthHandler) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 func (h *AuthHandler) register(c *gin.Context) {
-	var req models.RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.RegisterRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -56,14 +50,8 @@ func (h *AuthHandler) register(c *gin.Context) {
 }
 
 func (h *AuthHandler) login(c *gin.Context) {
-	var req models.LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.LoginRequest](c, h.validate)
+	if !ok {
 		return
 	}
 

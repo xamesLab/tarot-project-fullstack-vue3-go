@@ -38,13 +38,8 @@ func (h *ReadingHandler) RegisterPublicRoutes(router *gin.RouterGroup) {
 }
 
 func (h *ReadingHandler) generateGuestCardOfDay(c *gin.Context) {
-	var req models.GenerateGuestCardOfDayRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindAndValidateJSON[models.GenerateGuestCardOfDayRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -62,19 +57,13 @@ func (h *ReadingHandler) generateGuestCardOfDay(c *gin.Context) {
 }
 
 func (h *ReadingHandler) resolveCardOfDay(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
-	var req models.ResolveCardOfDayRequest
-	if err := c.ShouldBindJSON(&req); err != nil && !errors.Is(err, http.ErrBodyNotAllowed) {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindOptionalAndValidateJSON[models.ResolveCardOfDayRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -91,20 +80,13 @@ func (h *ReadingHandler) resolveCardOfDay(c *gin.Context) {
 }
 
 func (h *ReadingHandler) generateCardOfDay(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
-	var req models.GenerateReadingRequest
-	if err := c.ShouldBindJSON(&req); err != nil && !errors.Is(err, http.ErrBodyNotAllowed) {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindOptionalAndValidateJSON[models.GenerateReadingRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -133,20 +115,13 @@ func (h *ReadingHandler) generateCardOfDay(c *gin.Context) {
 }
 
 func (h *ReadingHandler) generateThreeCardSpread(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
-	var req models.GenerateReadingRequest
-	if err := c.ShouldBindJSON(&req); err != nil && !errors.Is(err, http.ErrBodyNotAllowed) {
-		respondError(c, http.StatusBadRequest, services.ErrValidationFailed.Error(), "Invalid request body")
-		return
-	}
-
-	if err := h.validate.Struct(req); err != nil {
-		respondValidationError(c, err)
+	req, ok := bindOptionalAndValidateJSON[models.GenerateReadingRequest](c, h.validate)
+	if !ok {
 		return
 	}
 
@@ -178,9 +153,8 @@ func (h *ReadingHandler) generateThreeCardSpread(c *gin.Context) {
 }
 
 func (h *ReadingHandler) getHistory(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 
@@ -211,9 +185,8 @@ func (h *ReadingHandler) getHistory(c *gin.Context) {
 }
 
 func (h *ReadingHandler) revealCard(c *gin.Context) {
-	userID, ok := parseUserID(c)
+	userID, ok := requireUserID(c)
 	if !ok {
-		respondError(c, http.StatusUnauthorized, services.ErrInvalidToken.Error(), "Authentication token is invalid")
 		return
 	}
 

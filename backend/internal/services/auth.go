@@ -31,6 +31,8 @@ type authSettingsRepository interface {
 	Get(context.Context) (*models.AdminSettings, error)
 }
 
+var invalidUsernameCharacters = regexp.MustCompile(`[^a-z0-9._-]+`)
+
 func NewAuthService(users authUserRepository, settings authSettingsRepository) *AuthService {
 	return &AuthService{users: users, settings: settings}
 }
@@ -78,7 +80,7 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest, 
 	}
 
 	if err := s.users.Create(ctx, user); err != nil {
-		if isDuplicateKey(err) {
+		if mongo.IsDuplicateKeyError(err) {
 			message := "Email is already registered"
 			if strings.Contains(strings.ToLower(err.Error()), "username") {
 				message = "Username unavailable"
@@ -134,14 +136,6 @@ func (s *AuthService) Login(ctx context.Context, req models.LoginRequest, jwtSec
 	return user, token, nil
 }
 
-func isDuplicateKey(err error) bool {
-	return mongo.IsDuplicateKeyError(err)
-}
-
-func wrapValidation(message string) error {
-	return errors.Join(ErrValidationFailed, errors.New(message))
-}
-
 func (s *AuthService) resolveRegistrationUsername(ctx context.Context, rawUsername, email string) (string, error) {
 	username := strings.TrimSpace(rawUsername)
 	if username == "" {
@@ -193,7 +187,7 @@ func publicDefaultRole(role string) string {
 
 func buildUsernameFromEmail(email string) string {
 	localPart := strings.TrimSpace(strings.SplitN(strings.ToLower(email), "@", 2)[0])
-	localPart = regexp.MustCompile(`[^a-z0-9._-]+`).ReplaceAllString(localPart, "")
+	localPart = invalidUsernameCharacters.ReplaceAllString(localPart, "")
 
 	switch {
 	case len(localPart) >= 3:
