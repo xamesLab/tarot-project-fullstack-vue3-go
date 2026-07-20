@@ -20,5 +20,9 @@ The installer and smoke-test scripts must be installed as root-owned files:
 The deployment account may receive passwordless sudo permission for the exact
 installer command only. Do not grant it unrestricted sudo access.
 
+The incoming directory is `/var/lib/tarot-deploy/incoming`. The installer
+rejects release inputs outside this directory and accepts only regular files
+and directories inside the release archive.
+
 TLS is intentionally not managed by these files. HTTPS for `nebula-tarot.ru`
 is terminated outside this Nginx server configuration.
