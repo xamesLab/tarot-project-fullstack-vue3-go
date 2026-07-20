@@ -1,5 +1,9 @@
 # Рекомендации по production-деплою
 
+Подробный процесс от Git push до обновления VPS, карта server paths и
+отдельный раздел по env находятся в
+[`PRODUCTION_DEPLOYMENT_PROCESS.md`](PRODUCTION_DEPLOYMENT_PROCESS.md).
+
 ## 1. Назначение документа
 
 Этот документ описывает организацию production-деплоя проекта Nebula Tarot из GitHub на VPS и служит эксплуатационной инструкцией.
