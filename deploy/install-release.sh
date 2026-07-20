@@ -18,6 +18,7 @@ app_root=/opt/tarot-app
 releases_dir=$app_root/releases
 current_link=$app_root/current
 uploads_dir=/var/lib/tarot-app/uploads
+incoming_dir=/var/lib/tarot-deploy/incoming
 release_dir=$releases_dir/$release_id
 staging_dir=$releases_dir/.staging-$release_id-$$
 lock_file=/run/lock/tarot-app-deploy.lock
@@ -28,10 +29,22 @@ if [[ ! $release_id =~ ^[0-9a-f]{40}$ ]]; then
 fi
 
 for required_file in "$archive" "$checksum_file"; do
-  if [[ ! -f $required_file ]]; then
+  if [[ ! -f $required_file || -L $required_file ]]; then
     echo "missing file: $required_file" >&2
     exit 1
   fi
+done
+
+archive=$(realpath -e -- "$archive")
+checksum_file=$(realpath -e -- "$checksum_file")
+for incoming_file in "$archive" "$checksum_file"; do
+  case "$incoming_file" in
+    "$incoming_dir"/*) ;;
+    *)
+      echo "release input must be inside $incoming_dir" >&2
+      exit 1
+      ;;
+  esac
 done
 
 exec 9>"$lock_file"
@@ -45,11 +58,35 @@ cleanup() {
 }
 trap cleanup EXIT
 
-cd "$(dirname "$archive")"
-sha256sum --check "$(basename "$checksum_file")"
+expected_checksum=$(awk 'NR == 1 { print $1 } NR > 1 { exit 2 }' "$checksum_file")
+if [[ ! $expected_checksum =~ ^[0-9a-fA-F]{64}$ ]]; then
+  echo "invalid checksum file" >&2
+  exit 1
+fi
+actual_checksum=$(sha256sum "$archive" | awk '{ print $1 }')
+if [[ $actual_checksum != "${expected_checksum,,}" ]]; then
+  echo "release checksum mismatch" >&2
+  exit 1
+fi
 
 if tar -tzf "$archive" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
   echo "archive contains an unsafe path" >&2
+  exit 1
+fi
+
+while IFS= read -r member; do
+  member=${member#./}
+  case "$member" in
+    ''|backend|backend/*|frontend|frontend/*) ;;
+    *)
+      echo "archive contains an unexpected path: $member" >&2
+      exit 1
+      ;;
+  esac
+done < <(tar -tzf "$archive")
+
+if ! tar -tvzf "$archive" | awk '{ type = substr($1, 1, 1); if (type != "-" && type != "d") exit 1 }'; then
+  echo "archive contains a link or unsupported file type" >&2
   exit 1
 fi
 
@@ -58,7 +95,7 @@ chown tarot-user:tarot-user "$uploads_dir"
 
 if [[ ! -d $release_dir ]]; then
   install -d -m 0755 "$staging_dir"
-  tar -xzf "$archive" -C "$staging_dir"
+  tar -xzf "$archive" --no-same-owner --no-same-permissions -C "$staging_dir"
 
   if [[ ! -x $staging_dir/backend/tarot-app ]]; then
     echo "release does not contain an executable backend" >&2

@@ -100,7 +100,7 @@ jobs:
         run: |
           set -euo pipefail
           scp -P "$VPS_PORT" "$ARCHIVE" "${ARCHIVE}.sha256" \
-            "${VPS_USER}@${VPS_HOST}:/tmp/"
+            "${VPS_USER}@${VPS_HOST}:/var/lib/tarot-deploy/incoming/"
 
       - name: Install release
         env:
@@ -111,4 +111,4 @@ jobs:
         run: |
           set -euo pipefail
           ssh -p "$VPS_PORT" "${VPS_USER}@${VPS_HOST}" \
-            "sudo /usr/local/sbin/install-tarot-release '${GITHUB_SHA}' '/tmp/${ARCHIVE}' '/tmp/${ARCHIVE}.sha256'"
+            "sudo /usr/local/sbin/install-tarot-release '${GITHUB_SHA}' '/var/lib/tarot-deploy/incoming/${ARCHIVE}' '/var/lib/tarot-deploy/incoming/${ARCHIVE}.sha256'"
