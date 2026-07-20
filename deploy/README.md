@@ -47,5 +47,10 @@ The health timer verifies all four services, local and public health endpoints,
 and a 512 MiB minimum free-disk threshold every five minutes. It writes results
 to journald; external alert delivery remains a separate infrastructure concern.
 
+`sshd-hardening.conf` is an SSH server drop-in for
+`/etc/ssh/sshd_config.d/60-tarot-hardening.conf`. Install it only after both
+the root maintenance key and the restricted deployment key have been tested in
+independent sessions. Validate with `sshd -t` before reloading SSH.
+
 TLS is intentionally not managed by these files. HTTPS for `nebula-tarot.ru`
 is terminated outside this Nginx server configuration.

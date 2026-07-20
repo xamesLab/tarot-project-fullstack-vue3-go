@@ -2,7 +2,7 @@
 
 ## 1. Назначение документа
 
-Этот документ описывает рекомендуемую организацию production-деплоя проекта Nebula Tarot из GitHub на VPS.
+Этот документ описывает организацию production-деплоя проекта Nebula Tarot из GitHub на VPS и служит эксплуатационной инструкцией.
 
 Основные принципы:
 
@@ -13,7 +13,9 @@
 - переключение версии выполняется через символьную ссылку `current`;
 - MongoDB, env-файл и uploads не заменяются при обычном деплое.
 
-Документ является инструкцией. Описанные действия не были автоматически применены к серверу.
+Базовая схема применена 21 июля 2026 года. Активный application-релиз:
+`2ffc919215b9dcceedd57651b150e9514fc7db94`. Deployment automation и
+операционные файлы находятся в ветке `codex/deployment-automation`.
 
 ## 2. Текущее состояние production
 
@@ -23,15 +25,21 @@
 | --- | --- |
 | Домен | `nebula-tarot.ru` |
 | Nginx-конфигурация | `/etc/nginx/sites-available/nebula-tarot.ru` |
-| Текущий frontend | `/var/www/nebula-tarot.ru/frontend` |
-| Текущий backend | `/opt/tarot-app/backend` |
-| Backend binary | `/opt/tarot-app/backend/tarot-app` |
+| Активный релиз | `/opt/tarot-app/current` |
+| Текущий frontend | `/opt/tarot-app/current/frontend` |
+| Текущий backend | `/opt/tarot-app/current/backend` |
+| Backend binary | `/opt/tarot-app/current/backend/tarot-app` |
 | Backend service | `/etc/systemd/system/tarot-app.service` |
 | Backend user | `tarot-user` |
 | Backend env | `/etc/tarot-app/app.env` |
-| Backend port | `8888` |
+| Backend endpoint | `127.0.0.1:8888` |
+| Постоянные uploads | `/var/lib/tarot-app/uploads` |
 | MongoDB service | `mongod.service` |
 | MongoDB configuration | `/etc/mongod.conf` |
+| MongoDB endpoint | `127.0.0.1:27017`, authorization enabled |
+| Backup credentials | `/etc/tarot-app/mongodump.yml`, `root:root 0600` |
+| Deploy user | `tarot-deploy` |
+| Release installer | `/usr/local/sbin/install-tarot-release` |
 | Gateway | `/opt/gtwapi` |
 | Gateway service | `gtwapi.service` |
 | Gateway port | `8080` |
@@ -42,6 +50,7 @@ Nginx отдаёт frontend как статические файлы и прок
 - `/uploads/` на `http://127.0.0.1:8888/uploads/`.
 
 `gtwapi.service`, каталог `/opt/gtwapi` и его env-файл не должны изменяться при внедрении нового процесса деплоя Tarot-приложения.
+При внедрении они не изменялись; внешний TLS также не изменялся.
 
 ## 3. Рекомендуемая структура сервера
 
@@ -59,14 +68,19 @@ Nginx отдаёт frontend как статические файлы и прок
 └── current -> releases/<commit-sha>
 
 /etc/tarot-app/
-└── app.env
+├── app.env
+└── mongodump.yml
 
 /var/lib/tarot-app/
 └── uploads/
 
 /var/backups/tarot-app/
-├── mongodb/
-└── uploads/
+├── pre-deploy-<timestamp>/
+└── <YYYYMMDD-HHMMSS>/
+    ├── mongodb-all.archive.gz
+    ├── uploads.tar.gz
+    ├── SHA256SUMS
+    └── MANIFEST
 ```
 
 Назначение каталогов:
@@ -107,12 +121,17 @@ specs/temp/env.txt
 specs/temp/env (1).txt
 ```
 
-Если в них когда-либо находились реальные пароли, токены или ключи, необходимо:
+Эти файлы удалены из текущего дерева Git. Если в них когда-либо находились реальные пароли, токены или ключи, необходимо:
 
 1. заменить все раскрытые секреты;
 2. удалить секретные файлы из актуальной версии репозитория;
 3. при необходимости очистить историю Git;
 4. включить автоматическое сканирование репозитория на секреты.
+
+Созданы новые отдельные credentials для плановых MongoDB-backup. Потенциально
+раскрытые application MongoDB credentials, JWT secret и общий callback secret
+нужно ротировать отдельно. Callback secret нельзя менять без согласованного
+обновления `gtwapi`; в рамках внедрения он намеренно не изменялся.
 
 Production-файл `/etc/tarot-app/app.env` не должен копироваться в репозиторий или включаться в release-архив.
 
@@ -258,6 +277,12 @@ Deploy-пользователь должен иметь право:
 
 Он не должен получать произвольный root shell.
 
+SSH принимает только public-key authentication. Для root действует
+`PermitRootLogin prohibit-password`, а `tarot-user` исключён из группы
+`sudo`. Ограниченный `tarot-deploy` может через sudo запускать только
+`/usr/local/sbin/install-tarot-release *`. Применяемый drop-in хранится в
+`deploy/sshd-hardening.conf`.
+
 ## 9. Последовательность деплоя
 
 Рекомендуемый production workflow:
@@ -378,13 +403,15 @@ location / {
 
 Seed следует запускать отдельной ручной процедурой только для релизов, которым он необходим. Перед операцией нужно создавать резервную копию MongoDB.
 
-MongoDB сейчас слушает `0.0.0.0:27017`. Если внешние клиенты не используют базу, рекомендуется:
+Аудит активных соединений, systemd-сервисов, Docker и конфигурационных файлов
+не выявил внешних потребителей MongoDB. MongoDB переведена на
+`127.0.0.1:27017`, а `security.authorization` включена. Backend использует
+отдельного пользователя с ролью `readWrite` только для `tarot_daily`;
+backup использует отдельного пользователя с ролью `backup`.
 
-- привязать MongoDB к loopback-интерфейсу;
-- закрыть порт `27017` во внешнем firewall;
-- оставить аутентификацию обязательной.
-
-Перед ограничением доступа необходимо убедиться, что другие приложения на VPS или внешние сервисы не подключаются к этой MongoDB.
+Историческая база `servitor_trade` сохранена в полном backup и не удалялась.
+Если для неё появится отдельный потребитель, ему потребуется собственный
+минимально привилегированный MongoDB-пользователь и локальный доступ.
 
 ## 13. Резервные копии
 
