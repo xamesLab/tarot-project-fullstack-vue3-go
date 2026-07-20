@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	AppEnv                string
+	AppHost               string
 	AppPort               string
 	AIDirectEnabled       bool
 	JWTSecret             string

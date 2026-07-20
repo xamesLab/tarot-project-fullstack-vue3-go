@@ -1,0 +1,25 @@
+[Unit]
+Description=TarotApp Go Backend
+After=network.target mongod.service
+Requires=mongod.service
+
+[Service]
+Type=simple
+User=tarot-user
+Group=tarot-user
+WorkingDirectory=/opt/tarot-app/current/backend
+EnvironmentFile=/etc/tarot-app/app.env
+ExecStart=/opt/tarot-app/current/backend/tarot-app
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+UMask=0027
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/tarot-app/uploads
+
+[Install]
+WantedBy=multi-user.target

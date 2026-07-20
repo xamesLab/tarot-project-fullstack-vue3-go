@@ -13,6 +13,7 @@ func Load() (*Config, func(), error) {
 
 	cfg := &Config{
 		AppEnv:                getEnv("APP_ENV", "dev"),
+		AppHost:               getEnv("APP_HOST", "0.0.0.0"),
 		AppPort:               getEnv("APP_PORT", "8888"),
 		AIDirectEnabled:       getEnvBool("AI_DIRECT_ENABLED", true),
 		JWTSecret:             getEnv("JWT_SECRET", "dev-jwt-secret-local-only"),

@@ -5,19 +5,30 @@
 
 .dev-runtime
 
+# Temporary environment exports
+specs/temp/env*.txt
+
 # Frontend
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
 !frontend/.env.development
 !frontend/.env.production
+!frontend/.env.test
 
 # Backend
 backend/.env
 backend/.env.*
 !backend/.env.example
-# backend/uploads/
+backend/tarot-app
+backend/uploads/*
+!backend/uploads/.gitkeep
 backend/tmp/
+
+# Deployment artifacts
+artifact/
+*.sha256
+tarot-app-*.tar.gz
 
 # Common
 node_modules/

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -100,7 +101,7 @@ func main() {
 	adminHandler.RegisterRoutes(adminRoutes)
 
 	server := &http.Server{
-		Addr:              ":" + cfg.AppPort,
+		Addr:              net.JoinHostPort(cfg.AppHost, cfg.AppPort),
 		Handler:           router,
 		ReadHeaderTimeout: cfg.HTTPReadHeaderTimeout,
 		ReadTimeout:       cfg.HTTPReadTimeout,
@@ -109,7 +110,7 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("backend listening on http://localhost:%s", cfg.AppPort)
+		log.Printf("backend listening on http://%s", server.Addr)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %v", err)
 		}
