@@ -4,7 +4,7 @@ set -Eeuo pipefail
 backup_root=${BACKUP_ROOT:-/var/backups/tarot-app}
 uploads_root=${UPLOADS_ROOT:-/var/lib/tarot-app/uploads}
 keep_count=${BACKUP_KEEP_COUNT:-7}
-lock_file=/run/lock/tarot-app-backup.lock
+lock_file=/run/tarot-backup/backup.lock
 timestamp=$(date -u +%Y%m%d-%H%M%S)
 final_dir="$backup_root/$timestamp"
 work_dir="$backup_root/.incomplete-$timestamp-$$"

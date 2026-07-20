@@ -9,6 +9,8 @@ User=root
 Group=root
 ExecStart=/usr/local/sbin/backup-tarot
 UMask=0077
+RuntimeDirectory=tarot-backup
+RuntimeDirectoryMode=0700
 
 NoNewPrivileges=true
 PrivateTmp=true
@@ -16,4 +18,3 @@ ProtectSystem=strict
 ProtectHome=true
 ReadOnlyPaths=/var/lib/tarot-app/uploads
 ReadWritePaths=/var/backups/tarot-app
-
