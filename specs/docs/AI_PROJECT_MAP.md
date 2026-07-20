@@ -2,7 +2,7 @@
 
 **Назначение:** навигация по актуальному коду, поиск источников истины и безопасное внесение изменений.
 
-**Актуально на:** 16 июля 2026 года.
+**Актуально на:** 21 июля 2026 года.
 
 **Главное правило:** рабочий frontend находится в `frontend/` и написан на React + TypeScript. Каталог `frontend-legacy/` содержит завершённый Vue baseline `v0.1.x`; не читать и не изменять его, если задача явно не относится к legacy.
 
@@ -19,8 +19,8 @@
 Приоритет источников истины:
 
 1. актуальный код и тесты;
-2. `specs/v0.2.0/` для текущего React frontend;
-3. общие документы из `specs/docs/`;
+2. общие документы из `specs/docs/`;
+3. `specs/v0.2.0/` как baseline перехода на React;
 4. versioned-документы `v0.1.x` только как исторический контекст.
 
 ## 2. Карта верхнего уровня
@@ -29,6 +29,7 @@
 |---|---|---|
 | `frontend/` | Актуальный React SPA | Любые текущие UI, auth и Card of the Day задачи |
 | `backend/` | Go/Gin API, MongoDB, OpenRouter | API, бизнес-правила, данные, AI, auth |
+| `deploy.sh` | Локальная сборка и ручной production deploy | После commit и push в `main` |
 | `specs/docs/` | Общая продуктовая и техническая документация | Перед архитектурными и UI-изменениями |
 | `specs/v0.2.0/` | Scope и визуальные прототипы текущей итерации | Для проверки требований к React frontend |
 | `scripts/`, `start-dev.sh`, `stop-dev.sh` | Локальный запуск и вспомогательные скрипты | Для full-stack запуска |
@@ -53,6 +54,7 @@ Browser
             -> services
             -> repositories
             -> MongoDB
+            -> локальный SOCKS relay
             -> OpenRouter для AI
 ```
 
@@ -128,7 +130,7 @@ frontend/src/
 `frontend/src/api/index.ts` экспортирует один объект `api`:
 
 - `api.readings` и `api.oracle` выбираются через `VITE_API_MODE`;
-- `api.auth` независимо выбирается через `VITE_AUTH_API_MODE`;
+- `api.auth`, profile, catalog, history, spreads и admin выбираются через `VITE_AUTH_API_MODE`;
 - `api.dailyCard` всегда использует текущий HTTP adapter;
 - HTTP реализации `readings` и `oracle` пока намеренно недоступны и выбрасывают ошибку; их нельзя включать через `VITE_API_MODE=http` без реализации;
 - базовый адрес берётся из `VITE_API_URL`, fallback — `/api`.
@@ -293,9 +295,39 @@ HTTP request
 - MongoDB: `MONGO_URI`, `MONGO_DB_NAME`, connect/ping timeouts;
 - browser access/assets: `FRONTEND_URL`, `BACKEND_PUBLIC_BASE_URL`;
 - direct AI: `AI_DIRECT_ENABLED`, `OPENROUTER_*`;
+- production egress: `HTTPS_PROXY`, `NO_PROXY`;
 - legacy gateway stub: `GATEWAY_*`.
 
 Секреты не добавлять в Git, тестовые ответы и логи.
+
+### 5.7 Production runtime
+
+Production использует immutable releases:
+
+```text
+/opt/tarot-app/releases/<commit-sha>
+/opt/tarot-app/current -> releases/<commit-sha>
+```
+
+Ключевые внешние runtime-ресурсы:
+
+- `/etc/tarot-app/app.env` — env и секреты, не входит в Git/release;
+- `/var/lib/tarot-app/uploads` — persistent uploads;
+- `tarot-app.service` — backend под `tarot-user`;
+- `tarot-openrouter-relay.service` — отдельный SSH/SOCKS relay для OpenRouter;
+- MongoDB — отдельный сервис, обычный deploy его не изменяет;
+- `gtwapi` — вне deploy flow и не перезапускается.
+
+После push production обновляется вручную из корня репозитория:
+
+```bash
+bash deploy.sh
+```
+
+Действующие runbooks:
+
+- `specs/docs/DEPLOYMENT_GUIDE.md`;
+- `specs/docs/OPENROUTER_PROXY.md`.
 
 ## 6. Тесты и команды
 
@@ -372,6 +404,8 @@ cp backend/.env.example backend/.env
 
 - Искать актуальный UI во Vue-каталоге вместо `frontend/`.
 - Считать `VITE_API_MODE=http` полностью реализованным: HTTP readings/oracle пока отсутствуют.
+- Считать `git push` автоматическим деплоем: GitHub Actions пока не настроен, нужен `bash deploy.sh`.
+- Копировать production env, адрес relay-сервера или ключевой материал в Git/документацию.
 - Вызывать AI до reveal или терять language в query/cache key.
 - Считать календарную полночь границей карты дня вместо `03:00`.
 - Добавлять fetch напрямую в React component вместо `api` + feature hook.

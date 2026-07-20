@@ -188,10 +188,8 @@
   .spread-toolbar { flex-direction: column; gap: 4px; }
   .spread-stage { padding-top: 16px; }
   .spread-zodiac { width: 400px; max-width: 95vw; }
-  .spread-position-sub { min-height: 0; font-size: 9px; }
+  .spread-position-sub { font-size: 9px; }
   .spread-card-float { margin-top: 6px; }
-  .spread-tap-hint { min-height: 30px; margin-top: 8px; font-size: 9px; }
-  .spread-card-shell.revealed .spread-tap-hint { font-size: 7px; }
   .spread-reveal-all { margin-top: 2px; }
   .spread-brief { font-size: 17px; }
   .spread-synthesis { padding: 24px 20px; }

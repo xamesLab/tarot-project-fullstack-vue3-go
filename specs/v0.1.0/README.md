@@ -1,5 +1,7 @@
 # План разработки v0.1.0
 
+> **Архивный version baseline.** Файлы в этом каталоге фиксируют план и приёмку Vue-версии `v0.1.0`. Пути и deployment-команды отсюда не являются инструкцией для текущего React production. Актуальные операции: [`specs/docs/DEPLOYMENT_GUIDE.md`](../docs/DEPLOYMENT_GUIDE.md).
+
 Этот каталог содержит поэтапный план разработки MVP `Nebula Tarot`, собранный на основе:
 
 - `specs/docs/PRD.md`

@@ -1,40 +1,59 @@
-# NEBULA-TAROT
+# NEBULA-TAROT frontend
 
-Frontend v1 for the NEBULA-TAROT card-of-the-day experience. The application uses a hybrid API: mock reading/oracle content and real Go API authentication with JWT session restoration.
+Актуальный production SPA на React 18, TypeScript и Vite.
 
-## Setup
+## Запуск
 
-Requirements: Node.js 18+ (Node.js 20 LTS is recommended) and npm.
+Требования: Node.js 20 LTS и npm.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `/` for Home and `/ui-kit` for the development-only component showcase.
+Routes:
 
-## Scripts
+- `/` — публичная карта дня;
+- `/profile` — профиль, настройки и история авторизованного пользователя;
+- `/spreads` — расклады авторизованного пользователя;
+- `/admin` — keeper-only административный интерфейс;
+- `/ui-kit` — development-only витрина компонентов.
 
-- `npm run dev` — start Vite.
-- `npm run build` — strict TypeScript check and production build.
-- `npm run preview` — preview the production bundle.
-- `npm run typecheck` — TypeScript only.
-- `npm run lint` — ESLint.
-- `npm test` — Vitest smoke tests.
-- `npm run extract:references` — unpack the original prototype templates into ignored `reference/` files.
+## Команды
 
-## Configuration
+- `npm run dev` — Vite dev server;
+- `npm run typecheck` — TypeScript check;
+- `npm run lint` — ESLint без warnings;
+- `npm test` — Vitest;
+- `npm run build` — typecheck и production build;
+- `npm run preview` — локальный preview production bundle;
+- `npm run extract:references` — извлечение исходных prototype templates в ignored-файлы.
 
-`VITE_API_MODE=mock|http` selects the reading/oracle transport. `VITE_AUTH_API_MODE=mock|http` independently selects authentication; development uses HTTP auth with `VITE_API_URL=http://localhost:8888/api`. JWT is stored as `tarot_daily_token`, and `/api/me` restores the session after reload.
+## Конфигурация API
 
-Theme and language are persisted in localStorage as `nebula-tarot:theme` and `nebula-tarot:lang`. Add design values to both theme blocks in `src/shared/styles/tokens.css`. Add locale strings under `src/features/i18n/locales/<lang>/`; localized reading content belongs to mock/API fixtures.
+```env
+VITE_API_MODE=mock|http
+VITE_AUTH_API_MODE=mock|http
+VITE_API_URL=http://localhost:8888/api
+```
 
-## Architecture
+- `dailyCard` всегда использует HTTP endpoints Go backend;
+- `VITE_AUTH_API_MODE` выбирает transport для auth, profile, catalog, history, spreads и admin;
+- `VITE_API_MODE` выбирает transport для generic readings и oracle facade;
+- production использует относительный `VITE_API_URL=/api`, HTTP account transport и mock generic oracle/readings transport.
 
-- `src/shared` — tokens, icons, hooks and reusable controlled UI components.
-- `src/features` — preferences, registration and oracle chat behavior.
-- `src/widgets` — page-level composition.
-- `src/pages` — Home and dev-only UI Kit routes.
-- `src/api` — stable typed API surface with mock and future HTTP implementations.
+JWT хранится как `tarot_daily_token`; `/api/me` восстанавливает сессию после reload. Theme и language сохраняются как `nebula-tarot:theme` и `nebula-tarot:lang`.
 
-New reusable visuals should first be implemented in `shared/ui` and demonstrated on `/ui-kit`. The original `Arcana Home.html` and `Arcana UI Library.html` files are immutable visual references; their legacy names do not represent the product brand.
+## Архитектура
+
+- `src/app` — router и providers;
+- `src/api` — DTO, HTTP client, mock adapter и facade;
+- `src/features` — пользовательские сценарии и feature state;
+- `src/shared` — tokens, utilities и reusable UI;
+- `src/widgets` — крупные композиционные блоки;
+- `src/pages` — route-level страницы;
+- `src/test` — unit, component и API-boundary tests.
+
+Новый reusable UI сначала добавляется в `shared/ui` и демонстрируется на `/ui-kit`. `Arcana Home.html` и `Arcana UI Library.html` являются неизменяемыми визуальными references; их legacy-названия не являются брендом продукта.
+
+Production frontend собирается корневым [`deploy.sh`](../deploy.sh). Подробности: [deployment guide](../specs/docs/DEPLOYMENT_GUIDE.md).

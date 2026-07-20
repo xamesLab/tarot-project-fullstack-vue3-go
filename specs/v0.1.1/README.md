@@ -1,5 +1,7 @@
 # План разработки v0.1.1
 
+> **Архивный version baseline.** Файлы в этом каталоге фиксируют direct OpenRouter-итерацию поверх Vue-клиента. Текущая React-интеграция и production relay описаны в [`specs/docs/AI_PROJECT_MAP.md`](../docs/AI_PROJECT_MAP.md) и [`specs/docs/OPENROUTER_PROXY.md`](../docs/OPENROUTER_PROXY.md).
+
 Этот каталог содержит план следующей продуктовой итерации `Nebula Tarot`, идущей поверх завершённого baseline `v0.1.0`.
 
 Главная цель `v0.1.1`:

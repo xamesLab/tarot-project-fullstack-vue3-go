@@ -47,8 +47,8 @@ describe('BackgroundDecor', () => {
     window.dispatchEvent(new Event('scroll'));
     window.dispatchEvent(new Event('pointermove'));
 
-    expect(root.style.getPropertyValue('--parallax-x')).toBe('');
-    expect(root.style.getPropertyValue('--parallax-y')).toBe('');
-    expect(root.style.getPropertyValue('--parallax-scroll')).toBe('');
+    expect(root.style.getPropertyValue('--parallax-far-x')).toBe('');
+    expect(root.style.getPropertyValue('--parallax-mid-y')).toBe('');
+    expect(root.style.getPropertyValue('--parallax-near-y')).toBe('');
   });
 });

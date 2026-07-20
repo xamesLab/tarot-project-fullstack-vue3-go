@@ -31,9 +31,6 @@ export function useBackgroundParallax() {
       const scrollScale = pointerEnabled
         ? { far: -0.012, mid: -0.024, near: -0.034 }
         : { far: -0.006, mid: -0.011, near: -0.016 };
-      element.style.setProperty('--parallax-x', current.x.toFixed(3));
-      element.style.setProperty('--parallax-y', current.y.toFixed(3));
-      element.style.setProperty('--parallax-scroll', scroll.toFixed(1));
       element.style.setProperty('--parallax-far-x', `${(-current.x * 12).toFixed(2)}px`);
       element.style.setProperty('--parallax-far-y', `${(-current.y * 8 + scroll * scrollScale.far).toFixed(2)}px`);
       element.style.setProperty('--parallax-mid-x', `${(current.x * 24).toFixed(2)}px`);

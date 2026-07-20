@@ -18,7 +18,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; }
+  * { scroll-behavior: auto !important; }
   .star, .card-c, .zodiac { animation: none !important; }
   .parallax-layer { transform: none !important; }
   .tarot, .modal-overlay, .modal-panel, .spheres-reveal { transition-duration: 0.01ms !important; }

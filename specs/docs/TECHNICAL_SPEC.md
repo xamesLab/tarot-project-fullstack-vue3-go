@@ -1,13 +1,13 @@
 # Technical Specification
 ## Nebula Tarot — backend baseline and v0.2.0 frontend
 
-**Document Version:** 1.1
+**Document Version:** 1.2
 
-**Last Updated:** July 3, 2026
+**Last Updated:** July 21, 2026
 
 **Status:** Working Baseline
 
-> Version note: the React client uses hybrid transport: authentication calls the Go API, while readings and oracle remain on typed mocks. The former Vue implementation remains in `frontend-legacy/`. See [`specs/v0.2.0`](../v0.2.0/README.md).
+> Current implementation note: the React client uses a domain-split transport. Card of the Day and its AI interpretation always use the Go HTTP API. Auth, profile, catalogs, history, spreads and admin use `VITE_AUTH_API_MODE`; generic readings/oracle use `VITE_API_MODE` and remain mock-backed in production. The former Vue implementation remains in `frontend-legacy/`. See [`specs/v0.2.0`](../v0.2.0/README.md).
 
 ---
 
@@ -1923,7 +1923,7 @@ func passwordValidator(fl validator.FieldLevel) bool {
 }
 ```
 
-**Frontend Validation:** `react-hook-form` with `zodResolver`. `v0.2.0` validates name, email and an eight-character minimum password; birth date is optional. Messages come from the active locale. The current form submits to a mock and does not replace stricter backend validation.
+**Frontend Validation:** `react-hook-form` with `zodResolver`. The React client validates name, email and an eight-character minimum password; birth date is optional. Messages come from the active locale. Submission goes through the configured account transport (HTTP in production) and does not replace stricter backend validation.
 
 ### 10.4 Rate Limiting
 
@@ -1941,25 +1941,28 @@ func passwordValidator(fl validator.FieldLevel) bool {
 - Go 1.23+
 - MongoDB 6.0+ (self-hosted, SSH tunnel)
 
-**Environment Variables (`.env`):**
+**Environment Variables (`backend/.env`):**
 ```bash
 # Server
-PORT=8888
-GIN_MODE=debug
+APP_ENV=dev
+APP_PORT=8888
 
 # Database
 MONGO_URI=mongodb://localhost:27017
-MONGO_DB=tarot_daily
+MONGO_DB_NAME=tarot_daily
 
 # Auth
 JWT_SECRET=your_jwt_secret_here_min_32_chars
+JWT_TTL=24h
 
-# Frontend URL (for CORS)
+# Browser access and public assets
 FRONTEND_URL=http://localhost:5173
+BACKEND_PUBLIC_BASE_URL=http://localhost:8888
 
-# File Upload
-UPLOAD_DIR=./uploads
-MAX_UPLOAD_SIZE=2097152  # 2MB in bytes
+# Direct AI (optional for non-AI local work)
+AI_DIRECT_ENABLED=true
+OPENROUTER_KEY=replace_locally
+OPENROUTER_MODEL_MAIN=provider/model
 ```
 
 **Run:**
@@ -1980,11 +1983,9 @@ go run main.go
 VITE_API_MODE=mock
 VITE_AUTH_API_MODE=http
 VITE_API_URL=http://localhost:8888/api
-# Future HTTP mode only:
-# VITE_API_URL=http://localhost:8888/api
 ```
 
-Development uses mock content with HTTP auth. Production keeps the same split and may override `VITE_API_URL`; full HTTP readings/oracle remain unimplemented.
+`dailyCard` always uses HTTP. Auth/profile/catalog/history/spreads/admin use `VITE_AUTH_API_MODE`; generic readings/oracle use `VITE_API_MODE`. HTTP implementations for the generic readings/oracle facade are intentionally unavailable, so `VITE_API_MODE=http` must not be enabled until they are implemented.
 
 **Run:**
 ```bash
@@ -2029,59 +2030,54 @@ func SeedDatabase() {
 
 ## 12. Deployment Strategy
 
-### 12.1 Build Process
+Production deployment is implemented. The operational source of truth is [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md); OpenRouter egress is documented in [`OPENROUTER_PROXY.md`](./OPENROUTER_PROXY.md).
 
-**Backend:**
+### 12.1 Build and deploy entry point
+
 ```bash
-cd backend
-go build -o tarot-daily-api main.go
+bash deploy.sh
 ```
 
-**Frontend:**
-```bash
-cd frontend
-npm run build
-# Output: dist/
+The script requires a clean pushed `main`, runs backend/frontend checks, cross-compiles the Go binary for Linux `amd64`, builds the React bundle, creates an archive/checksum, uploads it through SSH and calls the server-side installer.
+
+### 12.2 Release layout
+
+```text
+/opt/tarot-app/releases/<commit-sha>/
+├── backend/tarot-app
+└── frontend/{index.html,assets/}
+
+/opt/tarot-app/current -> releases/<commit-sha>
 ```
 
-### 12.2 Production Environment Variables
+The backend service executes `/opt/tarot-app/current/backend/tarot-app`; Nginx serves `/opt/tarot-app/current/frontend`. Uploads are linked to `/var/lib/tarot-app/uploads`.
 
-**Backend:**
+### 12.3 Runtime configuration
+
+Production backend configuration is stored only in `/etc/tarot-app/app.env` with `root:tarot-user` ownership and mode `0640`. It is not part of release artifacts.
+
+In addition to the backend variables listed in section 11, production includes `HTTPS_PROXY=socks5h://127.0.0.1:1080` and `NO_PROXY` for the restricted OpenRouter relay. Secret values, relay addresses and SSH key material must not be committed or documented.
+
+Production frontend is compiled with a relative API base `/api`.
+
+### 12.4 Safety and rollback
+
+- Releases are immutable and identified by full commit SHA.
+- The server validates checksum and archive structure.
+- `/opt/tarot-app/current` is switched atomically.
+- Local/public health checks run after restart.
+- Failed smoke tests restore the previous release automatically.
+- MongoDB, env, uploads, Nginx/TLS, `gtwapi`, VPN and relay service are not replaced by a normal deploy.
+
+### 12.5 Health checks
+
 ```bash
-GIN_MODE=release
-PORT=8888
-MONGO_URI=mongodb://prod-host:27017
-MONGO_DB=tarot_daily
-JWT_SECRET=production_secret_min_32_chars
-FRONTEND_URL=https://nebula-taro.com
+curl --fail http://127.0.0.1:8888/api/health
+curl --fail https://nebula-tarot.ru/api/health
+systemctl status tarot-app --no-pager
 ```
 
-**Frontend:**
-```bash
-VITE_API_URL=https://test-api.xmlab.ru/api
-```
-
-### 12.3 Deployment Checklist
-
-**Pre-Deployment:**
-- [ ] Run backend tests: `go test ./...`
-- [ ] Run frontend build: `npm run build`
-- [ ] Verify environment variables
-- [ ] Backup MongoDB
-- [ ] Test on staging environment
-
-**Deployment:**
-- [ ] Deploy backend binary
-- [ ] Deploy frontend static files
-- [ ] Run database migrations (if any)
-- [ ] Verify API health: `GET /api/gateway/health`
-- [ ] Smoke test critical flows (login, card generation)
-
-**Post-Deployment:**
-- [ ] Monitor error logs
-- [ ] Check API response times
-- [ ] Verify MongoDB connections
-- [ ] Test file uploads
+`git push` alone does not deploy: no GitHub Actions deployment workflow is configured yet.
 
 ---
 

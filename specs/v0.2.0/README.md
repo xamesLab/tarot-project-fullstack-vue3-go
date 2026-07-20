@@ -1,12 +1,18 @@
 # Nebula Tarot v0.2.0
 
-`v0.2.0` — новая frontend-итерация проекта. Она заменяет визуальную и архитектурную основу клиента, но пока не заменяет backend-connected возможности `v0.1.x`. Старый Vue frontend перенесён в `frontend-legacy/`, новый React frontend расположен в `frontend/`.
+`v0.2.0` — зафиксированный baseline перехода проекта с Vue на React. Старый Vue frontend перенесён в `frontend-legacy/`, новый React frontend расположен в `frontend/`.
 
-**Статус:** hybrid frontend baseline: HTTP auth + mock content
+**Статус baseline:** HTTP auth + mock content
+
+**Текущее дополнение:** post-baseline HTTP integration и production deployment выполнены
 
 **Дата фиксации документа:** 3 июля 2026
 
+**Проверено:** 21 июля 2026
+
 **Исходный план:** [`frontend/IMPLEMENTATION_PLAN.md`](../../frontend/IMPLEMENTATION_PLAN.md)
+
+После фиксации baseline React-клиент был расширен: Card of the Day и AI-интерпретация всегда используют Go HTTP API; добавлены profile, spreads и admin routes; account-related adapters подключены к backend; клиент развёрнут в production. Ниже сохранён исходный scope `v0.2.0`, поэтому утверждения о mock-only Home следует читать как состояние на дату фиксации, а не как текущую operational конфигурацию.
 
 ## Цели версии
 
@@ -109,7 +115,7 @@ Transport выбирается по доменам: `VITE_API_MODE=mock` ост�
 | Styles | SCSS | Tailwind + CSS variables + CSS |
 | Tests | ручной baseline | Vitest + Testing Library smoke tests |
 
-## Scope версии
+## Исходный scope версии
 
 ### Реализовано
 
@@ -121,7 +127,7 @@ Transport выбирается по доменам: `VITE_API_MODE=mock` ост�
 - keyboard-accessible card flip и modal focus management
 - typecheck, lint, unit smoke test и production build scripts
 
-### Не входит в v0.2.0
+### Не входило в исходный v0.2.0 baseline
 
 - реальная связь нового frontend с Go API
 - profile/settings screen и остальные protected routes
@@ -149,7 +155,7 @@ npm test
 npm run build
 ```
 
-## Критерии приёмки
+## Исходные критерии приёмки
 
 - `/` открывается без backend и авторизации
 - Home корректно работает на русском и английском, в dark и light themes
@@ -161,6 +167,6 @@ npm run build
 - `/ui-kit` доступен в development и отсутствует как route в production
 - typecheck, lint, tests и build завершаются успешно
 
-## Следующий этап
+## Следующий этап на дату baseline
 
-Главный технический шаг после `v0.2.0` — реализовать `frontend/src/api/http.ts`, согласовать DTO с действующими Go endpoints и последовательно перенести auth/session, reading history, spreads, catalog/profile и admin flows из `frontend-legacy/`. До этого новый и legacy frontend следует воспринимать как два разных runtime-клиента, а не как взаимозаменяемые сборки.
+Исходным следующим шагом была реализация `frontend/src/api/http.ts` и перенос auth/session, reading history, spreads, catalog/profile и admin flows. Большая часть этого переноса выполнена. Текущие незакрытые направления — HTTP implementation generic readings/oracle facade, дальнейшая продуктовая разработка и CI/CD automation. Для текущего состояния использовать корневой README, `specs/docs/AI_PROJECT_MAP.md` и operational runbooks.

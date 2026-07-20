@@ -504,7 +504,7 @@
 .type-corm { font-family: 'Cormorant Garamond', serif; }
 .type-corm.italic { font-size: clamp(20px, 1.95vw, 24px); font-style: italic; }
 .type-corm.body { max-width: 720px; font-size: clamp(18px, 1.65vw, 20px); line-height: 1.6; }
-.type-raleway { font: 400 clamp(9px, .9vw, 11px)/1.45 Raleway, sans-serif !important; letter-spacing: clamp(.16em, .23vw, .25em); text-transform: uppercase; }
+.type-row .type-raleway { font: 400 clamp(9px, .9vw, 11px)/1.45 Raleway, sans-serif; letter-spacing: clamp(.16em, .23vw, .25em); text-transform: uppercase; }
 
 /* Buttons, status elements and fields */
 .ui-kit .button {
@@ -530,8 +530,7 @@
   gap: clamp(15px, 1.5vw, 18px);
 }
 
-.field-demo .field,
-.field-demo .field:last-child { width: 100%; min-width: 0; }
+.field-demo .field { width: 100%; min-width: 0; }
 .ui-kit .field-label { font-size: clamp(8px, .82vw, 10px); line-height: 1.35; letter-spacing: clamp(.18em, .26vw, .28em); }
 .ui-kit .field-control { min-height: 46px; padding: 12px 16px; border-radius: 8px; font-size: clamp(17px, 1.55vw, 19px); line-height: 1.35; }
 .ui-kit textarea.field-control { min-height: 110px; }
@@ -851,7 +850,6 @@
   .kit-menu-button { display: grid; }
 
   .kit-content { padding-top: clamp(30px, 4.2vw, 42px); }
-  .kit-section { scroll-margin-top: calc(var(--kit-header-height) + 24px); }
   .aspect-demo { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 10px; }
   .ui-kit-modal { width: min(680px, calc(100% - 32px)); min-width: 0; }
 }
@@ -885,7 +883,6 @@
   .kit-theme {
     width: 40px;
     height: 40px;
-    min-height: 40px;
     padding: 0;
   }
 
@@ -921,7 +918,7 @@
   .type-cinzel.label { font-size: 10px; line-height: 1.5; letter-spacing: .2em; }
   .type-corm.italic { font-size: 20px; line-height: 1.4; }
   .type-corm.body { font-size: 18px; line-height: 1.55; }
-  .type-raleway { font-size: 9px !important; line-height: 1.55 !important; letter-spacing: .14em; }
+  .type-row .type-raleway { font-size: 9px; line-height: 1.55; letter-spacing: .14em; }
 
   #buttons .demo-row {
     display: grid;
@@ -953,7 +950,7 @@
 
   #controls .kit-ornament-gap { margin-block: 17px; }
   #controls .control-stack { gap: 4px; }
-  .control-label { width: 100%; min-height: 34px; gap: 10px; align-items: center; font-size: 11px; }
+  .control-label { width: 100%; min-height: 34px; gap: 10px; font-size: 11px; }
   .ui-kit .toggle { position: relative; width: 42px; height: 24px; padding: 2px; }
   .ui-kit .toggle::before { content: ''; position: absolute; inset: -5px 0; }
   .ui-kit .toggle-knob { width: 18px; height: 18px; }
@@ -1042,7 +1039,7 @@
   .ui-kit-modal .modal-body { padding: 22px 18px; gap: 18px; }
   .ui-kit-modal .modal-foot { padding: 15px 18px; }
   .ui-kit-modal .modal-foot .button { width: 100%; }
-  .ui-kit-modal .demo-row { justify-content: center; gap: 8px; }
+  .ui-kit-modal .demo-row { gap: 8px; }
   .modal-sample { font-size: 18px; line-height: 1.55; }
 
   .icon-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -1064,13 +1061,11 @@
   .ui-kit { --kit-gutter: 12px; --kit-panel-padding: 14px; }
   .kit-brand-sub { display: none; }
   .kit-brand-name { font-size: 13px; }
-  .kit-theme { padding-inline: 8px; font-size: 7px; }
-  .kit-theme-label { max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kit-lede h1 { font-size: 23px; }
   .kit-section h2 { font-size: 14px; letter-spacing: .06em; }
   .swatch-grid { gap: 8px; }
   .swatch code { font-size: 8px; }
-  .ui-kit .segment { font-size: 8px; letter-spacing: .07em; }
+  .ui-kit .segment { letter-spacing: .07em; }
   .field-demo { grid-template-columns: minmax(0, 1fr); }
   .ui-kit .user-sign { max-width: 125px; }
   .icon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

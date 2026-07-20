@@ -7,7 +7,7 @@
 
 **Status:** Working Baseline
 
-> Version note: sections describing authenticated readings, history, catalogs and administration remain the product contract implemented by the `v0.1.x` Go + Vue stack. For `v0.2.0`, the active client moved to `frontend/` (React + TypeScript), while the previous Vue client moved to `frontend-legacy/`. The new client currently implements the public Card of the Day experience through mock APIs; see [`specs/v0.2.0`](../v0.2.0/README.md).
+> Current implementation note (21 July 2026): the active client is `frontend/` (React + TypeScript), while the previous Vue client remains in `frontend-legacy/`. Public Card of the Day, guest claim and AI interpretation now use the Go HTTP API. Auth, profile, catalogs, history, spreads and admin also have HTTP adapters; the generic readings/oracle facade remains mock-backed in the production frontend configuration. Versioned scope is preserved in [`specs/v0.2.0`](../v0.2.0/README.md), and production operations are documented in [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md).
 
 ---
 

@@ -9,6 +9,8 @@
 
 > Version note: phases below are retained as the historical roadmap that produced the `v0.1.x` Vue client, now located in `frontend-legacy/`. The active React client is tracked in [`specs/v0.2.0`](../v0.2.0/README.md) and `frontend/IMPLEMENTATION_PLAN.md`; old Vue task paths must not be used for new implementation work.
 
+> Operations note (21 July 2026): production release deployment is implemented and no longer follows the unchecked Phase 6 list below. Use [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) and the root `deploy.sh`; OpenRouter egress is described in [`OPENROUTER_PROXY.md`](./OPENROUTER_PROXY.md).
+
 ---
 
 ## Table of Contents
@@ -54,14 +56,14 @@
 - Document as you build
 - Keep it simple (MVP scope only)
 
-**Current note:** `v0.1.0` and the direct AI work of `v0.1.1` remain the completed full-stack baseline in `backend/` + `frontend-legacy/`. For `v0.2.0`, a new React/TypeScript frontend was created in `frontend/` with public Home, dev-only UI Kit, shared design system, RU/EN, dark/light themes, registration modal, oracle chat and typed mock APIs. Backend integration and migration of authenticated/admin flows are the next roadmap stage.
+**Current note:** `v0.1.0` and the direct AI work of `v0.1.1` remain the historical full-stack baseline in `backend/` + `frontend-legacy/`. The active React/TypeScript frontend in `frontend/` now includes backend-connected Card of the Day, auth, profile, spreads and admin flows and is deployed to production. Generic readings/oracle HTTP adapters and CI/CD automation remain later work.
 
 ### 1.3 v0.2.0 Transition Priorities
 
 1. Treat `frontend/` as the only target for new UI work and `frontend-legacy/` as a migration reference.
-2. Preserve the `NebulaTarotApi` boundary while implementing `frontend/src/api/http.ts`.
-3. Migrate auth/session before protected routes.
-4. Migrate readings/history, profile/catalog and admin as separate vertical slices.
+2. Preserve the `NebulaTarotApi` boundary while completing the remaining generic readings/oracle HTTP adapters.
+3. Keep auth/session, protected routes and unauthorized handling aligned as one security boundary.
+4. Extend readings/history, profile/catalog and admin as separate tested vertical slices.
 5. Keep `/ui-kit` synchronized with every new shared visual primitive.
 
 ### 1.4 Definition of Done

@@ -293,5 +293,5 @@ export function ProfileSettings({ user }: { user: UserDto }) {
 function ProfileFeedback({ saved, error, savedText }: { saved: boolean; error: string; savedText: string }) {
   if (error) return <p className="profile-settings-feedback error" role="alert">{error}</p>;
   if (saved) return <p className="profile-settings-feedback success" role="status">{savedText}</p>;
-  return <span />;
+  return null;
 }

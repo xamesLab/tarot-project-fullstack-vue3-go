@@ -4,7 +4,7 @@
 
 **Source of truth:** `frontend/src/shared/` и development route `/ui-kit`
 
-**Обновлено:** 3 июля 2026
+**Проверено:** 21 июля 2026 года
 
 Этот документ описывает дизайн-систему нового React frontend. Дизайн-система Vue-клиента `v0.1.x` сохранена вместе с кодом в `frontend-legacy/` и больше не является source of truth для `frontend/`.
 

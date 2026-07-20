@@ -1,5 +1,7 @@
 # NEBULA-TAROT — Frontend Implementation Plan (v1)
 
+> **Historical implementation brief.** The initial React foundation described here has been completed and subsequently extended with backend-connected Card of the Day, profile, spreads, admin and production deployment. Use `frontend/README.md` and `specs/docs/AI_PROJECT_MAP.md` for current behavior; retain this file as the original design/implementation contract.
+
 You are building the first version of the **NEBULA-TAROT** web frontend (a tarot / "card of the day" product) from two HTML prototype files located in the same folder. The source prototype filenames retain their original Arcana names, but all product-facing copy uses NEBULA-TAROT:
 
 - `Arcana Home.html` — the Home page ("Card of the Day")

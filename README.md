@@ -1,55 +1,79 @@
 # Nebula Tarot
 
-`Nebula Tarot` — full-stack tarot-платформа с Go API, MongoDB и двумя поколениями frontend. Актуальная frontend-итерация — `v0.2.0`: новый публичный Card of the Day experience на React и TypeScript. Завершённый Vue-клиент `v0.1.x` сохранён в `frontend-legacy/` как функциональный full-stack baseline.
+`Nebula Tarot` — production full-stack tarot-платформа с Go API, MongoDB и React frontend. Предыдущий Vue 3 клиент сохранён в `frontend-legacy/` как исторический baseline `v0.1.x`.
+
+**Текущее состояние на 21 июля 2026 года:** React frontend развёрнут на `https://nebula-tarot.ru`; публичная карта дня и AI-интерпретация работают через Go backend и OpenRouter.
 
 ## Структура репозитория
 
 | Путь | Назначение | Статус |
 |---|---|---|
-| `frontend/` | Новый SPA на React + TypeScript | Актуальная разработка `v0.2.0` |
-| `frontend-legacy/` | Предыдущий SPA на Vue 3 | Legacy baseline `v0.1.x` |
+| `frontend/` | React 18 + TypeScript SPA | Актуальный production frontend |
+| `frontend-legacy/` | Предыдущий Vue 3 SPA | Архивный full-stack baseline `v0.1.x` |
 | `backend/` | REST API на Go + Gin, MongoDB, JWT, OpenRouter | Действующий backend |
-| `specs/` | Общие спецификации и документы по версиям | [Индекс документации](./specs/README.md) |
+| `deploy.sh` | Ручная сборка и production deployment после push | Действующий deploy entry point |
+| `specs/` | Общая, versioned и operational документация | [Индекс](./specs/README.md) |
 
-## Что нового в v0.2.0
+## Актуальный frontend
 
-- новый визуальный язык `NEBULA-TAROT`, перенесённый из `Arcana Home.html` и `Arcana UI Library.html`
-- публичная страница `/` с картой дня, 3D-переворотом карты, толкованием по четырём сферам и посланием дня
-- mock oracle chat с асинхронными ответами
-- единый login/registration modal с JWT-сессией через Go API
-- RU/EN и dark/light theme с сохранением выбора в `localStorage`
-- dev-only `/ui-kit`, собранный из тех же shared-компонентов, что и Home
-- feature-oriented архитектура: `app`, `api`, `features`, `shared`, `widgets`, `pages`
-- hybrid API: auth через HTTP, Card of the Day и oracle через mock
+- публичный Card of the Day с guest claim и переносом карты в аккаунт;
+- AI-толкование по четырём сферам;
+- login/registration и восстановление JWT-сессии;
+- protected routes `/profile` и `/spreads`;
+- keeper-only `/admin`;
+- RU/EN, dark/light theme и адаптивный интерфейс;
+- development-only `/ui-kit`;
+- feature-oriented слои `app`, `api`, `features`, `shared`, `widgets`, `pages`.
 
-Полное описание изменений и границ версии: [specs/v0.2.0](./specs/v0.2.0/README.md).
+Транспорт разделён по возможностям:
+
+- `dailyCard` всегда использует реальный HTTP API;
+- auth, profile, catalogs, history, spreads и admin используют transport из `VITE_AUTH_API_MODE`;
+- generic readings и oracle chat используют transport из `VITE_API_MODE`;
+- production сейчас использует HTTP для account-функций и mock для generic oracle/readings facade.
 
 ## Стек
 
-### Актуальный frontend
+### Frontend
 
-- React 18, TypeScript 5, Vite 5
-- React Router, Zustand, TanStack Query
-- i18next + react-i18next
-- react-hook-form + zod
-- Tailwind CSS, CSS custom properties и компонентные CSS-стили
-- Vitest + Testing Library
+- React 18, TypeScript 5, Vite 5;
+- React Router, Zustand, TanStack Query;
+- i18next + react-i18next;
+- react-hook-form + zod;
+- CSS custom properties, Tailwind CSS и компонентные CSS-стили;
+- Vitest + Testing Library.
 
 ### Backend
 
-- Go 1.23, Gin
-- MongoDB и официальный Go driver
-- JWT, bcrypt, validator
-- direct AI integration через OpenRouter
+- Go 1.23, Gin;
+- MongoDB и официальный Go driver;
+- JWT, bcrypt, validator;
+- direct OpenRouter integration;
+- стандартный Go HTTP transport через ограниченный SSH/SOCKS relay в production.
 
-### Legacy frontend
+## Локальный запуск
 
-- Vue 3, Pinia, Vue Router, Vue I18n
-- Axios, VeeValidate, SCSS
+Требования: Go `1.23.x`, Node.js 20 LTS, npm и доступная MongoDB.
 
-## Быстрый старт нового frontend
+```bash
+cp backend/.env.example backend/.env
+./start-dev.sh
+```
 
-Требования: Node.js 20 LTS и npm.
+По умолчанию:
+
+- frontend: `http://localhost:5173`;
+- backend: `http://localhost:8888`;
+- API: `http://localhost:8888/api`;
+- UI Kit: `http://localhost:5173/ui-kit` только в development.
+
+Раздельный запуск:
+
+```bash
+cd backend
+go mod download
+go run .
+```
 
 ```bash
 cd frontend
@@ -57,74 +81,50 @@ npm install
 npm run dev
 ```
 
-Откройте `http://localhost:5173/`. В development также доступен `http://localhost:5173/ui-kit`; в production route не регистрируется. Home и mock-контент работают без backend, но для входа и регистрации backend должен быть доступен на `http://localhost:8888/api`.
-
-Проверки:
+## Проверки
 
 ```bash
+cd frontend
 npm run typecheck
 npm run lint
 npm test
 npm run build
 ```
 
-## Запуск backend и legacy-клиента
-
-Этот режим нужен для существующих auth, profile, readings, history и admin flow, пока HTTP-адаптер нового frontend не реализован.
-
 ```bash
-cp backend/.env.example backend/.env
 cd backend
-go mod download
-go run .
+go test ./...
+go vet ./...
+go build ./...
 ```
 
-В другом терминале:
+## Production deployment
+
+`git push` сам по себе production не обновляет. После commit и push из чистой ветки `main`:
 
 ```bash
-cp frontend-legacy/.env.example frontend-legacy/.env
-cd frontend-legacy
-npm install
-npm run dev
+bash deploy.sh
 ```
 
-Backend по умолчанию доступен на `http://localhost:8888/api`, оба frontend используют порт `5173`, поэтому одновременно их следует запускать на разных портах.
+Скрипт собирает точный commit, загружает release-архив на VPS и запускает серверный installer с checksum, smoke tests и автоматическим rollback. Production env, MongoDB, uploads, TLS, `gtwapi`, VPN и OpenRouter relay при обычном деплое не заменяются.
 
-Корневой `start-dev.sh` запускает backend вместе с актуальным frontend и подходит для проверки нового auth flow. Для прежних readings/admin сценариев по-прежнему используется `frontend-legacy/`.
-
-## API-режим нового frontend
-
-`frontend/src/api/index.ts` независимо выбирает transport по доменам:
-
-- `VITE_API_MODE=mock` — Card of the Day и oracle используют typed fixtures
-- `VITE_AUTH_API_MODE=http` — login, registration и session hydration используют Go endpoints
-- `VITE_API_URL` — base URL backend, локально `http://localhost:8888/api`
-
-JWT хранится под совместимым с legacy ключом `tarot_daily_token`. После reload пользователь восстанавливается через `GET /api/me`.
-
-## Текущий статус версий
-
-- `v0.1.0` — завершённый MVP baseline: auth, профиль, карта дня, 3-card spread, история, каталоги и admin panel
-- `v0.1.1` — direct AI flow через OpenRouter и административные настройки AI
-- `v0.2.0` — публичный Card of the Day с mock-контентом и подключённой HTTP-авторизацией
+Подробности: [Production deployment](./specs/docs/DEPLOYMENT_GUIDE.md).
 
 ## Документация
 
-Начинать рекомендуется в таком порядке:
+1. [Индекс документации](./specs/README.md)
+2. [Карта проекта](./specs/docs/AI_PROJECT_MAP.md)
+3. [Production deployment](./specs/docs/DEPLOYMENT_GUIDE.md)
+4. [OpenRouter relay-прокси](./specs/docs/OPENROUTER_PROXY.md)
+5. [Technical Specification](./specs/docs/TECHNICAL_SPEC.md)
+6. [Design System](./specs/docs/DESIGN_SYSTEM.md)
+7. [Product Requirements](./specs/docs/PRD.md)
 
-1. [v0.2.0 — изменения, scope и ограничения](./specs/v0.2.0/README.md)
-2. [Technical Specification](./specs/docs/TECHNICAL_SPEC.md)
-3. [Design System](./specs/docs/DESIGN_SYSTEM.md)
-4. [Product Requirements](./specs/docs/PRD.md)
-5. [Implementation Roadmap](./specs/docs/IMPLEMENTATION_ROADMAP.md)
-6. [Frontend implementation plan](./frontend/IMPLEMENTATION_PLAN.md)
+## Исторические версии
 
-## Важные доменные правила legacy/full-stack baseline
+- `v0.1.0` — Vue full-stack MVP baseline;
+- `v0.1.1` — direct OpenRouter flow поверх Vue baseline;
+- `v0.2.0` — переход на React и новый визуальный foundation;
+- текущее состояние включает post-`v0.2.0` интеграцию React frontend с production backend.
 
-- Card of the Day зависит от `user_id + accounting_date + timezone`
-- accounting day длится с `03:00` до `02:59` следующего дня
-- 3-card spread ограничивается ролью пользователя
-- состояние раскрытия карт сохраняется в reading
-- срок хранения истории зависит от роли и реализуется через TTL-логику MongoDB
-
-Эти правила остаются частью продукта, но в mock-oriented Home версии `v0.2.0` ещё не подключены к реальному пользовательскому состоянию.
+Versioned-документы фиксируют контекст своей версии и не должны использоваться как operational runbook. Для текущего кода приоритет имеют код и тесты, затем `specs/docs/`.

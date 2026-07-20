@@ -5,6 +5,8 @@
 **Scope:** one shared web application that works both in a browser and inside Telegram Mini App  
 **Primary goal:** make the existing frontend available as a Telegram Mini App and synchronize Telegram authorization with browser authorization through the same backend user account.
 
+> **Baseline warning (reviewed 21 July 2026):** this plan was written for the former Vue 3 client, now stored in `frontend-legacy/`. The active production client is React + TypeScript in `frontend/`, with different router, stores, startup flow and component paths. Telegram security/account decisions remain useful, but sections 2, 4, 7, 8 and implementation phases must be re-baselined against the React code before work starts. This file is not a current implementation runbook.
+
 ---
 
 ## 1. Goal
@@ -23,11 +25,11 @@ Important clarification: browser and Telegram WebView storage should not be trea
 
 ---
 
-## 2. Current Project Baseline
+## 2. Archived Vue Project Baseline
 
 ### 2.1 Frontend
 
-Current stack:
+Baseline frontend stack:
 
 - `Vue 3`
 - `Vite`
@@ -40,12 +42,12 @@ Current stack:
 
 Relevant current files:
 
-- `frontend/src/main.js` initializes Vue, Pinia, router and i18n.
-- `frontend/src/App.vue` hydrates app state and auth before rendering the shell.
-- `frontend/src/router/index.js` protects authenticated routes and redirects guests to `/login`.
-- `frontend/src/services/api.js` creates the shared Axios client.
-- `frontend/src/stores/auth.js` stores the app JWT in `localStorage` under `tarot_daily_token`.
-- `frontend/src/components/layout/AppHeader.vue` owns browser navigation, theme/language controls and logout.
+- `frontend-legacy/src/main.js` initializes Vue, Pinia, router and i18n.
+- `frontend-legacy/src/App.vue` hydrates app state and auth before rendering the shell.
+- `frontend-legacy/src/router/index.js` protects authenticated routes and redirects guests to `/login`.
+- `frontend-legacy/src/services/api.js` creates the shared Axios client.
+- `frontend-legacy/src/stores/auth.js` stores the app JWT in `localStorage` under `tarot_daily_token`.
+- `frontend-legacy/src/components/layout/AppHeader.vue` owns browser navigation, theme/language controls and logout.
 
 Current auth frontend behavior:
 
@@ -56,7 +58,7 @@ Current auth frontend behavior:
 
 ### 2.2 Backend
 
-Current stack:
+Baseline backend stack:
 
 - `Go 1.23`
 - `Gin`
@@ -439,8 +441,8 @@ Rate limiting is not currently present in the project. For this task, add it onl
 Add a small adapter/composable, for example:
 
 ```text
-frontend/src/composables/useTelegramMiniApp.js
-frontend/src/services/telegramAuth.js
+frontend-legacy/src/composables/useTelegramMiniApp.js
+frontend-legacy/src/services/telegramAuth.js
 ```
 
 Responsibilities:
