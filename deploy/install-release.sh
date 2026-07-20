@@ -97,8 +97,8 @@ if [[ ! -d $release_dir ]]; then
   install -d -m 0755 "$staging_dir"
   tar -xzf "$archive" --no-same-owner --no-same-permissions -C "$staging_dir"
 
-  if [[ ! -x $staging_dir/backend/tarot-app ]]; then
-    echo "release does not contain an executable backend" >&2
+  if [[ ! -f $staging_dir/backend/tarot-app || -L $staging_dir/backend/tarot-app ]]; then
+    echo "release does not contain a regular backend binary" >&2
     exit 1
   fi
   if [[ ! -f $staging_dir/frontend/index.html ]]; then
