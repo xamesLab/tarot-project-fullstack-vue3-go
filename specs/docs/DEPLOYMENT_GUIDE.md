@@ -128,9 +128,10 @@ specs/temp/env (1).txt
 3. при необходимости очистить историю Git;
 4. включить автоматическое сканирование репозитория на секреты.
 
-Созданы новые отдельные credentials для плановых MongoDB-backup. Потенциально
-раскрытые application MongoDB credentials, JWT secret и общий callback secret
-нужно ротировать отдельно. Callback secret нельзя менять без согласованного
+Созданы новые отдельные credentials для плановых MongoDB-backup. Application
+MongoDB credentials и JWT secret ротированы 21 июля 2026 года; старый MongoDB
+application user удалён, а существующие web-сессии после смены JWT требуют
+повторного входа. Общий callback secret нельзя менять без согласованного
 обновления `gtwapi`; в рамках внедрения он намеренно не изменялся.
 
 Production-файл `/etc/tarot-app/app.env` не должен копироваться в репозиторий или включаться в release-архив.
