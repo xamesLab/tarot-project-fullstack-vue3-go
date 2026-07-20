@@ -39,6 +39,9 @@ The backup timer creates a daily all-database MongoDB archive and an uploads
 archive under `/var/backups/tarot-app`. A restore dry-run and SHA-256 checks
 must pass before a backup becomes visible. Seven scheduled generations are
 retained; named pre-deployment backups are not included in that rotation.
+MongoDB tools read the dedicated backup credentials from the root-only
+`/etc/tarot-app/mongodump.yml`; credentials are never passed on the command
+line.
 
 The health timer verifies all four services, local and public health endpoints,
 and a 512 MiB minimum free-disk threshold every five minutes. It writes results

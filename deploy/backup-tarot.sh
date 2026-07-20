@@ -4,6 +4,7 @@ set -Eeuo pipefail
 backup_root=${BACKUP_ROOT:-/var/backups/tarot-app}
 uploads_root=${UPLOADS_ROOT:-/var/lib/tarot-app/uploads}
 keep_count=${BACKUP_KEEP_COUNT:-7}
+mongo_config=${MONGO_TOOLS_CONFIG:-/etc/tarot-app/mongodump.yml}
 lock_file=/run/tarot-backup/backup.lock
 timestamp=$(date -u +%Y%m%d-%H%M%S)
 final_dir="$backup_root/$timestamp"
@@ -19,9 +20,13 @@ install -d -o root -g root -m 0700 "$backup_root"
 mkdir -m 0700 "$work_dir"
 trap 'rm -rf -- "$work_dir"' EXIT
 
+if [[ ! -r "$mongo_config" ]]; then
+  echo "MongoDB tools config is not readable: $mongo_config" >&2
+  exit 1
+fi
+
 mongodump \
-  --host 127.0.0.1 \
-  --port 27017 \
+  --config="$mongo_config" \
   --archive="$work_dir/mongodb-all.archive.gz" \
   --gzip
 
@@ -29,8 +34,7 @@ tar --create --gzip --file "$work_dir/uploads.tar.gz" \
   --directory "$uploads_root" .
 
 mongorestore \
-  --host 127.0.0.1 \
-  --port 27017 \
+  --config="$mongo_config" \
   --archive="$work_dir/mongodb-all.archive.gz" \
   --gzip \
   --dryRun >/dev/null
