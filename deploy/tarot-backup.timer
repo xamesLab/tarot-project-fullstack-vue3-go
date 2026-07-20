@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily TarotApp backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=tarot-backup.service
+
+[Install]
+WantedBy=timers.target

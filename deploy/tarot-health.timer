@@ -1,0 +1,12 @@
+[Unit]
+Description=Run TarotApp health check every five minutes
+
+[Timer]
+OnBootSec=2m
+OnUnitActiveSec=5m
+RandomizedDelaySec=30s
+AccuracySec=15s
+Unit=tarot-health.service
+
+[Install]
+WantedBy=timers.target

@@ -398,6 +398,21 @@ MongoDB сейчас слушает `0.0.0.0:27017`. Если внешние к�
 
 Production env можно хранить в отдельном защищённом backup, но он не должен попадать в общий архив приложения или GitHub artifact.
 
+На VPS ежедневная процедура реализуется скриптом `/usr/local/sbin/backup-tarot`
+и таймером `tarot-backup.timer`. Она создаёт архив всех баз MongoDB и архив
+uploads, проверяет SHA-256, запускает `mongorestore --dryRun` и только после
+успеха атомарно публикует каталог с backup. Хранятся семь ежедневных поколений;
+именованные каталоги `pre-deploy-*` автоматической ротацией не удаляются.
+
+Проверка и ручной запуск:
+
+```bash
+systemctl start tarot-backup.service
+systemctl status tarot-backup.service
+systemctl list-timers tarot-backup.timer
+journalctl -u tarot-backup.service
+```
+
 ## 14. Откат
 
 Откат выполняется переключением `current` на предыдущий релиз:
@@ -458,6 +473,12 @@ nginx -t
 https://nebula-tarot.ru/
 https://nebula-tarot.ru/api/health
 ```
+
+Локальный таймер `tarot-health.timer` каждые пять минут проверяет сервисы,
+локальный и публичный health endpoint и наличие минимум 512 MiB свободного
+места. Результаты доступны через `journalctl -u tarot-health.service`. Этот
+таймер обнаруживает сбой, но без внешней системы оповещений сам уведомление не
+отправляет.
 
 Полезно также отслеживать:
 
