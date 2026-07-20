@@ -42,19 +42,28 @@ interface TarotCardProps {
   tilt?: boolean;
   flipLabel?: string;
   onFlipChange?: (flipped: boolean) => void;
+  revealed?: boolean;
+  revealLoading?: boolean;
+  onReveal?: () => void;
 }
 
-export function TarotCard({ roman, name, faceImageUrl, faceImageAlt, backImageUrl, flippable, tilt, flipLabel, onFlipChange }: TarotCardProps) {
+export function TarotCard({ roman, name, faceImageUrl, faceImageAlt, backImageUrl, flippable, tilt, flipLabel, onFlipChange, revealed, revealLoading, onReveal }: TarotCardProps) {
   const [flipped, setFlipped] = useState(false);
   const tiltRef = useTilt<HTMLDivElement>(Boolean(tilt));
+  const isControlled = revealed !== undefined;
+  const isFlipped = isControlled ? revealed : flipped;
   const toggle = () => {
-    if (!flippable) return;
+    if (!flippable || revealLoading) return;
+    if (isControlled) {
+      if (!isFlipped) onReveal?.();
+      return;
+    }
     const nextFlipped = !flipped;
     setFlipped(nextFlipped);
     onFlipChange?.(nextFlipped);
   };
   const onKeyDown = (event: KeyboardEvent) => { if (flippable && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); toggle(); } };
-  return <div ref={tiltRef} className={`tarot ${flipped ? 'flipped' : ''} ${tilt ? 'tiltable' : ''}`} role={flippable ? 'button' : undefined} tabIndex={flippable ? 0 : undefined} aria-label={flipLabel} aria-pressed={flippable ? flipped : undefined} onClick={toggle} onKeyDown={onKeyDown}>
+  return <div ref={tiltRef} className={`tarot ${isFlipped ? 'flipped' : ''} ${tilt ? 'tiltable' : ''} ${revealLoading ? 'reveal-loading' : ''}`} role={flippable ? 'button' : undefined} tabIndex={flippable ? 0 : undefined} aria-label={flipLabel} aria-pressed={flippable ? isFlipped : undefined} aria-busy={revealLoading || undefined} aria-disabled={isControlled && isFlipped ? true : undefined} onClick={toggle} onKeyDown={onKeyDown}>
     {flippable ? <>
       <div className="card-side card-back" data-card-side="back"><CardBackVisual imageUrl={backImageUrl}/></div>
       <div className="card-side card-face card-face-flip" data-card-side="face"><CardFace roman={roman} name={name} imageUrl={faceImageUrl} imageAlt={faceImageAlt}/></div>

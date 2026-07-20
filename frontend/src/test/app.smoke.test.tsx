@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '@/api';
@@ -100,6 +100,30 @@ describe('NEBULA-TAROT smoke', () => {
     expect(screen.getByLabelText('Часовой пояс')).toBeInTheDocument();
   });
 
+  it('opens the responsive site menu and keeps gated navigation available', async () => {
+    render(<App />);
+    const menuButton = screen.getByRole('button', { name: 'Открыть меню' });
+    fireEvent.click(menuButton);
+
+    const drawer = screen.getByRole('dialog', { name: 'Меню' });
+    const navigation = within(drawer).getByRole('navigation', { name: 'Основная навигация' });
+    expect(within(navigation).getByRole('button', { name: 'Карта дня' })).toHaveAttribute('aria-current', 'page');
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+    const themeControl = within(drawer).getByRole('group', { name: 'Тема' });
+    expect(within(themeControl).getByRole('button', { name: 'Тёмная тема' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(within(themeControl).getByRole('button', { name: 'Светлая тема' }));
+    expect(usePreferencesStore.getState().theme).toBe('light');
+
+    fireEvent.keyDown(drawer, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: 'Меню' })).not.toBeInTheDocument();
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(menuButton);
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Меню' })).getByRole('button', { name: 'Расклады' }));
+    expect(screen.queryByRole('dialog', { name: 'Меню' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+
   it('renders authenticated user data and logs out', () => {
     const user = { id: '1', username: 'alice', email: 'alice@example.com', role: 'adept' as const, status: 'active' as const, timezone: 'UTC', language: 'ru' as const, theme: 'dark' as const };
     localStorage.setItem(TOKEN_STORAGE_KEY, 'token');
@@ -132,5 +156,20 @@ describe('NEBULA-TAROT smoke', () => {
     });
     render(<App router={router} />);
     expect(await screen.findByRole('heading', { name: /Библиотека компонентов ARCANA/ })).toBeInTheDocument();
+    const sectionNavigation = screen.getByRole('navigation', { name: 'Навигация по UI Kit' });
+    expect(within(sectionNavigation).getAllByRole('link')).toHaveLength(16);
+    expect(screen.getByRole('button', { name: 'Включить светлую тему' })).toBeInTheDocument();
+    expect(document.querySelectorAll('.kit-section')).toHaveLength(16);
+
+    const menuButton = document.querySelector<HTMLButtonElement>('.kit-menu-button');
+    expect(menuButton).toHaveAttribute('aria-label', 'Открыть меню компонентов');
+    if (!menuButton) throw new Error('UI Kit menu button was not rendered');
+    fireEvent.click(menuButton);
+    const drawer = screen.getByRole('dialog', { name: 'Компоненты' });
+    expect(within(drawer).getAllByRole('link')).toHaveLength(16);
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.keyDown(drawer, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: 'Компоненты' })).not.toBeInTheDocument();
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
   });
 });

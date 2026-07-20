@@ -1,0 +1,203 @@
+.spreads-page { padding-bottom: 76px; }
+.spreads-heading { padding: 22px 0 22px; text-align: center; }
+.spreads-heading h1 { margin: 0; color: var(--cream); font: 400 clamp(29px,4vw,44px)/1.2 Cinzel, serif; letter-spacing: .08em; }
+.spreads-heading p { margin: 10px 0 0; color: var(--gold-dim); font: italic 300 17px/1.5 'Cormorant Garamond', serif; letter-spacing: .04em; }
+.spread-toolbar { width: min(880px,100%); min-height: 48px; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+.spread-limit { display: inline-flex; min-height: 27px; align-items: center; padding: 5px 12px; border: 1px solid rgba(201,169,110,.2); border-radius: 100px; color: var(--gold-dim); font-size: 8px; letter-spacing: .18em; text-transform: uppercase; }
+.spread-stage { position: relative; min-height: 510px; padding: 22px 0 28px; display: flex; flex-direction: column; align-items: center; isolation: isolate; }
+.spread-zodiac { position: absolute; z-index: -1; top: 4px; left: 50%; width: 560px; max-width: 75vw; color: var(--gold); opacity: .07; transform: translateX(-50%); animation: spread-zodiac-spin 140s linear infinite; }
+.spread-mobile-captions, .spread-mobile-hints { display: none; }
+.spread-row { width: 100%; display: flex; align-items: flex-start; justify-content: center; gap: clamp(22px,4vw,46px); }
+.spread-card-shell { position: relative; width: 206px; min-width: 0; text-align: center; opacity: 0; animation: spread-deal .85s cubic-bezier(.23,1,.32,1) forwards; animation-delay: calc(var(--deal-index) * 160ms); }
+.spread-card-shell:focus-within, .spread-card-shell:active { z-index: 30; }
+.spread-position { color: var(--gold); font: 500 11px/1.2 Cinzel, serif; letter-spacing: .34em; text-transform: uppercase; }
+.spread-position-sub { min-height: 29px; margin-top: 4px; color: var(--mist-dim); font: italic 300 13px/1.4 'Cormorant Garamond', serif; }
+.spread-card-float { position: relative; margin-top: 12px; animation: spread-float 6.8s ease-in-out infinite; animation-delay: calc(var(--deal-index) * -1.3s); }
+.spread-card-glow { position: absolute; inset: 8% -12%; border-radius: 50%; background: radial-gradient(ellipse,rgba(201,169,110,.16),transparent 68%); opacity: 0; filter: blur(18px); transition: opacity .8s; }
+.spread-card-shell.revealed .spread-card-glow { opacity: 1; }
+.spread-card-visual, .spread-card-visual .tarot { width: 206px; height: 356px; }
+.spread-card-visual { filter: drop-shadow(0 10px 10px rgba(0,0,0,.26)); transition: filter .3s ease; }
+.spread-card-shell:focus-within .spread-card-visual { filter: drop-shadow(0 14px 14px rgba(0,0,0,.36)); }
+.spread-card-visual .tarot { cursor: pointer; }
+.spread-card-visual .card-side { border-radius: 9px; box-shadow: 0 16px 48px rgba(0,0,0,.52); }
+.spread-card-visual .tarot-frame { inset: 8px; }
+.spread-card-visual .tarot-roman { top: 14px; font-size: 9px; }
+.spread-card-visual .tarot-name { bottom: 14px; max-width: calc(100% - 28px); overflow: hidden; font-size: 10px; text-overflow: ellipsis; }
+.spread-tap-hint { min-height: 27px; margin-top: 12px; color: var(--mist-dim); font: italic 300 12px/1.3 'Cormorant Garamond', serif; transition: color .3s; }
+.spread-card-shell.revealed .spread-tap-hint { color: var(--gold-light); font-family: Cinzel, serif; font-size: 10px; font-style: normal; letter-spacing: .12em; text-transform: uppercase; }
+.spread-reveal-all, .spread-expand { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid rgba(201,169,110,.42); border-radius: 100px; background: rgba(10,10,15,.12); color: var(--gold); cursor: pointer; font-size: 9px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; transition: border-color .3s, background .3s, transform .3s; }
+.spread-reveal-all { margin-top: 8px; padding: 0 24px; }
+.spread-reveal-all svg { width: 18px; height: 18px; }
+.spread-reveal-all:hover:not(:disabled), .spread-expand:hover { border-color: var(--gold); background: rgba(201,169,110,.06); transform: translateY(-2px); }
+.spread-reveal-all:disabled { cursor: wait; opacity: .55; }
+.spread-reading { width: 100%; margin-top: 0; text-align: center; animation: spread-rise .6s ease both; }
+.spread-keywords { min-height: 40px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+.spread-keywords .chip { font-size: 8px; }
+.spread-brief { width: min(620px,100%); margin: 16px auto 28px; color: var(--mist); font: 300 19px/1.65 'Cormorant Garamond', serif; }
+.spread-interpretation-ornament { width: min(720px,100%); margin: 0 auto; }
+.spread-expand { margin: 26px auto 0; padding: 0 24px; }
+.spread-expand svg { width: 17px; height: 17px; transition: transform .3s; }
+.spread-expand.open svg { transform: rotate(180deg); }
+.spread-interpretation-details { width: min(900px,100%); margin: 28px auto 0; animation: spread-rise .55s ease both; }
+.spread-card-meanings { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border: 1px solid var(--line); border-radius: 9px; background: rgba(19,19,28,.68); }
+.spread-card-meaning { min-width: 0; padding: 28px 24px 30px; }
+.spread-card-meaning + .spread-card-meaning { border-left: 1px solid var(--line); }
+.spread-meaning-symbol { margin-bottom: 12px; color: var(--gold); font-size: 24px; }
+.spread-meaning-position { color: var(--gold-dim); font-size: 8px; letter-spacing: .3em; text-transform: uppercase; }
+.spread-card-meaning h3 { margin: 9px 0 13px; color: var(--gold-light); font: 500 14px/1.3 Cinzel, serif; letter-spacing: .1em; }
+.spread-card-meaning p { margin: 0; color: var(--mist-dim); font: 300 16px/1.6 'Cormorant Garamond', serif; }
+.spread-synthesis { margin-top: 18px; padding: 30px 36px; border: 1px solid rgba(201,169,110,.18); border-radius: 9px; background: linear-gradient(135deg,rgba(201,169,110,.06),rgba(120,95,175,.055)); text-align: left; }
+.spread-synthesis-title { margin-bottom: 12px; color: var(--gold); font: 600 10px/1.3 Cinzel, serif; letter-spacing: .32em; text-align: center; text-transform: uppercase; }
+.spread-synthesis > p, .spread-ai-error p { margin: 0; color: var(--mist); font: italic 300 18px/1.7 'Cormorant Garamond', serif; text-align: center; }
+.spread-ai-error { display: grid; justify-items: center; gap: 16px; }
+.spread-action-error { margin-top: 16px; color: #c88374; font: italic 300 14px/1.4 'Cormorant Garamond', serif; text-align: center; }
+.spread-new-error { margin-top: 22px; }
+.spread-state, .spread-empty { width: min(720px,100%); min-height: 420px; margin: 20px auto; padding: 44px; display: grid; place-items: center; align-content: center; gap: 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(19,19,28,.58); color: var(--gold); font-size: 10px; letter-spacing: .22em; text-align: center; text-transform: uppercase; }
+.spread-state > span, .spread-empty-sigil { color: var(--gold); font-size: 36px; text-shadow: 0 0 22px rgba(201,169,110,.28); }
+.spread-state p { margin: 0; }
+.spread-state-error { color: #c88374; }
+.spread-empty h2 { margin: 0; color: var(--cream); font: 400 25px/1.3 Cinzel, serif; letter-spacing: .1em; }
+.spread-empty > p { max-width: 520px; margin: 0 0 4px; color: var(--mist-dim); font: italic 300 18px/1.6 'Cormorant Garamond', serif; letter-spacing: normal; text-transform: none; }
+.light .spread-card-meanings, .light .spread-state, .light .spread-empty { background: rgba(252,248,241,.72); }
+
+@media (hover: hover) {
+  .spread-card-shell:hover { z-index: 31; }
+  .spread-card-shell:hover .spread-card-visual { filter: drop-shadow(0 14px 14px rgba(0,0,0,.36)); }
+}
+
+@keyframes spread-zodiac-spin { from { transform: translateX(-50%) rotate(0); } to { transform: translateX(-50%) rotate(360deg); } }
+@keyframes spread-deal { from { opacity: 0; transform: translateY(36px) rotate(var(--deal-rotation,0deg)); } to { opacity: 1; transform: none; } }
+@keyframes spread-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes spread-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 760px) {
+  .spread-row { gap: 14px; }
+  .spread-card-shell { width: calc((100% - 28px)/3); }
+  .spread-card-visual, .spread-card-visual .tarot { width: 100%; height: auto; aspect-ratio: 206/356; }
+  .spread-position { font-size: 8px; letter-spacing: .18em; }
+  .spread-position-sub { min-height: 32px; font-size: 11px; }
+  .spread-card-visual .tarot-name, .spread-card-visual .tarot-roman { font-size: 6px; }
+  .spread-card-meanings { grid-template-columns: 1fr; }
+  .spread-card-meaning + .spread-card-meaning { border-top: 1px solid var(--line); border-left: 0; }
+}
+
+@media (max-width: 640px) {
+  .spread-stage { min-height: auto; }
+
+  .spread-row {
+    --mobile-card-width: 206px;
+    --mobile-card-height: 356px;
+    --mobile-card-step-y: 72px;
+    --mobile-card-last-y: 144px;
+    position: relative;
+    display: block;
+    width: min(100%, 480px);
+    height: 520px;
+  }
+
+  .spread-card-shell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--mobile-card-width);
+    flex: none;
+    z-index: auto;
+    opacity: 1;
+    animation: none;
+  }
+
+  .spread-card-shell:nth-child(2) {
+    top: var(--mobile-card-step-y);
+    left: calc((100% - var(--mobile-card-width)) / 2);
+  }
+
+  .spread-card-shell:nth-child(3) {
+    top: var(--mobile-card-last-y);
+    right: 0;
+    left: auto;
+  }
+
+  .spread-card-float { z-index: 1; }
+  .spread-card-shell:nth-child(2) .spread-card-float { z-index: 2; }
+  .spread-card-shell:nth-child(3) .spread-card-float { z-index: 3; }
+
+  .spread-card-visual,
+  .spread-card-visual .tarot {
+    width: var(--mobile-card-width);
+    height: var(--mobile-card-height);
+    aspect-ratio: auto;
+  }
+
+  .spread-card-visual {
+    opacity: 0;
+    animation: spread-deal .85s cubic-bezier(.23,1,.32,1) forwards;
+    animation-delay: calc(var(--deal-index) * 160ms);
+  }
+
+  .spread-card-shell > .spread-card-caption,
+  .spread-card-shell > .spread-tap-hint { display: none; }
+
+  .spread-mobile-captions,
+  .spread-mobile-hints {
+    position: relative;
+    z-index: 20;
+    width: min(100%, 480px);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    text-align: center;
+  }
+
+  .spread-mobile-captions { min-height: 54px; margin-bottom: 8px; }
+  .spread-mobile-hints { min-height: 34px; margin-top: 3px; }
+
+  .spread-mobile-caption,
+  .spread-mobile-hint {
+    min-width: 0;
+    padding: 0 5px;
+    overflow-wrap: anywhere;
+  }
+
+  .spread-mobile-caption .spread-position,
+  .spread-mobile-caption .spread-position-sub { text-shadow: 0 2px 8px var(--ink); }
+
+  .spread-mobile-caption .spread-position-sub {
+    min-height: 0;
+    margin-top: 4px;
+  }
+
+  .spread-mobile-hint {
+    color: var(--mist-dim);
+    font: italic 300 9px/1.3 'Cormorant Garamond', serif;
+  }
+
+  .spread-mobile-hint.revealed {
+    color: var(--gold-light);
+    font-family: Cinzel, serif;
+    font-size: 8px;
+    font-style: normal;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+}
+
+@media (max-width: 520px) {
+  .spreads-heading { padding-top: 14px; }
+  .spreads-heading h1 { font-size: 25px; }
+  .spreads-heading p { font-size: 14px; }
+  .spread-toolbar { flex-direction: column; gap: 4px; }
+  .spread-stage { padding-top: 16px; }
+  .spread-zodiac { width: 400px; max-width: 95vw; }
+  .spread-position-sub { min-height: 0; font-size: 9px; }
+  .spread-card-float { margin-top: 6px; }
+  .spread-tap-hint { min-height: 30px; margin-top: 8px; font-size: 9px; }
+  .spread-card-shell.revealed .spread-tap-hint { font-size: 7px; }
+  .spread-reveal-all { margin-top: 2px; }
+  .spread-brief { font-size: 17px; }
+  .spread-synthesis { padding: 24px 20px; }
+  .spread-state, .spread-empty { min-height: 350px; padding: 32px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spread-zodiac, .spread-card-float, .spread-card-shell, .spread-card-visual { animation: none; opacity: 1; }
+}

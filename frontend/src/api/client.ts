@@ -20,6 +20,8 @@ interface ErrorPayload {
   error?: string;
   message?: string;
   details?: ApiErrorDetails;
+  current_limit?: ApiErrorDetails['current_limit'];
+  next_reset_at?: string;
 }
 
 export class ApiError extends Error {
@@ -39,7 +41,8 @@ export async function request<T>(path: string, init?: RequestInit, options: { au
   const token = localStorage.getItem(TOKEN_STORAGE_KEY);
   const useAuth = options.auth !== false;
   const headers = new Headers(init?.headers);
-  if (init?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData;
+  if (init?.body && !isFormData && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (useAuth && token && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${token}`);
 
   const response = await fetch(`${baseUrl}${path}`, {
@@ -48,14 +51,16 @@ export async function request<T>(path: string, init?: RequestInit, options: { au
   });
   const payload = await response.json().catch(() => ({})) as T & ErrorPayload;
   if (!response.ok) {
-    if ((response.status === 401 || response.status === 403) && useAuth && token) {
+    if (response.status === 401 && useAuth && token) {
       window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
     }
     throw new ApiError(
       response.status,
       payload.error || 'request_failed',
       payload.message || `API request failed: ${response.status}`,
-      payload.details,
+      payload.details || payload.current_limit || payload.next_reset_at
+        ? { ...payload.details, current_limit: payload.current_limit, next_reset_at: payload.next_reset_at }
+        : undefined,
     );
   }
   return payload;

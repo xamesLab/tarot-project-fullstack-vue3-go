@@ -1,3 +1,6 @@
-import { MoonPhases } from '@/shared/icons';
+import { CelestialStrip } from '@/widgets/CelestialStrip/CelestialStrip';
 
-export function DateStrip({ label }: { date: Date; label: string }) { return <div className="date-strip"><div className="moon-row"><MoonPhases width="290" height="22"/></div><div className="date-line">{label}</div></div>; }
+/** @deprecated Use CelestialStrip directly. Kept as a compatibility wrapper. */
+export function DateStrip({ date }: { date: Date; label?: string }) {
+  return <CelestialStrip now={date} />;
+}

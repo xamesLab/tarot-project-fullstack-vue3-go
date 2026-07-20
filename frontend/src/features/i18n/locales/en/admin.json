@@ -1,0 +1,38 @@
+{
+  "nav": "Admin",
+  "eyebrow": "NEBULA · KEEPER",
+  "title": "Control room",
+  "subtitle": "Manage people, access, and the Arcana library",
+  "tabs": { "label": "Admin sections", "overview": "Overview", "users": "Users", "policies": "Role policies", "settings": "Settings", "assets": "Decks & backs" },
+  "sections": {
+    "overview": { "eyebrow": "System state", "title": "Overview", "copy": "Key metrics and quick access to management sections." },
+    "users": { "eyebrow": "Community", "title": "Users", "copy": "Find accounts and manage roles and access status." },
+    "policies": { "eyebrow": "Access levels", "title": "Role policies", "copy": "Reading limits, AI access, and history retention for every role." },
+    "settings": { "eyebrow": "Configuration", "title": "Global settings", "copy": "Application-wide rules and defaults." },
+    "assets": { "eyebrow": "Arcana library", "title": "Decks and card backs", "copy": "Upload, publish, and archive visual assets." }
+  },
+  "states": { "loading": "Loading data…", "error": "The request could not be completed" },
+  "statuses": { "active": "Active", "disabled": "Disabled", "done": "Ready", "processing": "Processing", "archived": "Archived" },
+  "actions": { "apply": "Apply", "reset": "Reset", "save": "Save", "saving": "Saving…", "uploading": "Uploading…", "previous": "Previous", "next": "Next", "archive": "Archive", "restore": "Restore", "delete": "Delete", "deletePermanent": "Delete permanently", "cancel": "Cancel" },
+  "pagination": "Page {{page}} of {{total}}",
+  "dashboard": {
+    "metricsLabel": "System metrics", "totalUsers": "Total users", "readingsToday": "Readings today", "readingsWeek": "Readings this week", "totalDecks": "Total decks",
+    "usersMeta": "Active: {{active}} · disabled: {{disabled}}", "readingsMeta": "Daily cards: {{card_of_day}} · other: {{three_card}}", "decksMeta": "Ready: {{done}} · processing: {{processing}}",
+    "usersEyebrow": "Community roles", "usersTitle": "Users", "usersCopy": "Accounts by access level.", "openUsers": "Open users",
+    "readingsEyebrow": "Activity", "readingsTitle": "Readings", "readingsCopy": "Arcana consultations today and this week.", "dailyToday": "Daily cards today", "spreadsToday": "Other readings today", "dailyWeek": "Daily cards this week", "spreadsWeek": "Other this week",
+    "decksEyebrow": "Library", "decksTitle": "Decks", "decksCopy": "Asset state across the catalog and archive.", "openAssets": "Open catalog"
+  },
+  "users": {
+    "search": "Search", "searchPlaceholder": "Email or username", "role": "Role", "status": "Status", "allRoles": "All roles", "allStatuses": "All statuses", "eyebrow": "Account registry", "title": "User management", "copy": "Users found: {{total}}", "empty": "No users found.", "noName": "No username", "timezone": "Timezone", "created": "Created", "lastLogin": "Last login", "saveRole": "Save role", "saveStatus": "Save status", "roleSaved": "User role updated.", "statusSaved": "User status updated.", "selfHint": "This is your account. The server prevents removing your own Keeper role or disabling your profile."
+  },
+  "policies": { "eyebrow": "Role policy", "threeCardLimit": "Three-card reading limit", "aiEnabled": "AI interpretations", "aiEnabledHint": "Allow personal AI interpretations", "aiDailyLimit": "Daily AI limit", "retention": "History retention, days", "hint": "A zero value disables the corresponding limit or retention period.", "validation": "All numeric values must be non-negative.", "saved": "Role policy saved." },
+  "settings": {
+    "systemEyebrow": "Application behavior", "systemTitle": "System settings", "systemCopy": "Global switches and defaults for new accounts.", "maintenance": "Maintenance mode", "maintenanceHint": "Temporarily close the public site", "registration": "Registration", "registrationHint": "Allow new accounts", "ai": "AI interpretations", "aiHint": "Globally allow AI requests", "defaultRole": "New user role", "defaultDeck": "Default deck", "defaultBack": "Default card back",
+    "messageEyebrow": "Visitor message", "messageTitle": "Maintenance copy", "messageCopy": "Shown while maintenance mode is enabled.", "messageRu": "Russian message", "messageEn": "English message", "messageHint": "Leave a translation blank when it is not required.", "save": "Save settings", "saved": "Global settings saved."
+  },
+  "assets": {
+    "uploadEyebrow": "New asset", "deckUploadTitle": "Upload deck", "deckUploadCopy": "The ZIP must contain all 78 cards. A 0_meta.json file can populate this form.", "backUploadTitle": "Upload card back", "backUploadCopy": "Choose an image and adjust the vertical 2:3 crop.", "nameRu": "Russian name", "nameEn": "English name", "descriptionRu": "Russian description", "descriptionEn": "English description", "author": "Author", "year": "Year", "tags": "Tags", "tagsPlaceholder": "classic, moon, gold", "zip": "Card ZIP", "image": "Card-back image", "metaLoaded": "0_meta.json data loaded.", "metaMissing": "No 0_meta.json found — complete the fields manually.", "metaError": "Could not read 0_meta.json.", "uploadDeck": "Upload deck", "uploadBack": "Upload card back", "deckCreated": "Deck added successfully.", "backCreated": "Card back added successfully.", "selectedFile": "Prepared file: {{name}}",
+    "catalogEyebrow": "Assets", "catalogTitle": "Active catalog", "catalogCopy": "Decks and card backs available to the system.", "archiveTitle": "Archive", "archiveCopy": "Hidden assets can be restored or deleted permanently.", "catalog": "Catalog", "archive": "Archive", "scopeLabel": "Catalog scope", "decksTitle": "Decks", "backsTitle": "Card backs", "emptyDecks": "There are no decks in this section.", "emptyBacks": "There are no card backs in this section.", "cards": "Cards", "created": "Added",
+    "confirmArchiveTitle": "Move to archive", "confirmArchive": "“{{name}}” will become unavailable to users. Continue?", "confirmDeleteTitle": "Delete permanently", "confirmDelete": "“{{name}}” will be deleted and cannot be restored. Continue?", "crop": { "title": "Crop card back", "copy": "Drag the image inside the frame and adjust its zoom.", "zoom": "Zoom", "confirm": "Use crop" }
+  }
+}

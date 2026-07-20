@@ -85,14 +85,14 @@ export function ControlSections() {
         title="Аватары & User Pill"
         description="Золотая градиентная заливка с инициалами, в трёх размерах и в составе плашки пользователя."
       >
-        <DemoRow>
+        <DemoRow className="kit-avatar-row">
           <Avatar initials="МА" size="sm" />
           <Avatar initials="МА" />
           <Avatar initials="МА" size="lg" ring />
         </DemoRow>
         <CodeCaption>.av-sm · .av-md · .av-lg · .av-ring</CodeCaption>
         <div className="kit-ornament-gap" />
-        <DemoRow>
+        <DemoRow className="kit-user-pill-row">
           <UserPill initials="МА" name="Мария А." sign="Скорпион · ♀ Весы" />
         </DemoRow>
         <CodeCaption>.upill</CodeCaption>

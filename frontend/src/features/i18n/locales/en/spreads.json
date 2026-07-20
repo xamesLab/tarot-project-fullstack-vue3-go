@@ -1,0 +1,46 @@
+{
+  "today": "Today · your reading for the current day",
+  "title": "Three-Card Spread",
+  "subtitle": "The Past that led · The Present that is · The Future that ripens",
+  "stageLabel": "Spread cards",
+  "remaining": "{{count}} of {{limit}} spreads remaining today",
+  "remainingUnknown": "The server will check whether a new spread is available",
+  "positions": {
+    "0": { "label": "Past", "subtitle": "what lies behind" },
+    "1": { "label": "Present", "subtitle": "where you stand" },
+    "2": { "label": "Future", "subtitle": "what you move toward" }
+  },
+  "revealCard": "Reveal card: {{position}}",
+  "cardRevealed": "Revealed card: {{name}}",
+  "empty": {
+    "title": "The cards await your question",
+    "copy": "Three cards reveal the line of past, present and future. Every reading is saved in your profile history."
+  },
+  "actions": {
+    "generate": "Create spread",
+    "generating": "Dealing the cards…",
+    "new": "New spread",
+    "tap": "tap to reveal",
+    "revealAll": "Reveal all cards",
+    "expand": "Expand interpretation",
+    "collapse": "Collapse interpretation",
+    "retry": "Try again"
+  },
+  "states": {
+    "loading": "Looking for today's spread…",
+    "revealing": "Revealing card…",
+    "interpreting": "The oracle is connecting the cards…"
+  },
+  "interpretation": {
+    "label": "Spread interpretation",
+    "brief": "{{cards}} form one arc of your path. Expand the interpretation to read each position and the connection between the cards.",
+    "connection": "How the cards speak"
+  },
+  "errors": {
+    "load": "Today's spread could not be loaded",
+    "generate": "The spread could not be created. Please try again.",
+    "limit": "You have reached today's spread limit.",
+    "reveal": "The card could not be revealed. Please try again.",
+    "interpretation": "The shared interpretation could not be generated."
+  }
+}

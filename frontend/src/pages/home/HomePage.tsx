@@ -10,7 +10,8 @@ import { Ornament, SectionLabel } from '@/shared/ui/Ornament';
 import { OracleChat } from '@/features/oracle-chat/OracleChat';
 import { CardOfDayDetails } from '@/widgets/CardOfDayDetails/CardOfDayDetails';
 import { CardOfDayStage } from '@/widgets/CardOfDayStage/CardOfDayStage';
-import { DateStrip } from '@/widgets/DateStrip/DateStrip';
+import { CelestialStrip } from '@/widgets/CelestialStrip/CelestialStrip';
+import { Footer } from '@/widgets/Footer/Footer';
 import { Header } from '@/widgets/Header/Header';
 import { BackgroundDecor } from '@/widgets/StarField/StarField';
 import './home.css';
@@ -42,8 +43,8 @@ export function HomePage() {
     <div className="app-shell">
       <BackgroundDecor />
       <Header onAuthRequest={(mode) => setAuthModal({ open: true, mode })} />
-      <main className="page-wrap">
-        <DateStrip date={new Date('2026-05-28T12:00:00')} label={t('home:date')} />
+      <main className="page-wrap home-page">
+        <CelestialStrip timeZone={user?.timezone} />
         <div className="home-ornament"><Ornament /></div>
         <SectionLabel>
           <span className="daily-card-heading">
@@ -77,9 +78,7 @@ export function HomePage() {
           <OracleChat />
         </div>
       </main>
-      <footer className="site-footer">
-        <div><span>{t('common:copyright')}</span><span> · · · </span><span>{t('common:footer')}</span></div>
-      </footer>
+      <Footer />
       <AuthModal open={authModal.open} initialMode={authModal.mode} onClose={() => setAuthModal((current) => ({ ...current, open: false }))} />
     </div>
   );

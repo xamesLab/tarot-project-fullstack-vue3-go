@@ -1,0 +1,175 @@
+.celestial-strip {
+  position: relative;
+  z-index: 10;
+  min-height: 88px;
+  padding: 26px 0 12px;
+  text-align: center;
+  isolation: isolate;
+}
+
+.celestial-phases {
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.8vw, 17px);
+}
+
+.celestial-phase-button {
+  position: relative;
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gold-dim);
+  cursor: pointer;
+  opacity: .72;
+  transition: color .25s, opacity .25s, transform .25s, background .25s, box-shadow .25s;
+}
+
+.celestial-phase-button:hover,
+.celestial-phase-button.is-open {
+  color: var(--gold);
+  opacity: 1;
+  transform: translateY(-2px) scale(1.08);
+}
+
+.celestial-phase-button.is-current {
+  background: rgba(201,169,110,.075);
+  box-shadow: 0 0 18px rgba(201,169,110,.18);
+  color: var(--gold-light);
+  opacity: 1;
+  transform: scale(1.16);
+}
+
+.celestial-phase-button.is-current::after {
+  content: '';
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 7px currentColor;
+}
+
+.celestial-phase-button svg { width: 20px; height: 20px; overflow: visible; }
+.celestial-moon-outline { fill: none; stroke: currentColor; stroke-width: .8; }
+.celestial-moon-fill { fill: currentColor; opacity: .72; }
+
+.celestial-date-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--gold-dim);
+  font: 400 9px/1.35 Cinzel, serif;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+}
+
+.celestial-date-line::before,
+.celestial-date-line::after {
+  content: '';
+  width: 54px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,169,110,.28));
+}
+
+.celestial-date-line::after { transform: scaleX(-1); }
+.celestial-date-line i { font-style: normal; opacity: .55; }
+
+.celestial-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% - 2px);
+  left: 50%;
+  width: min(370px, calc(100vw - 32px));
+  padding: 16px 18px;
+  border: 1px solid rgba(201,169,110,.3);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ink-soft) 94%, transparent);
+  box-shadow: 0 18px 55px rgba(0,0,0,.42);
+  color: var(--mist);
+  text-align: left;
+  transform: translateX(-50%);
+  backdrop-filter: blur(14px);
+  animation: celestial-popover-in .2s ease both;
+}
+
+.celestial-popover::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 1px solid rgba(201,169,110,.3);
+  border-left: 1px solid rgba(201,169,110,.3);
+  background: var(--ink-soft);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.celestial-popover > strong {
+  display: block;
+  color: var(--gold);
+  font: 500 12px/1.3 Cinzel, serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.celestial-popover > p {
+  margin: 7px 0 12px;
+  color: var(--mist-dim);
+  font: italic 300 15px/1.45 'Cormorant Garamond', serif;
+}
+
+.celestial-metrics {
+  margin: 0;
+  padding-top: 11px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.celestial-metrics div { min-width: 0; }
+.celestial-metrics dt { color: var(--gold-dim); font-size: 7px; letter-spacing: .13em; text-transform: uppercase; }
+.celestial-metrics dd { margin: 5px 0 0; color: var(--gold-light); font: 400 13px/1.2 Cinzel, serif; }
+.celestial-current-note { color: var(--gold-dim); font-size: 8px; letter-spacing: .13em; text-transform: uppercase; }
+
+.light .celestial-phase-button.is-current {
+  background: rgba(138,106,44,.09);
+  box-shadow: 0 0 18px rgba(138,106,44,.16);
+}
+
+.light .celestial-popover { box-shadow: 0 18px 45px rgba(90,68,28,.14); }
+
+@keyframes celestial-popover-in {
+  from { opacity: 0; transform: translate(-50%, -5px); }
+  to { opacity: 1; transform: translateX(-50%); }
+}
+
+@media (max-width: 580px) {
+  .celestial-strip { min-height: 82px; padding-top: 20px; }
+  .celestial-phases { gap: 5px; margin-bottom: 11px; }
+  .celestial-phase-button { width: 25px; height: 25px; }
+  .celestial-phase-button svg { width: 18px; height: 18px; }
+  .celestial-date-line { flex-wrap: wrap; gap: 4px 7px; padding: 0 4px; font-size: 7px; letter-spacing: .16em; }
+  .celestial-date-line::before, .celestial-date-line::after { display: none; }
+  .celestial-metrics { gap: 8px; }
+  .celestial-metrics dt { font-size: 6px; }
+  .celestial-metrics dd { font-size: 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celestial-phase-button { transition: none; }
+  .celestial-popover { animation: none; }
+}

@@ -14,6 +14,7 @@ interface AuthState {
   login: (payload: LoginPayload) => Promise<UserDto>;
   register: (payload: RegisterPayload) => Promise<UserDto>;
   hydrateSession: () => Promise<UserDto | null>;
+  syncUser: (user: UserDto) => void;
   logout: () => void;
 }
 
@@ -56,6 +57,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
     register: (payload) => authenticate(() => api.auth.register(payload)),
 
+    syncUser(user) {
+      syncPreferences(user);
+      set({ user });
+    },
+
     async hydrateSession() {
       if (get().hydrated) return get().user;
       if (hydrationPromise) return hydrationPromise;
@@ -72,7 +78,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           return response.user;
         })
         .catch((error: unknown) => {
-          if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          if (error instanceof ApiError && error.status === 401) {
             persistToken('');
             set({ user: null, token: '', status: 'guest', hydrated: true });
           } else {

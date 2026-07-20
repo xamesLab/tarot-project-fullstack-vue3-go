@@ -25,8 +25,8 @@ export function UiKitSection({
   );
 }
 
-export function DemoRow({ children }: { children: ReactNode }) {
-  return <div className="demo-row">{children}</div>;
+export function DemoRow({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`demo-row ${className}`.trim()}>{children}</div>;
 }
 export function CodeCaption({ children }: { children: ReactNode }) {
   return <div className="kit-caption">{children}</div>;

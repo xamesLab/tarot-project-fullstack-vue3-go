@@ -42,6 +42,21 @@ describe('TarotCard', () => {
     expect(onFlipChange).toHaveBeenLastCalledWith(false);
   });
 
+  it('supports server-controlled one-way reveals', () => {
+    const onReveal = vi.fn();
+    const { rerender } = render(<TarotCard {...props} flippable revealed={false} flipLabel="Reveal card" onReveal={onReveal}/>);
+    const card = screen.getByRole('button', { name: 'Reveal card' });
+
+    fireEvent.click(card);
+    expect(onReveal).toHaveBeenCalledTimes(1);
+    expect(card).not.toHaveClass('flipped');
+
+    rerender(<TarotCard {...props} flippable revealed flipLabel="Revealed card" onReveal={onReveal}/>);
+    expect(screen.getByRole('button', { name: 'Revealed card' })).toHaveClass('flipped');
+    fireEvent.click(screen.getByRole('button', { name: 'Revealed card' }));
+    expect(onReveal).toHaveBeenCalledTimes(1);
+  });
+
   it('shows the face immediately when it is not flippable', () => {
     const { container } = render(<TarotCard {...props}/>);
 

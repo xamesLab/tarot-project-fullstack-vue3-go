@@ -2,11 +2,16 @@ import { httpApi, httpDailyCardApi } from '@/api/http';
 import { mockApi } from '@/api/mock';
 
 const contentApi = import.meta.env.VITE_API_MODE === 'http' ? httpApi : mockApi;
-const authApi = import.meta.env.VITE_AUTH_API_MODE === 'http' ? httpApi.auth : mockApi.auth;
+const accountApi = import.meta.env.VITE_AUTH_API_MODE === 'http' ? httpApi : mockApi;
 
 export const api = {
   readings: contentApi.readings,
   oracle: contentApi.oracle,
-  auth: authApi,
+  auth: accountApi.auth,
+  profile: accountApi.profile,
+  catalog: accountApi.catalog,
+  history: accountApi.history,
+  spreads: accountApi.spreads,
+  admin: accountApi.admin,
   dailyCard: httpDailyCardApi,
 };

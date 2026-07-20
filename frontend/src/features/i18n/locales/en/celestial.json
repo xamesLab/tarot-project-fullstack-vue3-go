@@ -1,0 +1,48 @@
+{
+  "summaryLabel": "Lunar calendar. Current phase: {{phase}}",
+  "phaseGroupLabel": "Eight phases of the Moon",
+  "currentMarker": "current phase",
+  "waxing": "waxing",
+  "waning": "waning",
+  "details": {
+    "illumination": "Illumination",
+    "age": "Lunar age",
+    "days": "{{value}} days",
+    "direction": "Direction",
+    "currentPhase": "Now: {{phase}}"
+  },
+  "phases": {
+    "newMoon": {
+      "name": "New Moon",
+      "description": "The lunar cycle begins while the illuminated side is nearly invisible from Earth."
+    },
+    "waxingCrescent": {
+      "name": "Waxing Crescent",
+      "description": "After the new moon, the illuminated portion grows a little each evening."
+    },
+    "firstQuarter": {
+      "name": "First Quarter",
+      "description": "The Moon is about a quarter through its cycle and half of its disc is visible."
+    },
+    "waxingGibbous": {
+      "name": "Waxing Gibbous",
+      "description": "More than half of the disc is lit as the Moon continues toward fullness."
+    },
+    "fullMoon": {
+      "name": "Full Moon",
+      "description": "The side of the Moon facing Earth is almost completely illuminated."
+    },
+    "waningGibbous": {
+      "name": "Waning Gibbous",
+      "description": "After the full moon, the illuminated portion of the disc gradually decreases."
+    },
+    "lastQuarter": {
+      "name": "Last Quarter",
+      "description": "The Moon is about three quarters through its cycle and half of its disc is visible again."
+    },
+    "waningCrescent": {
+      "name": "Waning Crescent",
+      "description": "A thin crescent shrinks as the cycle approaches the next new moon."
+    }
+  }
+}

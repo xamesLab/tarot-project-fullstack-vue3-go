@@ -1,5 +1,6 @@
 .tarot { position: relative; width: 260px; height: 450px; cursor: pointer; transform-style: preserve-3d; transition: transform .85s cubic-bezier(.4,.15,.2,1); }
 .tarot.flipped { transform: rotateY(180deg); }
+.tarot.reveal-loading { cursor: wait; opacity: .72; }
 .tarot.tiltable { cursor: default; }
 .card-side { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(201,169,110,.35); border-radius: 12px; backface-visibility: hidden; box-shadow: 0 0 0 1px rgba(201,169,110,.08), 0 20px 60px rgba(0,0,0,.6); }
 .card-face, .card-back { background: radial-gradient(ellipse at 50% 34%, #1e1a32, #0b0a16 78%); }

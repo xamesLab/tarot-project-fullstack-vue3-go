@@ -11,6 +11,10 @@
   --cream: #f5f0e8;
   --line: rgba(201, 169, 110, 0.12);
   --line-soft: rgba(201, 169, 110, 0.1);
+  --layout-gutter: clamp(1rem, 3.25vw, 2.5rem);
+  --surface-padding: clamp(1.125rem, 3vw, 2.375rem);
+  --section-spacing: clamp(2.75rem, 5vw, 3.75rem);
+  --control-touch-target: 2.75rem;
 }
 
 :root.light {

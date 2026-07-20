@@ -1,0 +1,116 @@
+{
+  "title": "My Cabinet",
+  "subtitle": "Your path among the cards and practice settings",
+  "identityLabel": "User identity card",
+  "sectionProfile": "Profile",
+  "memberSince": "since {{date}}",
+  "profileNote": "Date and place of birth are used for natal card correspondences.",
+  "loading": "Loading profile…",
+  "error": "Could not load the profile",
+  "fields": {
+    "name": "Name",
+    "birthDate": "Date of birth",
+    "birthPlace": "Place of birth",
+    "email": "Email"
+  },
+  "tabs": {
+    "label": "Profile sections",
+    "settings": "Settings",
+    "history": "Reading history"
+  },
+  "settings": {
+    "saving": "Saving…",
+    "account": {
+      "title": "Account",
+      "description": "Your core profile details and the timezone used for the daily card.",
+      "username": "Username",
+      "timezone": "Timezone",
+      "email": "Email",
+      "role": "Access level",
+      "save": "Save profile",
+      "saved": "Profile saved — the cards remember."
+    },
+    "appearance": {
+      "title": "Language and appearance",
+      "description": "Choose the interface language and the light of your private observatory.",
+      "language": "Interface language",
+      "theme": "Theme",
+      "russian": "Русский",
+      "english": "English",
+      "dark": "Dark",
+      "light": "Light",
+      "save": "Save appearance",
+      "saved": "Appearance saved."
+    },
+    "deck": {
+      "title": "Deck and card back",
+      "description": "Choose the deck that will accompany your practice.",
+      "deck": "Deck",
+      "cardBack": "Card back",
+      "systemDefault": "system choice",
+      "defaultOption": "Default — {{name}}",
+      "restricted": "Custom decks and card backs are available from the Adept level.",
+      "catalogError": "Could not load the available decks and card backs.",
+      "save": "Save deck",
+      "saved": "Deck saved."
+    },
+    "validation": {
+      "usernameLength": "Use 3 to 20 characters",
+      "usernameFormat": "Use Latin letters, numbers, dots, hyphens, or underscores",
+      "timezone": "Choose a timezone"
+    },
+    "errors": {
+      "usernameUnavailable": "This username is already taken.",
+      "save": "Could not save the changes. Please try again."
+    }
+  },
+  "history": {
+    "title": "Reading archive",
+    "description": "Saved daily cards and spreads from your practice.",
+    "filterLabel": "Reading history filter",
+    "filters": {
+      "dailyCards": "Daily cards",
+      "otherReadings": "Other readings"
+    },
+    "retention": "History is retained for {{days}} days, starting from {{date}}.",
+    "loading": "Loading history…",
+    "error": "Could not load the reading history.",
+    "retry": "Try again",
+    "emptyTitle": "No readings in history yet",
+    "emptyCopy": "Create a daily card or a new spread and it will appear here.",
+    "filtersEmptyTitle": "All filters are off",
+    "filtersEmptyCopy": "Enable daily cards or other readings to view your history.",
+    "types": {
+      "dailyCard": "Daily card",
+      "otherReading": "Three-card spread"
+    },
+    "accountingDate": "Accounting date: {{date}}",
+    "aiReady": "Interpretation ready",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "cardsLabel": "Reading cards",
+    "reversed": "reversed",
+    "meaningTitle": "Reading interpretation",
+    "paginationLabel": "History pages",
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "pageIndicator": "Page {{page}} of {{total}}"
+  },
+  "stats": {
+    "readings": "Spreads",
+    "streak": "Day streak",
+    "soulCard": "Soul card"
+  },
+  "mock": {
+    "memberSince": "March 2024",
+    "sign": "Scorpio · ♀ Libra",
+    "chipMajor": "Major Arcana",
+    "chipLunar": "Lunar type",
+    "readingsValue": "214",
+    "streakValue": "36",
+    "soulCardValue": "II",
+    "quote": "“The High Priestess is your soul card: intuition guides you truer than any words.”",
+    "birthDate": "May 28, 1994",
+    "birthPlace": "St. Petersburg"
+  }
+}
