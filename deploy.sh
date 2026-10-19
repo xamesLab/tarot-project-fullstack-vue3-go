@@ -83,13 +83,13 @@ trap cleanup EXIT
 release_dir=$build_dir/release
 mkdir -p "$release_dir/backend" "$release_dir/frontend"
 
-node_major=$(node -p 'process.versions.node.split(".")[0]')
-(( node_major >= 20 )) || fail "Node.js 20 or newer is required (found: $(node --version))"
+node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit((major === 20 && minor >= 19) || (major === 22 && minor >= 12) || major > 22 ? 0 : 1)' \
+  || fail "Node.js 20.19+ or 22.12+ is required (found: $(node --version))"
 
 echo "Testing backend..."
 (
   cd "$repo_root/backend"
-  go test ./...
+  CGO_ENABLED=0 go test ./...
 )
 
 echo "Building backend..."
@@ -101,7 +101,7 @@ echo "Building backend..."
 )
 
 echo "Installing frontend dependencies..."
-npm --prefix "$repo_root/frontend" ci
+npm --prefix "$repo_root/frontend" ci --include=dev
 
 echo "Checking frontend..."
 npm --prefix "$repo_root/frontend" run lint

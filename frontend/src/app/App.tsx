@@ -5,7 +5,7 @@ import { router as defaultRouter } from '@/app/router';
 export function App({ router = defaultRouter }: { router?: typeof defaultRouter }) {
   return (
     <AppProviders>
-      <RouterProvider router={router} future={{ v7_startTransition: true }} />
+      <RouterProvider router={router} />
     </AppProviders>
   );
 }

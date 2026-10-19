@@ -178,7 +178,6 @@ describe('NEBULA-TAROT smoke', () => {
   it('registers the UI Kit route in development', async () => {
     const router = createMemoryRouter(routes, {
       initialEntries: ['/ui-kit'],
-      future: { v7_relativeSplatPath: true },
     });
     render(<App router={router} />);
     expect(await screen.findByRole('heading', { name: /Библиотека компонентов ARCANA/ })).toBeInTheDocument();

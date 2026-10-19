@@ -34,7 +34,7 @@
 | Привилегированный installer | /usr/local/sbin/install-tarot-release |
 | Smoke tests | /usr/local/sbin/smoke-test-tarot |
 
-На VPS установлены Linux x86_64, Git, Go и Node.js 20 или новее с npm. У tarot-deploy настроен ограниченный sudo-доступ к installer. Репозиторий приватный, поэтому до первого клонирования нужно настроить read-only SSH-доступ к GitHub.
+На VPS требуются Linux x86_64, Git, Go и Node.js 20.19+ или 22.12+ с npm. Скрипт проверяет версию Node до установки зависимостей. У tarot-deploy настроен ограниченный sudo-доступ к installer. Репозиторий приватный, поэтому до первого клонирования нужно настроить read-only SSH-доступ к GitHub.
 
 ## 3. Первоначальная настройка GitHub и клона
 
@@ -70,8 +70,8 @@ Deploy key и проверка host key на VPS настроены; пока п
 
 1. Проверяет Linux x86_64, пользователя tarot-deploy, ожидаемый GitHub origin и чистое состояние ветки main.
 2. Блокирует параллельный деплой, получает origin/main и переключает отдельный клон на точный SHA этого commit.
-3. Запускает go test ./... и собирает backend для Linux amd64.
-4. Выполняет npm ci, frontend lint и tests, затем production build. Перед tests и build скрипт очищает унаследованные переменные VITE_*. Vitest использует frontend/.env.test, production bundle — frontend/.env.production.
+3. Запускает `CGO_ENABLED=0 go test ./...` и собирает backend для Linux amd64 также без CGO. Системные C-заголовки для этих шагов не нужны.
+4. Выполняет `npm ci --include=dev`, frontend lint и tests, затем production build. Перед tests и build скрипт очищает унаследованные переменные VITE_*. Vitest использует frontend/.env.test, production bundle — frontend/.env.production (оба API-адаптера в production работают через HTTP). Команды явно выбирают `vite.config.ts`; тесты ограничены двумя worker-процессами и ожидают ленивые маршруты до 5 секунд.
 5. Формирует архив релиза и SHA-256 checksum на VPS и помещает их в закрытый каталог incoming.
 6. Запускает root-owned installer через существующее ограниченное правило sudo.
 

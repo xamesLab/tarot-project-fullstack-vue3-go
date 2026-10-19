@@ -4,7 +4,7 @@
 
 ## Запуск
 
-Требования: Node.js 20 LTS и npm.
+Требования: Node.js 20.19+ или 22.12+ и npm.
 
 ```bash
 npm install
@@ -28,6 +28,8 @@ Routes:
 - `npm run build` — typecheck и production build;
 - `npm run preview` — локальный preview production bundle;
 - `npm run extract:references` — извлечение исходных prototype templates в ignored-файлы.
+
+Команды Vite/Vitest явно используют `vite.config.ts`. Тесты запускаются максимум в двух worker-процессах; ожидание DOM после ленивого импорта — до 5 секунд при общем лимите теста 10 секунд. Это позволяет проверять настоящие маршруты и на VPS с ограниченными ресурсами.
 
 ## Конфигурация API
 

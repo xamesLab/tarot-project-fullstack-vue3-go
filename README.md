@@ -36,7 +36,7 @@
 
 ### Frontend
 
-- React 18, TypeScript 5, Vite 5;
+- React 18, TypeScript 5, Vite 7;
 - React Router, Zustand, TanStack Query;
 - i18next + react-i18next;
 - react-hook-form + zod;
@@ -53,7 +53,7 @@
 
 ## Локальный запуск
 
-Требования: Go `1.23.x`, Node.js 20 LTS, npm и доступная MongoDB.
+Требования: Go `1.23.x`, Node.js 20.19+ или 22.12+, npm и доступная MongoDB.
 
 ```bash
 cp backend/.env.example backend/.env
