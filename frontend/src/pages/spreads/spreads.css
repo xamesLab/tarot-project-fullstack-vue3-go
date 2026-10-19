@@ -15,11 +15,12 @@
 .spread-card-float { position: relative; margin-top: 12px; animation: spread-float 6.8s ease-in-out infinite; animation-delay: calc(var(--deal-index) * -1.3s); }
 .spread-card-glow { position: absolute; inset: 8% -12%; border-radius: 50%; background: radial-gradient(ellipse,rgba(201,169,110,.16),transparent 68%); opacity: 0; filter: blur(18px); transition: opacity .8s; }
 .spread-card-shell.revealed .spread-card-glow { opacity: 1; }
-.spread-card-visual, .spread-card-visual .tarot { width: 206px; height: 356px; }
+.spread-card-visual { width: 206px; height: auto; }
+.spread-card-visual .tarot { width: 100%; height: auto; aspect-ratio: 260 / 450; }
 .spread-card-visual { filter: drop-shadow(0 10px 10px rgba(0,0,0,.26)); transition: filter .3s ease; }
 .spread-card-shell:focus-within .spread-card-visual { filter: drop-shadow(0 14px 14px rgba(0,0,0,.36)); }
 .spread-card-visual .tarot { cursor: pointer; }
-.spread-card-visual .card-side { border-radius: 9px; box-shadow: 0 16px 48px rgba(0,0,0,.52); }
+.spread-card-visual .card-side { --card-side-radius: 9px; border-radius: var(--card-side-radius); box-shadow: 0 16px 48px rgba(0,0,0,.52); }
 .spread-card-visual .tarot-frame { inset: 8px; }
 .spread-card-visual .tarot-roman { top: 14px; font-size: 9px; }
 .spread-card-visual .tarot-name { bottom: 14px; max-width: calc(100% - 28px); overflow: hidden; font-size: 10px; text-overflow: ellipsis; }
@@ -73,7 +74,8 @@
 @media (max-width: 760px) {
   .spread-row { gap: 14px; }
   .spread-card-shell { width: calc((100% - 28px)/3); }
-  .spread-card-visual, .spread-card-visual .tarot { width: 100%; height: auto; aspect-ratio: 206/356; }
+  .spread-card-visual { width: 100%; height: auto; }
+  .spread-card-visual .tarot { width: 100%; height: auto; aspect-ratio: 260 / 450; }
   .spread-position { font-size: 8px; letter-spacing: .18em; }
   .spread-position-sub { min-height: 32px; font-size: 11px; }
   .spread-card-visual .tarot-name, .spread-card-visual .tarot-roman { font-size: 6px; }
@@ -86,7 +88,6 @@
 
   .spread-row {
     --mobile-card-width: 206px;
-    --mobile-card-height: 356px;
     --mobile-card-step-y: 72px;
     --mobile-card-last-y: 144px;
     position: relative;
@@ -124,8 +125,7 @@
   .spread-card-visual,
   .spread-card-visual .tarot {
     width: var(--mobile-card-width);
-    height: var(--mobile-card-height);
-    aspect-ratio: auto;
+    height: auto;
   }
 
   .spread-card-visual {

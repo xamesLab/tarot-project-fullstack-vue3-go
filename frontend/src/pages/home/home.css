@@ -15,7 +15,7 @@
 .side-rune span { color: rgba(201,169,110,.6); font: 400 13px/1 Cinzel, serif; letter-spacing: .5em; writing-mode: vertical-lr; }
 .card-c { position: relative; width: 260px; margin-bottom: 48px; perspective: 1600px; animation: float 6s ease-in-out infinite; }
 .card-glow { position: absolute; inset: -30px; border-radius: 24px; background: radial-gradient(ellipse, rgba(201,169,110,.12), transparent 65%); }
-.echo { position: absolute; z-index: -1; top: 24px; width: 220px; height: 400px; border: 1px solid rgba(201,169,110,.14); border-radius: 10px; background: var(--ink-mid); transition: transform .5s cubic-bezier(.23,1,.32,1); }
+.echo { position: absolute; z-index: -1; top: 30px; width: 220px; height: 330px; border: 1px solid rgba(201,169,110,.14); border-radius: 10px; background: var(--ink-mid); transition: transform .5s cubic-bezier(.23,1,.32,1); }
 .echo.left { left: -52px; transform: rotate(-9deg); } .echo.right { right: -52px; transform: rotate(9deg); }
 .card-c:hover .echo.left { transform: rotate(-12deg) translateX(-8px); } .card-c:hover .echo.right { transform: rotate(12deg) translateX(8px); }
 .card-hint { margin-top: 14px; color: var(--gold-dim); font-size: 10px; letter-spacing: .25em; text-align: center; text-transform: uppercase; opacity: 0; transition: opacity .4s; }
@@ -115,7 +115,7 @@
   .zodiac { top: 52px; width: min(430px, 120vw); height: min(430px, 120vw); }
   .card-c { width: clamp(190px, 54vw, 210px); margin-bottom: 36px; }
   .card-c .tarot { width: 100%; height: auto; aspect-ratio: 260 / 450; }
-  .echo { top: 6%; width: 78%; height: 88%; }
+  .echo { top: 6%; width: 78%; height: auto; aspect-ratio: 2 / 3; }
   .echo.left { left: -18%; transform: rotate(-6deg); }
   .echo.right { right: -18%; transform: rotate(6deg); }
   .card-hint { margin-top: 11px; font-size: 8px; line-height: 1.4; letter-spacing: .18em; }

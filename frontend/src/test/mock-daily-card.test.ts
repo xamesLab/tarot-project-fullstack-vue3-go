@@ -11,7 +11,10 @@ describe('mock daily card API', () => {
     expect(guest.success).toBe(true);
     expect(guest.source).toBe('guest');
     expect(guest.reading.cards).toHaveLength(1);
-    expect(guest.reading.cards[0].image_url).toBe('');
+    const faceImageUrl = guest.reading.cards[0].image_url;
+    const backImageUrl = guest.reading.cards[0].back_image_url ?? '';
+    expect(new URL(faceImageUrl).pathname).toContain('mock-card-face.png');
+    expect(new URL(backImageUrl).pathname).toContain('mock-card-back.png');
 
     const claimed = await mockDailyCardApi.resolve({
       timezone: 'UTC',
