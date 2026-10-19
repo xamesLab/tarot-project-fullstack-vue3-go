@@ -112,7 +112,7 @@ describe('profile route', () => {
       success: true,
       user: { ...profileUser, ...payload },
     }));
-    const router = createMemoryRouter(routes, { initialEntries: ['/profile'], future: { v7_relativeSplatPath: true } });
+    const router = createMemoryRouter(routes, { initialEntries: ['/profile'] });
 
     render(<App router={router} />);
 
@@ -169,7 +169,7 @@ describe('profile route', () => {
       const readings = type === 'all' ? historyReadings : historyReadings.filter((reading) => reading.type === type);
       return historyResponse(readings);
     });
-    const router = createMemoryRouter(routes, { initialEntries: ['/profile'], future: { v7_relativeSplatPath: true } });
+    const router = createMemoryRouter(routes, { initialEntries: ['/profile'] });
 
     render(<App router={router} />);
 
@@ -208,7 +208,7 @@ describe('profile route', () => {
       success: true,
       user: { ...profileUser, ...payload },
     }));
-    const router = createMemoryRouter(routes, { initialEntries: ['/profile'], future: { v7_relativeSplatPath: true } });
+    const router = createMemoryRouter(routes, { initialEntries: ['/profile'] });
 
     render(<App router={router} />);
 
@@ -232,7 +232,7 @@ describe('profile route', () => {
 
   it('redirects guests to the public page', async () => {
     render(
-      <MemoryRouter initialEntries={['/profile']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MemoryRouter initialEntries={['/profile']}>
         <Routes>
           <Route path="/" element={<div>Public page</div>} />
           <Route path="/profile" element={<ProtectedRoute><div>Private profile</div></ProtectedRoute>} />

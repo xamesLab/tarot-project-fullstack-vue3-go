@@ -61,7 +61,7 @@ describe('three-card spreads page', () => {
     localStorage.clear();
     useAuthStore.setState({ user: null, token: '', status: 'guest', hydrated: true });
     render(
-      <MemoryRouter initialEntries={['/spreads']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MemoryRouter initialEntries={['/spreads']}>
         <Routes>
           <Route path="/" element={<div>Public page</div>} />
           <Route path="/spreads" element={<ProtectedRoute><div>Private spread</div></ProtectedRoute>} />
@@ -102,7 +102,7 @@ describe('three-card spreads page', () => {
         completed_at: new Date().toISOString(),
       },
     });
-    const router = createMemoryRouter(routes, { initialEntries: ['/spreads'], future: { v7_relativeSplatPath: true } });
+    const router = createMemoryRouter(routes, { initialEntries: ['/spreads'] });
     render(<App router={router} />);
 
     expect(await screen.findByRole('heading', { name: 'Карты ждут вашего вопроса' })).toBeInTheDocument();

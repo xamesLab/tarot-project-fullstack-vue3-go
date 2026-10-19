@@ -86,4 +86,4 @@ export const routes = [
   { path: '*', element: <Navigate to="/" replace /> },
 ];
 
-export const router = createBrowserRouter(routes, { future: { v7_relativeSplatPath: true } });
+export const router = createBrowserRouter(routes);

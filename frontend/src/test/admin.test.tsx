@@ -24,7 +24,7 @@ describe('admin route', () => {
       users: [{ ...keeper, created_at: '2026-01-01T00:00:00Z' }],
       pagination: { page: 1, limit: 20, total: 1, total_pages: 1 },
     });
-    const router = createMemoryRouter(routes, { initialEntries: ['/admin?tab=users'], future: { v7_relativeSplatPath: true } });
+    const router = createMemoryRouter(routes, { initialEntries: ['/admin?tab=users'] });
     render(<App router={router} />);
 
     expect(await screen.findByRole('heading', { name: 'Панель управления' })).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe('admin route', () => {
   it('redirects an authenticated non-keeper away from protected admin content', async () => {
     useAuthStore.setState({ user: { ...keeper, role: 'master' }, token: 'jwt', status: 'authenticated', hydrated: true });
     render(
-      <MemoryRouter initialEntries={['/admin']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MemoryRouter initialEntries={['/admin']}>
         <Routes>
           <Route path="/profile" element={<div>Safe profile</div>} />
           <Route path="/admin" element={<KeeperRoute><div>Secret admin</div></KeeperRoute>} />

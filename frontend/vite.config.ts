@@ -15,5 +15,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     css: true,
+    // Bound CPU/memory usage while lazy route modules are transformed on the VPS.
+    maxWorkers: 2,
+    testTimeout: 10000,
   },
 });
