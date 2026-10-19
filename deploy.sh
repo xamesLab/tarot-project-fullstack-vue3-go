@@ -16,7 +16,7 @@ require_command() {
 [[ "$(uname -m)" == x86_64 ]] || fail "expected x86_64 architecture"
 [[ "$(id -un)" == tarot-deploy ]] || fail "run this script as tarot-deploy"
 
-for command_name in git go npm node tar sha256sum awk ssh flock sudo install mktemp readlink; do
+for command_name in git go npm node tar sha256sum awk ssh flock sudo install mktemp readlink df tee; do
   require_command "$command_name"
 done
 
@@ -86,6 +86,16 @@ mkdir -p "$release_dir/backend" "$release_dir/frontend"
 node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit((major === 20 && minor >= 19) || (major === 22 && minor >= 12) || major > 22 ? 0 : 1)' \
   || fail "Node.js 20.19+ or 22.12+ is required (found: $(node --version))"
 
+print_resources() {
+  echo "Node.js: $(node --version)"
+  awk '/^(MemTotal|MemAvailable|SwapTotal|SwapFree):/ { print }' /proc/meminfo
+  awk '{ print "Load average (1/5/15 min):", $1, $2, $3 }' /proc/loadavg
+  df -Pm "$repo_root" "$build_dir" "$incoming_dir"
+}
+
+echo "Resources before build:"
+print_resources
+
 echo "Testing backend..."
 (
   cd "$repo_root/backend"
@@ -115,7 +125,16 @@ clear_vite_environment() {
 }
 
 clear_vite_environment
-npm --prefix "$repo_root/frontend" test
+test_log=$(mktemp "$lock_dir/tarot-deploy-tests-$release_id.XXXXXXXX.log")
+echo "Testing frontend sequentially; log: $test_log"
+# Keep diagnostics outside the checkout and temporary build directory on failure.
+# pipefail ensures tee cannot hide a failed test command.
+if ! {
+  print_resources &&
+  npm --prefix "$repo_root/frontend" run test:deploy
+} 2>&1 | tee "$test_log"; then
+  fail "frontend checks failed; see $test_log"
+fi
 
 echo "Building production frontend..."
 npm --prefix "$repo_root/frontend" run build

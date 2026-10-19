@@ -25,11 +25,12 @@ Routes:
 - `npm run typecheck` — TypeScript check;
 - `npm run lint` — ESLint без warnings;
 - `npm test` — Vitest;
+- `npm run test:deploy` — все тесты последовательно, один worker, лимиты теста и hook по 30 секунд, подробный вывод с длительностью и JS heap;
 - `npm run build` — typecheck и production build;
 - `npm run preview` — локальный preview production bundle;
 - `npm run extract:references` — извлечение исходных prototype templates в ignored-файлы.
 
-Команды Vite/Vitest явно используют `vite.config.ts`. Тесты запускаются максимум в двух worker-процессах; ожидание DOM после ленивого импорта — до 5 секунд при общем лимите теста 10 секунд. Это позволяет проверять настоящие маршруты и на VPS с ограниченными ресурсами.
+Команды Vite/Vitest явно используют `vite.config.ts`. Обычный `npm test` запускается максимум в двух worker-процессах с лимитом теста 10 секунд. Для VPS используется `npm run test:deploy`: один worker, без параллельного выполнения файлов, до 30 секунд на тест и hook. Ожидание отдельного асинхронного DOM-запроса в обоих режимах — до 5 секунд. Состав тестов, изоляция файлов и настоящие ленивые импорты сохраняются.
 
 ## Конфигурация API
 

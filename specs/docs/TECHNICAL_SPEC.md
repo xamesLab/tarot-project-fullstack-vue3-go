@@ -2044,6 +2044,8 @@ The script fetches origin/main, updates the clean deployment checkout to that ex
 
 Vitest uses the committed frontend/.env.test; Vite production builds use frontend/.env.production. The deployment script clears all inherited VITE_* variables before both commands so the selected env file controls the result.
 
+On the VPS, frontend tests use `npm run test:deploy`: the full suite runs with one worker, no file parallelism, file isolation enabled, and 30-second test/hook limits. Individual asynchronous DOM queries retain their 5-second limit. Local `npm test` retains two workers and a 10-second test limit. The deployment script prints Node version, memory/swap, load and disk usage before the build and tests. Test diagnostics, per-test durations and JS heap usage are retained in a unique `$HOME/.cache/tarot-deploy-tests-<SHA>.*.log` even on failure; pipeline errors remain fatal before release installation.
+
 The VPS needs Git, Go, Node.js 20.19+ or 22.12+, npm, a read-only GitHub deploy key for the private repository, and pinned GitHub host keys. The one-time setup and exact commands are in DEPLOYMENT_GUIDE.md.
 
 ### 12.2 Release layout
