@@ -11,7 +11,7 @@
 | `frontend/` | React 18 + TypeScript SPA | Актуальный production frontend |
 | `frontend-legacy/` | Предыдущий Vue 3 SPA | Архивный full-stack baseline `v0.1.x` |
 | `backend/` | REST API на Go + Gin, MongoDB, JWT, OpenRouter | Действующий backend |
-| `deploy.sh` | Ручная сборка и production deployment после push | Действующий deploy entry point |
+| `deploy.sh` | Сборка и production deployment на VPS | Действующий deploy entry point |
 | `specs/` | Общая, versioned и operational документация | [Индекс](./specs/README.md) |
 
 ## Актуальный frontend
@@ -109,15 +109,15 @@ go build ./...
 
 ## Production deployment
 
-`git push` сам по себе production не обновляет. После commit и push из чистой ветки `main`:
+Команда git push публикует изменения в GitHub, но сама по себе не обновляет production. Деплой запускается на VPS: подключитесь к серверу, переключитесь на пользователя tarot-deploy и запустите скрипт из отдельного клона репозитория:
 
-```bash
-bash deploy.sh
-```
+    sudo -iu tarot-deploy
+    cd /home/tarot-deploy/nebula-tarot
+    bash deploy.sh
 
-Скрипт собирает точный commit, загружает release-архив на VPS и запускает серверный installer с checksum, smoke tests и автоматическим rollback. Production env, MongoDB, uploads, TLS, `gtwapi`, VPN и OpenRouter relay при обычном деплое не заменяются.
+Скрипт получает точный commit из origin/main, проверяет и собирает backend и frontend на VPS, затем вызывает существующий installer. Installer проверяет checksum, активирует релиз, запускает smoke tests и при сбое выполняет rollback. Локальная машина не собирает и не загружает файлы релиза. Production env, MongoDB, uploads, TLS, gtwapi, VPN и OpenRouter relay при обычном деплое не заменяются.
 
-Подробности: [Production deployment](./specs/docs/DEPLOYMENT_GUIDE.md).
+Для первоначальной настройки нужен read-only GitHub deploy key пользователя tarot-deploy и клон приватного репозитория. Команды настройки, деплоя, проверки и отката описаны в [Production deployment](./specs/docs/DEPLOYMENT_GUIDE.md).
 
 ## Документация
 

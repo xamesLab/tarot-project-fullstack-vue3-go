@@ -1,62 +1,78 @@
 #!/usr/bin/env bash
 
 set -Eeuo pipefail
+umask 077
 
-repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-cd "$repo_root"
-
-deploy_host=${DEPLOY_HOST:-d51673dc67a4.vps.myjino.ru}
-deploy_port=${DEPLOY_PORT:-49401}
-deploy_user=${DEPLOY_USER:-root}
-deploy_key=${DEPLOY_KEY:-$HOME/.ssh/id_rsa}
-deploy_branch=${DEPLOY_BRANCH:-main}
-incoming_dir=/var/lib/tarot-deploy/incoming
-
-require_command() {
-  if ! command -v "$1" >/dev/null 2>&1; then
-    echo "Не найдена обязательная команда: $1" >&2
-    exit 1
-  fi
+fail() {
+  echo "Error: $*" >&2
+  exit 1
 }
 
-for command_name in git go npm tar sha256sum ssh scp mktemp; do
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "required command not found: $1"
+}
+
+[[ "$(uname -s)" == Linux ]] || fail "deployment must run on the Linux server"
+[[ "$(uname -m)" == x86_64 ]] || fail "expected x86_64 architecture"
+[[ "$(id -un)" == tarot-deploy ]] || fail "run this script as tarot-deploy"
+
+for command_name in git go npm node tar sha256sum awk ssh flock sudo install mktemp readlink; do
   require_command "$command_name"
 done
 
-if [[ ! -f $deploy_key ]]; then
-  echo "SSH-ключ не найден: $deploy_key" >&2
-  echo "Укажите путь через DEPLOY_KEY." >&2
-  exit 1
-fi
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || fail "run this script inside the repository clone"
+cd "$repo_root"
 
-current_branch=$(git branch --show-current)
-if [[ $current_branch != "$deploy_branch" ]]; then
-  echo "Деплой разрешён только из ветки $deploy_branch (сейчас: $current_branch)." >&2
-  echo "При необходимости переопределите DEPLOY_BRANCH." >&2
-  exit 1
+expected_origin=git@github.com:xamesLab/tarot-project-fullstack-vue3-go.git
+origin=$(git remote get-url origin 2>/dev/null) || fail "origin remote is not configured"
+[[ "$origin" == "$expected_origin" ]] || fail "unexpected origin remote: $origin"
+
+lock_dir=$HOME/.cache
+mkdir -p "$lock_dir"
+chmod 0700 "$lock_dir"
+if [[ ${TAROT_DEPLOY_LOCK_HELD:-} == 1 ]]; then
+  [[ -e /proc/$$/fd/9 ]] || fail "deployment lock was lost during restart"
+else
+  exec 9>"$lock_dir/tarot-deploy.lock"
+  flock -n 9 || fail "another deployment is already running"
+  export TAROT_DEPLOY_LOCK_HELD=1
 fi
 
 if [[ -n $(git status --porcelain) ]]; then
-  echo "В рабочем дереве есть незакоммиченные изменения:" >&2
+  echo "The deployment clone has local changes:" >&2
   git status --short >&2
-  exit 1
+  fail "restore a clean deployment clone before continuing"
 fi
 
-if ! git rev-parse --verify '@{upstream}' >/dev/null 2>&1; then
-  echo "Для ветки $current_branch не настроена upstream-ветка." >&2
-  exit 1
+current_branch=$(git branch --show-current)
+[[ "$current_branch" == main ]] || fail "deployment clone must be on main (currently: $current_branch)"
+
+export GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=yes'
+echo "Fetching origin/main..."
+git fetch --quiet --no-tags origin +refs/heads/main:refs/remotes/origin/main
+release_id=$(git rev-parse refs/remotes/origin/main)
+[[ "$release_id" =~ ^[0-9a-f]{40}$ ]] || fail "GitHub returned an invalid commit SHA"
+
+if [[ ${TAROT_DEPLOY_SOURCE_SHA:-} != "$release_id" ]]; then
+  echo "Checking out release $release_id..."
+  git reset --hard "$release_id"
+  export TAROT_DEPLOY_SOURCE_SHA="$release_id"
+  exec bash "$repo_root/deploy.sh"
 fi
 
-echo "Обновляю сведения о remote..."
-git fetch --quiet
+[[ "$(git rev-parse HEAD)" == "$release_id" ]] || fail "checkout does not match the selected SHA"
+[[ -z $(git status --porcelain) ]] || fail "checkout changed after fetch"
 
-release_id=$(git rev-parse HEAD)
-upstream_id=$(git rev-parse '@{upstream}')
-if [[ $release_id != "$upstream_id" ]]; then
-  echo "Текущий commit $release_id ещё не совпадает с @{upstream} ($upstream_id)." >&2
-  echo "Сначала выполните git push." >&2
-  exit 1
-fi
+incoming_dir=/var/lib/tarot-deploy/incoming
+[[ -d "$incoming_dir" && -w "$incoming_dir" ]] || fail "cannot write to $incoming_dir"
+
+for env_override in \
+  "$repo_root/frontend/.env" \
+  "$repo_root/frontend/.env.local" \
+  "$repo_root/frontend/.env.test.local" \
+  "$repo_root/frontend/.env.production.local"; do
+  [[ ! -e "$env_override" ]] || fail "remove local Vite environment override: ${env_override#"$repo_root"/}"
+done
 
 build_dir=$(mktemp -d "${TMPDIR:-/tmp}/tarot-release.XXXXXXXX")
 cleanup() {
@@ -65,20 +81,18 @@ cleanup() {
 trap cleanup EXIT
 
 release_dir=$build_dir/release
-archive_name=tarot-$release_id.tar.gz
-checksum_name=tarot-$release_id.sha256
-archive=$build_dir/$archive_name
-checksum=$build_dir/$checksum_name
-
 mkdir -p "$release_dir/backend" "$release_dir/frontend"
 
-echo "Проверяю backend..."
+node_major=$(node -p 'process.versions.node.split(".")[0]')
+(( node_major >= 20 )) || fail "Node.js 20 or newer is required (found: $(node --version))"
+
+echo "Testing backend..."
 (
   cd "$repo_root/backend"
   go test ./...
 )
 
-echo "Собираю backend для linux/amd64..."
+echo "Building backend..."
 (
   cd "$repo_root/backend"
   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
@@ -86,42 +100,52 @@ echo "Собираю backend для linux/amd64..."
       -o "$release_dir/backend/tarot-app" .
 )
 
-echo "Устанавливаю frontend-зависимости..."
+echo "Installing frontend dependencies..."
 npm --prefix "$repo_root/frontend" ci
 
-echo "Проверяю frontend..."
+echo "Checking frontend..."
 npm --prefix "$repo_root/frontend" run lint
+
+clear_vite_environment() {
+  while IFS= read -r variable_name; do
+    if [[ "$variable_name" == VITE_* ]]; then
+      unset "$variable_name"
+    fi
+  done < <(compgen -e)
+}
+
+clear_vite_environment
 npm --prefix "$repo_root/frontend" test
 
-echo "Собираю frontend..."
+echo "Building production frontend..."
 npm --prefix "$repo_root/frontend" run build
 cp -a "$repo_root/frontend/dist/." "$release_dir/frontend/"
 
-echo "Формирую release-архив..."
+archive_name=tarot-$release_id.tar.gz
+checksum_name=tarot-$release_id.sha256
+archive=$build_dir/$archive_name
+checksum=$build_dir/$checksum_name
+
+echo "Creating release archive and checksum..."
 tar -czf "$archive" -C "$release_dir" backend frontend
 archive_hash=$(sha256sum "$archive" | awk '{print $1}')
 printf '%s  %s\n' "$archive_hash" "$archive_name" > "$checksum"
 
-ssh_target=$deploy_user@$deploy_host
-ssh_options=(-p "$deploy_port" -i "$deploy_key" -o BatchMode=yes)
-scp_options=(-P "$deploy_port" -i "$deploy_key" -o BatchMode=yes)
+incoming_archive=$incoming_dir/$archive_name
+incoming_checksum=$incoming_dir/$checksum_name
+install -m 0600 -- "$archive" "$incoming_archive"
+install -m 0600 -- "$checksum" "$incoming_checksum"
 
-echo "Загружаю релиз $release_id на $deploy_host:$deploy_port..."
-scp "${scp_options[@]}" \
-  "$archive" "$checksum" \
-  "$ssh_target:$incoming_dir/"
-
-remote_archive=$incoming_dir/$archive_name
-remote_checksum=$incoming_dir/$checksum_name
-installer="/usr/local/sbin/install-tarot-release"
-if [[ $deploy_user != root ]]; then
-  installer="sudo $installer"
+active_release=$(readlink -f /opt/tarot-app/current 2>/dev/null || true)
+if [[ "$active_release" == "/opt/tarot-app/releases/$release_id" ]] && /usr/local/sbin/smoke-test-tarot; then
+  rm -f -- "$incoming_archive" "$incoming_checksum"
+  echo "Release $release_id is already active and passed smoke tests."
+  exit 0
 fi
 
-echo "Активирую релиз..."
-ssh "${ssh_options[@]}" "$ssh_target" \
-  "$installer '$release_id' '$remote_archive' '$remote_checksum'"
+echo "Installing release $release_id..."
+sudo -n /usr/local/sbin/install-tarot-release "$release_id" "$incoming_archive" "$incoming_checksum"
 
 echo
-echo "Деплой завершён: $release_id"
+echo "Deployment complete: $release_id"
 echo "https://nebula-tarot.ru"

@@ -2034,11 +2034,17 @@ Production deployment is implemented. The operational source of truth is [`DEPLO
 
 ### 12.1 Build and deploy entry point
 
-```bash
-bash deploy.sh
-```
+Production deployment runs on the VPS from a dedicated checkout owned by tarot-deploy:
 
-The script requires a clean pushed `main`, runs backend/frontend checks, cross-compiles the Go binary for Linux `amd64`, builds the React bundle, creates an archive/checksum, uploads it through SSH and calls the server-side installer.
+    sudo -iu tarot-deploy
+    cd /home/tarot-deploy/nebula-tarot
+    bash deploy.sh
+
+The script fetches origin/main, updates the clean deployment checkout to that exact commit SHA, runs Go tests and build, runs frontend npm ci, lint, tests and production build, then creates a release archive and checksum on the VPS. It installs the archive through /usr/local/sbin/install-tarot-release using the existing restricted sudo rule. No release archive is transferred from a developer machine.
+
+Vitest uses the committed frontend/.env.test; Vite production builds use frontend/.env.production. The deployment script clears all inherited VITE_* variables before both commands so the selected env file controls the result.
+
+The VPS needs Git, Go, Node.js 20 or newer, npm, a read-only GitHub deploy key for the private repository, and pinned GitHub host keys. The one-time setup and exact commands are in DEPLOYMENT_GUIDE.md.
 
 ### 12.2 Release layout
 
@@ -2063,7 +2069,7 @@ Production frontend is compiled with a relative API base `/api`.
 ### 12.4 Safety and rollback
 
 - Releases are immutable and identified by full commit SHA.
-- The server validates checksum and archive structure.
+- The server installer validates checksum and archive structure; the archive is built on the VPS from the fetched commit.
 - `/opt/tarot-app/current` is switched atomically.
 - Local/public health checks run after restart.
 - Failed smoke tests restore the previous release automatically.
@@ -2077,7 +2083,7 @@ curl --fail https://nebula-tarot.ru/api/health
 systemctl status tarot-app --no-pager
 ```
 
-`git push` alone does not deploy: no GitHub Actions deployment workflow is configured yet.
+GitHub push alone does not deploy: an operator starts bash deploy.sh on the VPS. No GitHub Actions deployment workflow is configured.
 
 ---
 

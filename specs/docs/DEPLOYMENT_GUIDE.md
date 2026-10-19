@@ -1,191 +1,122 @@
 # Production deployment Nebula Tarot
 
-**Статус:** действующая инструкция
+**Статус:** действующая операционная инструкция
+**Проверено:** 19 октября 2026 года
 
-**Проверено:** 21 июля 2026 года
+## 1. Схема деплоя
 
-## 1. Назначение
+Источник истины — точный commit ветки origin/main на GitHub. Деплой запускается на VPS от пользователя tarot-deploy. Сервер получает commit, выполняет проверки и сборку, затем запускает существующий release installer.
 
-Документ описывает фактически настроенный ручной production-деплой после `git push`. Источник релиза — точный commit SHA; frontend и backend собираются локально, на VPS отправляется только готовый архив.
+Локальная машина не собирает и не загружает файлы релиза. Терминал нужен только для подключения к VPS; те же команды можно выполнить через консоль VPS у хостера.
 
-Обычный деплой не изменяет:
+Обычный деплой не заменяет:
 
-- `/etc/tarot-app/app.env`;
-- MongoDB и `/etc/mongod.conf`;
-- `/var/lib/tarot-app/uploads`;
+- /etc/tarot-app/app.env;
+- MongoDB и /etc/mongod.conf;
+- /var/lib/tarot-app/uploads;
 - Nginx и TLS;
-- `gtwapi`;
-- OpenRouter relay-прокси и VPN на relay-сервере.
+- gtwapi;
+- OpenRouter relay и VPN.
 
-## 2. Текущая production-структура
+## 2. Production-структура
 
-| Ресурс | Фактическое расположение |
+| Ресурс | Расположение |
 |---|---|
-| Публичный сайт | `https://nebula-tarot.ru` |
-| Nginx site | `/etc/nginx/sites-available/nebula-tarot.ru` |
-| Releases | `/opt/tarot-app/releases/<commit-sha>` |
-| Активный релиз | `/opt/tarot-app/current` — symlink на release |
-| Backend binary | `/opt/tarot-app/current/backend/tarot-app` |
-| Frontend root | `/opt/tarot-app/current/frontend` |
-| Backend service | `tarot-app.service` |
-| Runtime user | `tarot-user` |
-| Production env | `/etc/tarot-app/app.env` |
-| Persistent uploads | `/var/lib/tarot-app/uploads` |
-| Incoming artifacts | `/var/lib/tarot-deploy/incoming` |
-| Server installer | `/usr/local/sbin/install-tarot-release` |
-| Smoke test | `/usr/local/sbin/smoke-test-tarot` |
-| OpenRouter relay | `tarot-openrouter-relay.service` |
+| Публичный сайт | https://nebula-tarot.ru |
+| Пользователь деплоя | tarot-deploy |
+| Клон репозитория | /home/tarot-deploy/nebula-tarot |
+| Активный релиз | symlink /opt/tarot-app/current |
+| Каталоги релизов | /opt/tarot-app/releases/<commit-sha> |
+| Backend service | tarot-app.service, запускается от tarot-user |
+| Runtime env | /etc/tarot-app/app.env |
+| Постоянные uploads | /var/lib/tarot-app/uploads |
+| Входящие релизы | /var/lib/tarot-deploy/incoming |
+| Привилегированный installer | /usr/local/sbin/install-tarot-release |
+| Smoke tests | /usr/local/sbin/smoke-test-tarot |
 
-Внутри релиза находятся только готовый backend binary и статическая frontend-сборка:
+На VPS установлены Linux x86_64, Git, Go и Node.js 20 или новее с npm. У tarot-deploy настроен ограниченный sudo-доступ к installer. Репозиторий приватный, поэтому до первого клонирования нужно настроить read-only SSH-доступ к GitHub.
 
-```text
-/opt/tarot-app/releases/<commit-sha>/
-├── backend/
-│   ├── tarot-app
-│   └── uploads -> /var/lib/tarot-app/uploads
-└── frontend/
-    ├── index.html
-    └── assets/
-```
+## 3. Первоначальная настройка GitHub и клона
 
-## 3. Деплой после push
+На проверенном VPS уже создан отдельный Ed25519 deploy key пользователя tarot-deploy:
 
-Из корня репозитория в Git Bash или WSL:
+- Публичный ключ расположен в `/home/tarot-deploy/.ssh/github_deploy_key.pub`; вывести его можно командой `cat ~/.ssh/github_deploy_key.pub` от tarot-deploy.
+- Fingerprint ключа: `SHA256:ZJoH/oWRkErc2aPiO82B7sfrLu/SFZgzY3J1v5f1yck`.
+- Приватный ключ остаётся на VPS в `/home/tarot-deploy/.ssh/github_deploy_key`, с правами `0600`.
 
-```bash
-bash deploy.sh
-```
+Добавьте содержимое `.pub` в GitHub: Settings репозитория → Deploy keys, с правом только на чтение. Не загружайте приватный ключ.
 
-Скрипт [`deploy.sh`](../../deploy.sh):
+SSH config уже указывает на этот ключ и включает `StrictHostKeyChecking`. GitHub host key закреплён в `/home/tarot-deploy/.ssh/known_hosts`; его Ed25519 fingerprint — `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU`, сверенный с [официальным списком fingerprints GitHub](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints). Не отключайте проверку host key.
 
-1. разрешает production-деплой только из `main`;
-2. останавливается при незакоммиченных изменениях;
-3. выполняет `git fetch` и проверяет, что `HEAD` совпадает с upstream;
-4. запускает `go test ./...`;
-5. собирает статический Linux `amd64` backend binary;
-6. выполняет `npm ci`, lint, frontend tests и production build;
-7. формирует архив `backend/ + frontend/` и SHA-256 checksum;
-8. загружает оба файла на VPS через обязательный нестандартный SSH-порт;
-9. запускает серверный установщик;
-10. удаляет локальный временный каталог при завершении.
+Проверьте доступ к репозиторию:
 
-По умолчанию скрипт использует SSH-ключ `~/.ssh/id_rsa`. Параметры можно переопределить без изменения файла:
+    git ls-remote git@github.com:xamesLab/tarot-project-fullstack-vue3-go.git refs/heads/main
 
-```bash
-DEPLOY_KEY=/path/to/key \
-DEPLOY_HOST=production-host \
-DEPLOY_PORT=ssh-port \
-bash deploy.sh
-```
+Один раз клонируйте репозиторий:
 
-Не добавляйте реальные адреса, пароли и приватные ключи в репозиторий.
+    git clone --branch main --single-branch git@github.com:xamesLab/tarot-project-fullstack-vue3-go.git ~/nebula-tarot
 
-## 4. Что делает серверный установщик
+Deploy key и проверка host key на VPS настроены; пока публичный deploy key не добавлен в GitHub, доступ к приватному репозиторию и клонирование не сработают. После добавления ключа выполните `git ls-remote`, затем клонируйте репозиторий.
 
-`/usr/local/sbin/install-tarot-release` принимает commit SHA, архив и checksum. Он:
+## 4. Деплой
 
-1. проверяет формат 40-символьного commit SHA;
-2. принимает файлы только из `/var/lib/tarot-deploy/incoming`;
-3. блокирует параллельный деплой через `flock`;
-4. сверяет SHA-256;
-5. отклоняет архивы с небезопасными путями, symlink или неожиданными файлами;
-6. распаковывает релиз во временный staging-каталог;
-7. подключает persistent uploads;
-8. атомарно переключает `/opt/tarot-app/current`;
-9. перезапускает только `tarot-app.service`;
-10. выполняет локальный и публичный smoke test;
-11. автоматически возвращает предыдущий symlink и перезапускает backend при ошибке;
-12. удаляет входной архив после успешной установки.
+После merge изменений в GitHub main войдите на VPS и выполните:
 
-Сообщение об успешном завершении:
+    sudo -iu tarot-deploy
+    cd ~/nebula-tarot
+    bash deploy.sh
 
-```text
-smoke tests passed
-release <commit-sha> installed successfully
-```
+Скрипт:
 
-## 5. Production env
+1. Проверяет Linux x86_64, пользователя tarot-deploy, ожидаемый GitHub origin и чистое состояние ветки main.
+2. Блокирует параллельный деплой, получает origin/main и переключает отдельный клон на точный SHA этого commit.
+3. Запускает go test ./... и собирает backend для Linux amd64.
+4. Выполняет npm ci, frontend lint и tests, затем production build. Перед tests и build скрипт очищает унаследованные переменные VITE_*. Vitest использует frontend/.env.test, production bundle — frontend/.env.production.
+5. Формирует архив релиза и SHA-256 checksum на VPS и помещает их в закрытый каталог incoming.
+6. Запускает root-owned installer через существующее ограниченное правило sudo.
 
-Единственный runtime env приложения:
+Работающий service не перезапускается до завершения проверок и сборки. Installer проверяет checksum и состав архива, атомарно переключает symlink current, перезапускает только tarot-app.service и возвращает предыдущий релиз при неуспешных smoke tests. Артефакты сборки и зависимости остаются в deployment-клоне или временном каталоге; production secrets не используются при сборке frontend.
 
-```text
-/etc/tarot-app/app.env
-```
+Перед сборкой скрипт останавливается, если в frontend найдены локальные dotenv-файлы, которые могли бы переопределить committed test или production конфигурацию.
 
-Права:
+Сборка на сервере использует CPU и место на диске, пока текущая версия продолжает работать. Перед крупными обновлениями зависимостей проверяйте свободное место.
 
-```text
-root:tarot-user 0640
-```
+## 5. Проверка после деплоя
 
-Env не хранится в Git, не включается в release-архив и не заменяется при деплое. После ручного изменения env:
+При успехе выводятся сообщения:
 
-```bash
-chown root:tarot-user /etc/tarot-app/app.env
-chmod 640 /etc/tarot-app/app.env
-systemctl restart tarot-app
-systemctl status tarot-app --no-pager
-```
+    smoke tests passed
+    release <commit-sha> installed successfully
+    Deployment complete: <commit-sha>
 
-Основные группы переменных:
+Installer повторяет локальную проверку API до 30 секунд, пока service запускается. В это время может появляться connection refused; деплой считается успешным только после успешного завершения всех smoke tests.
 
-- приложение и HTTP timeouts;
-- MongoDB;
-- JWT;
-- frontend/public URLs;
-- `OPENROUTER_*`;
-- `HTTPS_PROXY` и `NO_PROXY` для OpenRouter relay;
-- сохранённые `GATEWAY_*`, которые не делают `gtwapi` частью deploy flow.
+Ручная проверка:
 
-Значения секретов нельзя выводить в логи или копировать в документацию.
+    systemctl status tarot-app --no-pager
+    readlink -f /opt/tarot-app/current
+    curl --fail --silent --show-error http://127.0.0.1:8888/api/health
+    curl --fail --silent --show-error https://nebula-tarot.ru/api/health
+    curl --fail --silent --show-error https://nebula-tarot.ru/ >/dev/null
 
-## 6. Проверки после деплоя
+Если релиз меняет поведение AI, выполните по одному контролируемому запросу на каждом затронутом языке. Генерация может тарифицироваться провайдером.
 
-Установщик выполняет их автоматически, но их можно повторить вручную:
+## 6. Откат
 
-```bash
-systemctl status tarot-app --no-pager
-systemctl status tarot-openrouter-relay --no-pager
+Installer автоматически возвращает предыдущий symlink и перезапускает backend, если health checks не проходят. Для ручного отката приложения администратор сервера выбирает сохранённый релиз:
 
-curl --fail --silent http://127.0.0.1:8888/api/health
-curl --fail --silent https://nebula-tarot.ru/api/health
-curl --fail --silent https://nebula-tarot.ru/ >/dev/null
+    readlink -f /opt/tarot-app/current
+    ls -1 /opt/tarot-app/releases
+    ln -sfn /opt/tarot-app/releases/<previous-commit-sha> /opt/tarot-app/current
+    systemctl restart tarot-app
+    curl --fail https://nebula-tarot.ru/api/health
 
-journalctl -u tarot-app -n 100 --no-pager
-```
+Откат приложения не меняет MongoDB, runtime env и uploads. Для несовместимого изменения данных нужен отдельный план миграции, backup и отката.
 
-При изменениях AI дополнительно выполняется контролируемый запрос интерпретации. Такой smoke test платный и может создать обычную гостевую запись в MongoDB.
+## 7. Безопасность и автоматизация
 
-## 7. Ручной откат
-
-Автоматический откат уже встроен в installer. Для ручного отката выберите предыдущий существующий release:
-
-```bash
-readlink -f /opt/tarot-app/current
-ls -1 /opt/tarot-app/releases
-
-ln -sfn /opt/tarot-app/releases/<previous-commit-sha> /opt/tarot-app/current
-systemctl restart tarot-app
-curl --fail https://nebula-tarot.ru/api/health
-```
-
-При откате приложения:
-
-- env не откатывается;
-- MongoDB автоматически не откатывается;
-- uploads сохраняются;
-- `gtwapi`, relay-прокси, VPN, Nginx и TLS не перезапускаются.
-
-Если релиз требует несовместимого изменения данных, для него нужен отдельный migration/rollback plan и резервная копия базы.
-
-## 8. GitHub Actions
-
-Автоматического deployment workflow в репозитории пока нет. `git push` сам по себе production не обновляет; после push нужно запустить `bash deploy.sh`.
-
-Будущая автоматизация должна переиспользовать тот же формат release-архива и серверный installer. Для CI следует использовать отдельного `tarot-deploy` с ограниченным `sudo`, а не root-доступ. Production environment рекомендуется защищать ручным подтверждением.
-
-## 9. Связанные документы
-
-- [OpenRouter relay-прокси](./OPENROUTER_PROXY.md)
-- [Карта проекта](./AI_PROJECT_MAP.md)
-- [Индекс документации](../README.md)
+- GitHub deploy key на VPS доступен только для чтения и принадлежит пользователю tarot-deploy.
+- Проверка host key GitHub включена.
+- Пользователь деплоя собирает релиз и имеет ограниченный sudo-доступ к installer; само приложение продолжает работать от tarot-user.
+- Не храните production secrets в клоне, release archive, shell history или логах.
+- GitHub Actions deployment не настроен. git push не разворачивает релиз автоматически; оператор запускает скрипт на VPS.
