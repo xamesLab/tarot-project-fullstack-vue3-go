@@ -244,7 +244,7 @@ Content (design it in the same visual language — Cinzel title, Cormorant lead,
 ## 9. Mock API layer
 
 - `src/api/types.ts`: domain DTOs — `TarotCardDto`, `DailyReadingDto` (card, keywords, brief, spheres, message), `OracleReplyDto`, `RegisterPayload`, `UserDto`.
-- `src/api/mock/`: implementations returning typed data via `Promise` + artificial `delay(300–800ms)`. Content = the prototype's texts, **in both languages** (mock accepts a `lang` param or returns both locales; pick one approach and document it).
+- `../mocks/frontend/`: implementations returning typed data via `Promise` + artificial `delay(300–800ms)`. Content = the prototype's texts, **in both languages** (mock accepts a `lang` param or returns both locales; pick one approach and document it).
 - Public surface: a single `api` object (`api.readings.getDaily()`, `api.oracle.ask(question)`, `api.auth.register(data)`), selected by `VITE_API_MODE` (`mock` | `http`). The `http` variant can throw `NotImplemented` for now — the point is that swapping is a one-file change.
 - Wire `@tanstack/react-query` provider and fetch the daily reading through `useQuery` on Home (with a simple loading state that doesn't break the layout — e.g. render the stage immediately and fill texts when ready, or a subtle skeleton in the brand style). Oracle chat uses a mutation.
 

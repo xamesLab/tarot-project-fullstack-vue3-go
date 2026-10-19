@@ -15,6 +15,7 @@
   "loading": "The cards are revealing their message…",
   "oracleThinking": "the oracle is reading your card",
   "error": "The cards are silent today. Please try again.",
-  "interpretation": { "work": "Work", "family": "Family", "advice": "Advice" },
-  "oracleGreeting": "I am listening. Ask, and the Priestess will answer from the silence."
+  "interpretation": {"relationships": "Relationships", "finances": "Finances", "emotionalState": "Emotional State", "careerBusiness": "Career/Business"},
+  "oracleGreeting": "I am listening. Ask, and the Priestess will answer from the silence.",
+  "oracleSilenceReply": "The Oracle is silent right now."
 }

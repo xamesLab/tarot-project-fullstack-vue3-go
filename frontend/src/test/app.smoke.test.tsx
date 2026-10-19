@@ -40,8 +40,8 @@ describe('NEBULA-TAROT smoke', () => {
     window.history.replaceState({}, '', '/');
     vi.spyOn(api.dailyCard, 'generateGuest').mockResolvedValue({ success: true, source: 'guest', reading: backendReading, claim_token: 'claim' });
     vi.spyOn(api.dailyCard, 'resolve').mockResolvedValue({ success: true, source: 'existing', reading: { ...backendReading, id: 'reading-1' } });
-    vi.spyOn(api.dailyCard, 'getGuestInterpretation').mockResolvedValue({ success: true, source: 'cache', interpretation: { general: 'AI general', work: 'AI work', family: 'AI family', advice: 'AI advice' } });
-    vi.spyOn(api.dailyCard, 'getUserInterpretation').mockResolvedValue({ success: true, source: 'reading', interpretation: { general: 'AI user general', work: 'AI user work', family: 'AI user family', advice: 'AI user advice' } });
+    vi.spyOn(api.dailyCard, 'getGuestInterpretation').mockResolvedValue({ success: true, source: 'cache', interpretation: { general: 'AI general', message: 'AI day message', relationships: 'AI relationships', finances: 'AI finances', emotional_state: 'AI emotional state', career_business: 'AI career business' } });
+    vi.spyOn(api.dailyCard, 'getUserInterpretation').mockResolvedValue({ success: true, source: 'reading', interpretation: { general: 'AI user general', message: 'AI user day message', relationships: 'AI user relationships', finances: 'AI user finances', emotional_state: 'AI user emotional state', career_business: 'AI user career business' } });
     vi.spyOn(console, 'info').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
@@ -76,18 +76,44 @@ describe('NEBULA-TAROT smoke', () => {
     expect(screen.getByText('Терпение')).toBeInTheDocument();
     expect(screen.getByText('результат')).toBeInTheDocument();
     await waitFor(() => expect(expandButton).toBeEnabled());
-    fireEvent.click(expandButton);
-    expect(await screen.findByText('AI work')).toBeInTheDocument();
-    expect(screen.getByText('AI family')).toBeInTheDocument();
-    expect(screen.getByText('AI advice')).toBeInTheDocument();
+    expect(expandButton).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('AI day message')).toBeInTheDocument();
+    expect(await screen.findByText('AI relationships')).toBeInTheDocument();
+    expect(screen.getByText('AI finances')).toBeInTheDocument();
+    expect(screen.getByText('AI emotional state')).toBeInTheDocument();
+    expect(screen.getByText('AI career business')).toBeInTheDocument();
 
     fireEvent.click(flipButton);
     expect(detailsShell).toHaveClass('concealed');
-    expect(screen.queryByText('AI work')).not.toBeInTheDocument();
+    expect(screen.queryByText('AI relationships')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Карта дня' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Расклады' }));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('replies with the oracle silence placeholder to every question without calling the API', async () => {
+    const askOracle = vi.spyOn(api.oracle, 'ask');
+    const { container } = render(<App />);
+    const input = container.querySelector<HTMLInputElement>('.chat-input input')!;
+    const sendButton = container.querySelector<HTMLButtonElement>('.chat-input button')!;
+    const silenceReply = 'Оракул сейчас молчит';
+
+    fireEvent.change(input, { target: { value: 'What should I focus on today?' } });
+    fireEvent.click(sendButton);
+    expect(await screen.findByText(silenceReply)).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: 'Should I change my plans?' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(screen.getAllByText(silenceReply)).toHaveLength(2);
+    expect(askOracle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'EN' }));
+    const englishInput = await screen.findByPlaceholderText('Ask the cards a question…');
+    fireEvent.change(englishInput, { target: { value: 'What should I do next?' } });
+    fireEvent.keyDown(englishInput, { key: 'Enter' });
+    expect(await screen.findByText('The Oracle is silent right now.')).toBeInTheDocument();
+    expect(askOracle).not.toHaveBeenCalled();
   });
 
   it('opens login from the guest pill and switches to registration', async () => {

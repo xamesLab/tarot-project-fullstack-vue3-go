@@ -15,6 +15,7 @@
   "loading": "Карты открывают послание…",
   "oracleThinking": "оракул думает над вашей картой",
   "error": "Сегодня карты молчат. Попробуйте ещё раз.",
-  "interpretation": { "work": "Работа", "family": "Семья", "advice": "Совет дня" },
-  "oracleGreeting": "Я слушаю. Задайте вопрос — и Жрица ответит из тишины."
+  "interpretation": {"relationships": "Отношения", "finances": "Финансы", "emotionalState": "Душевное состояние", "careerBusiness": "Карьера/бизнес"},
+  "oracleGreeting": "Я слушаю. Задайте вопрос — и Жрица ответит из тишины.",
+  "oracleSilenceReply": "Оракул сейчас молчит"
 }

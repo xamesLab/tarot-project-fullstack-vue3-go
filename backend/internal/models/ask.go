@@ -60,10 +60,12 @@ type CreateAskRequest struct {
 }
 
 type CardOfDayInterpretation struct {
-	General string `bson:"general" json:"general"`
-	Work    string `bson:"work" json:"work"`
-	Family  string `bson:"family" json:"family"`
-	Advice  string `bson:"advice" json:"advice"`
+	General        string `bson:"general" json:"general"`
+	Message        string `bson:"message" json:"message"`
+	Relationships  string `bson:"relationships" json:"relationships"`
+	Finances       string `bson:"finances" json:"finances"`
+	EmotionalState string `bson:"emotional_state" json:"emotional_state"`
+	CareerBusiness string `bson:"career_business" json:"career_business"`
 }
 
 type GuestCardOfDayInterpretationRequest struct {

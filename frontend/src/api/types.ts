@@ -35,9 +35,11 @@ export interface OracleReplyDto {
 
 export interface CardOfDayInterpretationDto {
   general: string;
-  work: string;
-  family: string;
-  advice: string;
+  message: string;
+  relationships: string;
+  finances: string;
+  emotional_state: string;
+  career_business: string;
 }
 
 export interface CardOfDayInterpretationResponse {

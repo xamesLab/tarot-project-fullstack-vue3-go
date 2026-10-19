@@ -32,7 +32,7 @@ describe('daily card HTTP adapter', () => {
 
   it('requests a public guest AI interpretation without JWT', async () => {
     localStorage.setItem(TOKEN_STORAGE_KEY, 'jwt');
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ success: true, source: 'cache', interpretation: { general: 'G', work: 'W', family: 'F', advice: 'A' } }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ success: true, source: 'cache', interpretation: { general: 'G', message: 'M', relationships: 'R', finances: 'F', emotional_state: 'E', career_business: 'C' } }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
     await httpDailyCardApi.getGuestInterpretation({ claim_token: 'claim', language: 'ru' });
 
     expect(fetchMock).toHaveBeenCalledWith('http://localhost:8888/api/reading/guest/card-of-day/interpretation', expect.objectContaining({ method: 'POST' }));
@@ -43,7 +43,7 @@ describe('daily card HTTP adapter', () => {
 
   it('sends the JWT when requesting a user AI interpretation', async () => {
     localStorage.setItem(TOKEN_STORAGE_KEY, 'jwt');
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ success: true, source: 'generated', interpretation: { general: 'G', work: 'W', family: 'F', advice: 'A' } }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ success: true, source: 'generated', interpretation: { general: 'G', message: 'M', relationships: 'R', finances: 'F', emotional_state: 'E', career_business: 'C' } }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
     await httpDailyCardApi.getUserInterpretation({ reading_id: 'reading-1', language: 'en' });
 
     expect(fetchMock).toHaveBeenCalledWith('http://localhost:8888/api/reading/card-of-day/interpretation', expect.objectContaining({ method: 'POST' }));

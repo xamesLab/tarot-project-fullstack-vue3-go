@@ -60,6 +60,15 @@ cp backend/.env.example backend/.env
 ./start-dev.sh
 ```
 
+`start-dev.sh` defaults to `DEV_DATA_MODE=auto`: it tries to start the Go API and uses the frontend mock API when MongoDB is not configured or cannot be reached. To choose explicitly:
+
+```bash
+DEV_DATA_MODE=mock ./start-dev.sh # Start the UI with mock data
+DEV_DATA_MODE=mongo ./start-dev.sh # Require the Go API and MongoDB
+```
+
+Frontend mock adapters and fixture data live in [`mocks/`](./mocks/README.md). Changes made in mock mode are not written to MongoDB.
+
 По умолчанию:
 
 - frontend: `http://localhost:5173`;
