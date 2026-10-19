@@ -32,12 +32,13 @@ export function SendIcon(props: IconProps) { return <svg viewBox="0 0 24 24" fil
 export function LogoutIcon(props: IconProps) { return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><path d="M13 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l4-4-4-4m4 4H5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
 export function ProfileIcon(props: IconProps) { return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.1"/><path d="M4 21q0-6.5 8-6.5t8 6.5" stroke="currentColor" strokeWidth="1.1"/></svg>; }
 
-export function SphereIcon({ type, ...props }: IconProps & { type: 'love' | 'career' | 'health' | 'spirit' }) {
+export function SphereIcon({ type, ...props }: IconProps & { type: 'love' | 'career' | 'health' | 'spirit' | 'finance' }) {
   const art = {
     love: <><path d="M14 3C8 3 3 8 3 14s5 11 11 11 11-5 11-11"/><circle cx="14" cy="14" r="4"/></>,
     career: <><rect x="6" y="8" width="16" height="13" rx="2"/><path d="M10 8V6q4-3 8 0v2"/></>,
     health: <><ellipse cx="14" cy="14" rx="8" ry="10"/><path d="M6 14q4-4 8 0t8 0"/></>,
     spirit: <polygon points="14,3 17,11 26,11 19,16 22,24 14,19 6,24 9,16 2,11 11,11"/>,
+    finance: <><circle cx="14" cy="14" r="10"/><path d="M17.5 10.5c-.6-1-1.7-1.5-3.3-1.5-1.8 0-3 .8-3 2s1.2 1.8 3 2.2 3 1 3 2.3-1.2 2-3 2c-1.6 0-2.8-.5-3.5-1.5M14 7v14"/></>,
   }[type];
   return <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth=".8" aria-hidden="true" {...props}>{art}</svg>;
 }

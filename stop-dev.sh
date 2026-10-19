@@ -7,6 +7,17 @@ RUNTIME_DIR="$ROOT_DIR/.dev-runtime"
 BACKEND_PID_FILE="$RUNTIME_DIR/backend.pid"
 FRONTEND_PID_FILE="$RUNTIME_DIR/frontend.pid"
 
+stop_process_tree() {
+  local pid="$1"
+  local child_pid
+
+  while IFS= read -r child_pid; do
+    [[ -n "$child_pid" ]] && stop_process_tree "$child_pid"
+  done < <(ps -ef | awk -v parent="$pid" 'NR > 1 && $3 == parent { print $2 }')
+
+  kill "$pid" >/dev/null 2>&1 || true
+}
+
 stop_process() {
   local name="$1"
   local pid_file="$2"
@@ -32,7 +43,7 @@ stop_process() {
   fi
 
   echo "Stopping $name (PID $pid)..."
-  kill "$pid" >/dev/null 2>&1 || true
+  stop_process_tree "$pid"
 
   for _ in {1..20}; do
     if ! kill -0 "$pid" >/dev/null 2>&1; then

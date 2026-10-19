@@ -4,7 +4,13 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
-  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@mock': fileURLToPath(new URL('../mocks/frontend', import.meta.url)),
+    },
+  },
+  server: { fs: { allow: [fileURLToPath(new URL('..', import.meta.url))] } },
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',

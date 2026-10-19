@@ -24,10 +24,12 @@ const backendCard: BackendReadingCardDto = {
 };
 
 const interpretation: CardOfDayInterpretationDto = {
-  general: 'Карта зовёт к началу.',
-  work: 'В работе выберите первый ясный шаг.',
-  family: 'В отношениях говорите прямо.',
-  advice: 'Действуйте спокойно.',
+  general: 'A concise overall reading.',
+  message: 'A separate expanded message for the day.',
+  relationships: 'Relationship insight for today.',
+  finances: 'Financial insight for today.',
+  emotional_state: 'Emotional state insight for today.',
+  career_business: 'Career and business insight for today.',
 };
 
 function view(revealed: boolean, value: CardOfDayInterpretationDto | undefined = interpretation) {
@@ -35,35 +37,43 @@ function view(revealed: boolean, value: CardOfDayInterpretationDto | undefined =
 }
 
 describe('CardOfDayDetails', () => {
-  it('conceals all details until revealed and resets expanded content when closed', async () => {
+  it('shows the message before four spheres and resets expanded content when closed', async () => {
     await i18n.changeLanguage('ru');
     const { container, rerender } = render(view(false));
     const shell = container.querySelector<HTMLElement>('.card-details-shell')!;
-    const body = container.querySelector<HTMLElement>('.card-details-body')!;
     const expandButton = container.querySelector<HTMLButtonElement>('.expand-button')!;
 
     expect(shell).toHaveClass('concealed');
-    expect(body).toHaveAttribute('aria-hidden', 'true');
     expect(expandButton).toBeDisabled();
-    expect(expandButton).toHaveAttribute('tabindex', '-1');
-    expect(screen.getByText('Переверните карту, чтобы открыть описание')).toBeInTheDocument();
-
     rerender(view(true));
     expect(shell).toHaveClass('revealed');
-    expect(body).toHaveAttribute('aria-hidden', 'false');
     expect(expandButton).toBeEnabled();
-    expect(screen.getByText('Жезлы')).toHaveClass('card-number-minor');
-    expect(screen.getByText('Младший Аркан · Перевёрнутое положение')).toBeInTheDocument();
-    expect(screen.getByText('Карта зовёт к началу.')).toBeInTheDocument();
-    fireEvent.click(expandButton);
-    expect(screen.getByText('В работе выберите первый ясный шаг.')).toBeInTheDocument();
-    expect(screen.getByText('В отношениях говорите прямо.')).toBeInTheDocument();
-    expect(screen.getByText('Действуйте спокойно.')).toBeInTheDocument();
+    expect(expandButton).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('A concise overall reading.')).toBeInTheDocument();
 
+    expect(container.querySelector('.corner-panel')).toHaveTextContent('A separate expanded message for the day.');
+    expect(screen.getByText('Relationship insight for today.')).toBeInTheDocument();
+    expect(screen.getByText('Financial insight for today.')).toBeInTheDocument();
+    expect(screen.getByText('Emotional state insight for today.')).toBeInTheDocument();
+    expect(screen.getByText('Career and business insight for today.')).toBeInTheDocument();
+
+    const reveal = container.querySelector<HTMLElement>('.spheres-reveal')!;
+    expect(reveal.firstElementChild).toHaveClass('corner-panel');
+    expect(reveal.lastElementChild).toHaveClass('spheres');
+    expect([...reveal.querySelectorAll('.aspect-block h3')].map((element) => element.textContent)).toEqual([
+      i18n.t('interpretation.relationships', { ns: 'home' }),
+      i18n.t('interpretation.finances', { ns: 'home' }),
+      i18n.t('interpretation.emotionalState', { ns: 'home' }),
+      i18n.t('interpretation.careerBusiness', { ns: 'home' }),
+    ]);
+
+    fireEvent.click(expandButton);
+    expect(expandButton).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Relationship insight for today.')).not.toBeInTheDocument();
     rerender(view(false));
-    expect(screen.queryByText('В работе выберите первый ясный шаг.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Relationship insight for today.')).not.toBeInTheDocument();
     rerender(view(true));
-    expect(screen.queryByText('В работе выберите первый ясный шаг.')).not.toBeInTheDocument();
+    expect(screen.getByText('Relationship insight for today.')).toBeInTheDocument();
   });
 
   it('shows a compact loading state until AI interpretation arrives', async () => {

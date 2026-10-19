@@ -16,8 +16,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] },
+    "paths": {
+      "@/*": ["src/*"],
+      "@mock": ["../mocks/frontend/index.ts"],
+      "@mock/*": ["../mocks/frontend/*"]
+    },
     "types": ["vitest/globals"]
   },
-  "include": ["src"]
+  "include": ["src", "../mocks/frontend"]
 }

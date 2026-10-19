@@ -158,11 +158,7 @@ func (s *AskService) GenerateGuestCardOfDayInterpretation(ctx context.Context, r
 			IsGuest:        true,
 		}, s.config.OpenRouterModelMain)
 
-		result, err := s.generateInterpretationWithRetry(ctx, providerRequest)
-		if err != nil {
-			return nil, err
-		}
-		interpretation, err := parseCardOfDayInterpretation(result.Content)
+		result, interpretation, err := s.generateCardOfDayInterpretationWithRetry(ctx, providerRequest)
 		if err != nil {
 			return nil, err
 		}
@@ -292,12 +288,7 @@ func (s *AskService) GenerateUserCardOfDayInterpretation(ctx context.Context, us
 		return nil, err
 	}
 
-	result, err := s.generateInterpretationWithRetry(ctx, providerRequest)
-	if err != nil {
-		return nil, s.handleCardOfDayProviderFailure(ctx, userID, reading.ID, askRequest.ID, language, err, now)
-	}
-
-	interpretation, err := parseCardOfDayInterpretation(result.Content)
+	result, interpretation, err := s.generateCardOfDayInterpretationWithRetry(ctx, providerRequest)
 	if err != nil {
 		return nil, s.handleCardOfDayProviderFailure(ctx, userID, reading.ID, askRequest.ID, language, err, now)
 	}
@@ -494,6 +485,8 @@ func (s *AskService) generateInterpretationWithRetry(ctx context.Context, req AI
 		if retryRequest.MaxTokens > 900 {
 			retryRequest.MaxTokens = 900
 		}
+	} else {
+		retryRequest.MaxTokens += 640
 	}
 
 	retryResult, retryErr := s.provider.GenerateInterpretation(ctx, retryRequest)
@@ -510,6 +503,42 @@ func (s *AskService) generateInterpretationWithRetry(ctx context.Context, req AI
 	}
 
 	return retryResult, nil
+}
+
+func (s *AskService) generateCardOfDayInterpretationWithRetry(ctx context.Context, req AIProviderRequest) (*AIProviderResult, models.CardOfDayInterpretation, error) {
+	var lastErr error
+	for attempt := 0; attempt < 2; attempt++ {
+		result, err := s.generateInterpretationWithRetry(ctx, req)
+		if err != nil {
+			return nil, models.CardOfDayInterpretation{}, err
+		}
+
+		interpretation, err := parseCardOfDayInterpretation(result.Content)
+		if err == nil {
+			return result, interpretation, nil
+		}
+		lastErr = err
+		if attempt == 1 {
+			break
+		}
+
+		retryRequest := req
+		retryRequest.MaxTokens += 640
+		retryRequest.Messages = append(append([]AIProviderMessage(nil), req.Messages...),
+			AIProviderMessage{Role: "assistant", Content: result.Content},
+			AIProviderMessage{Role: "user", Content: cardOfDayCorrectionPrompt(req.Language)},
+		)
+		req = retryRequest
+	}
+
+	return nil, models.CardOfDayInterpretation{}, lastErr
+}
+
+func cardOfDayCorrectionPrompt(language string) string {
+	if normalizeLanguage(language) == "ru" {
+		return "Предыдущий JSON не соответствует схеме, содержит общий вывод длиннее 20 слов или развёрнутый блок короче 50 слов. Сгенерируй весь ответ заново с ровно шестью строковыми полями general, message, relationships, finances, emotional_state и career_business. В general должно быть не более 20 слов; в каждом из остальных полей — не менее 50 слов. Различай краткий общий вывод и развёрнутое послание дня. Верни только валидный JSON без markdown."
+	}
+	return "The previous JSON did not match the schema, had a general summary longer than 20 words, or contained a long block shorter than 50 words. Regenerate the full response with exactly six string fields: general, message, relationships, finances, emotional_state, and career_business. Keep general to no more than 20 words and write at least 50 words in every other field. Keep the concise summary distinct from the full message of the day. Return only valid JSON without markdown."
 }
 
 func (s *AskService) ensureAIAvailableForUser(ctx context.Context, user *models.User) error {

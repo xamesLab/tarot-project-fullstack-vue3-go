@@ -31,7 +31,7 @@ export function Interpretation({
     : interpretationError || interpretation?.general || t('loading');
 
   useEffect(() => {
-    if (!revealed || !canExpand) setExpanded(false);
+    setExpanded(revealed && canExpand);
   }, [canExpand, revealed]);
 
   return (
@@ -65,20 +65,23 @@ export function Interpretation({
         </button>
         {canExpand && expanded && interpretation && (
           <div className="spheres-reveal">
+            <CornerPanel title={t('messageTitle')}>
+              <p>{interpretation.message}</p>
+            </CornerPanel>
             <div className="spheres">
-              <AspectBlock type="career" title={t('interpretation.work')}>
-                {interpretation.work}
+              <AspectBlock type="love" title={t('interpretation.relationships')}>
+                {interpretation.relationships}
               </AspectBlock>
-              <AspectBlock type="love" title={t('interpretation.family')}>
-                {interpretation.family}
+              <AspectBlock type="finance" title={t('interpretation.finances')}>
+                {interpretation.finances}
               </AspectBlock>
-              <AspectBlock type="spirit" title={t('interpretation.advice')}>
-                {interpretation.advice}
+              <AspectBlock type="spirit" title={t('interpretation.emotionalState')}>
+                {interpretation.emotional_state}
+              </AspectBlock>
+              <AspectBlock type="career" title={t('interpretation.careerBusiness')}>
+                {interpretation.career_business}
               </AspectBlock>
             </div>
-            <CornerPanel title={t('messageTitle')}>
-              <p>{interpretation.general}</p>
-            </CornerPanel>
           </div>
         )}
       </div>
