@@ -657,7 +657,7 @@
   width: clamp(190px, 18.5vw, 230px);
   height: auto;
   flex: 0 0 auto;
-  aspect-ratio: 230 / 398;
+  aspect-ratio: 260 / 450;
 }
 
 .kit-card-label {

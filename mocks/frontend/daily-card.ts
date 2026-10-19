@@ -5,6 +5,12 @@ import type {
   DailyCardApi,
   Language,
 } from '@/api/types';
+import mockCardFaceAsset from './assets/mock-card-face.png?url';
+import mockCardBackAsset from './assets/mock-card-back.png?url';
+
+const toLocalAssetUrl = (path: string) => new URL(path, window.location.origin).toString();
+const mockCardFaceUrl = toLocalAssetUrl(mockCardFaceAsset);
+const mockCardBackUrl = toLocalAssetUrl(mockCardBackAsset);
 
 interface MockCard {
   key: string;
@@ -118,8 +124,8 @@ function toReading(card: MockCard, accountingDate: string, id?: string): Backend
     interpretation_ru: card.interpretation.ru,
     tags: card.tags.en,
     tags_ru: card.tags.ru,
-    image_url: '',
-    back_image_url: '',
+    image_url: mockCardFaceUrl,
+    back_image_url: mockCardBackUrl,
     position: 0,
     reversed: false,
     viewed: false,

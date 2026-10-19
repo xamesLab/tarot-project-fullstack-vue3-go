@@ -81,9 +81,9 @@
 .profile-history-details { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line-soft); }
 .profile-history-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
 .profile-history-card { min-width: 0; padding: 16px; display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 18px; border: 1px solid var(--line-soft); border-radius: 8px; background: rgba(10,10,15,.15); }
-.profile-history-card-visual { width: 112px; height: 194px; }
-.profile-history-card-visual .tarot { width: 112px; height: 194px; cursor: default; }
-.profile-history-card-visual .card-side { border-radius: 6px; box-shadow: 0 10px 24px rgba(0,0,0,.28); }
+.profile-history-card-visual { width: 112px; height: auto; }
+.profile-history-card-visual .tarot { width: 100%; height: auto; aspect-ratio: 260 / 450; cursor: default; }
+.profile-history-card-visual .card-side { --card-side-radius: 6px; border-radius: var(--card-side-radius); box-shadow: 0 10px 24px rgba(0,0,0,.28); }
 .profile-history-card-visual .tarot-frame { inset: 5px; }
 .profile-history-card-visual .tarot-roman { top: 9px; font-size: 7px; }
 .profile-history-card-visual .tarot-name { right: 7px; bottom: 8px; left: 7px; overflow: hidden; font-size: 7px; letter-spacing: .08em; text-align: center; text-overflow: ellipsis; transform: none; }
@@ -204,7 +204,8 @@
   .profile-history-details { margin-top: 15px; padding-top: 15px; }
   .profile-history-cards { grid-template-columns: 1fr; gap: 10px; }
   .profile-history-card { padding: 12px; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; }
-  .profile-history-card-visual, .profile-history-card-visual .tarot { width: 72px; height: 125px; }
+  .profile-history-card-visual { width: 72px; height: auto; }
+  .profile-history-card-visual .tarot { width: 100%; height: auto; }
   .profile-history-card h4 { margin-bottom: 6px; font-size: 12px; }
   .profile-history-card p { font-size: 13px; line-height: 1.4; }
   .profile-history-meaning { margin-top: 11px; padding: 13px 14px; }
