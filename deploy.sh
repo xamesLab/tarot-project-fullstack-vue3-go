@@ -16,7 +16,7 @@ require_command() {
 [[ "$(uname -m)" == x86_64 ]] || fail "expected x86_64 architecture"
 [[ "$(id -un)" == tarot-deploy ]] || fail "run this script as tarot-deploy"
 
-for command_name in git go npm node tar sha256sum awk ssh flock sudo install mktemp readlink df tee; do
+for command_name in git go npm node tar sha256sum awk ssh flock sudo install mktemp readlink df tee find; do
   require_command "$command_name"
 done
 
@@ -146,6 +146,11 @@ archive=$build_dir/$archive_name
 checksum=$build_dir/$checksum_name
 
 echo "Creating release archive and checksum..."
+# The private build/log umask must not make published runtime assets unreadable.
+# Normalize only the assembled release; archives and incoming files stay private.
+find "$release_dir/backend" "$release_dir/frontend" -type d -exec chmod 0755 {} +
+find "$release_dir/backend" "$release_dir/frontend" -type f -exec chmod 0644 {} +
+chmod 0755 "$release_dir/backend/tarot-app"
 tar -czf "$archive" -C "$release_dir" backend frontend
 archive_hash=$(sha256sum "$archive" | awk '{print $1}')
 printf '%s  %s\n' "$archive_hash" "$archive_name" > "$checksum"
