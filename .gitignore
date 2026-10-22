@@ -21,6 +21,7 @@ backend/.env.*
 backend/tmp/
 
 # Common
+graphify-out/
 node_modules/
 dist/
 coverage/
